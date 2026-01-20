@@ -1,150 +1,129 @@
 const events = [
   {
     id: "forest-hike",
-    title: "Forest Hike",
+    title: "Sunrise Mountain Yoga",
     duration: "2 hours",
-    image:
-      "/mock_images/Screenshot 2026-01-20 at 12.43.31.png",
+    image: "/mock_images/sunrise-mountain-yoga.png",
   },
   {
     id: "bamboo-path",
-    title: "Bamboo Path Walk",
+    title: "Campfire Circle",
     duration: "90 minutes",
-    image:
-      "/mock_images/Screenshot 2026-01-20 at 12.43.41.png",
+    image: "/mock_images/campfire-circle.png",
   },
   {
     id: "mossy-quiet",
-    title: "Mossy Quiet",
+    title: "Forest Foraging Walk",
     duration: "75 minutes",
-    image:
-      "/mock_images/Screenshot 2026-01-20 at 12.43.50.png",
+    image: "/mock_images/forest-foraging-walk.png",
   },
   {
     id: "misty-trail",
-    title: "Misty Trail",
+    title: "Woodland Supper",
     duration: "2 hours",
-    image:
-      "/mock_images/Screenshot 2026-01-20 at 12.43.57.png",
+    image: "/mock_images/woodland-supper.png",
   },
   {
     id: "river-stroll",
-    title: "River Stroll",
+    title: "Summit Celebration",
     duration: "60 minutes",
-    image:
-      "/mock_images/Screenshot 2026-01-20 at 12.44.05.png",
+    image: "/mock_images/summit-celebration.png",
   },
   {
     id: "canopy-breeze",
-    title: "Canopy Breeze",
+    title: "Stargazing Night",
     duration: "90 minutes",
-    image:
-      "/mock_images/Screenshot 2026-01-20 at 12.44.15.png",
+    image: "/mock_images/stargazing-night.png",
   },
   {
     id: "fern-glade",
-    title: "Fern Glade",
+    title: "Quiet River Paddle",
     duration: "75 minutes",
-    image:
-      "/mock_images/Screenshot 2026-01-20 at 12.44.23.png",
+    image: "/mock_images/quiet-river-paddle.png",
   },
   {
     id: "sunlit-ridge",
-    title: "Sunlit Ridge",
+    title: "Coastal Treehouse Outlook",
     duration: "2 hours",
-    image:
-      "/mock_images/Screenshot 2026-01-20 at 12.44.30.png",
+    image: "/mock_images/coastal-treehouse-outlook.png",
   },
   {
     id: "quiet-cove",
-    title: "Quiet Cove",
+    title: "Forest Canopy Bridge",
     duration: "60 minutes",
-    image:
-      "/mock_images/Screenshot 2026-01-20 at 12.44.37.png",
+    image: "/mock_images/forest-canopy-bridge.png",
   },
   {
     id: "cedar-loop",
-    title: "Cedar Loop",
+    title: "Hillside Candlelit Dinner",
     duration: "90 minutes",
-    image:
-      "/mock_images/Screenshot 2026-01-20 at 12.44.46.png",
+    image: "/mock_images/hillside-candlelit-dinner.png",
   },
   {
     id: "creekside-reset",
-    title: "Creekside Reset",
+    title: "Forest Fire Circle",
     duration: "75 minutes",
-    image:
-      "/mock_images/Screenshot 2026-01-20 at 12.44.53.png",
+    image: "/mock_images/forest-fire-circle.png",
   },
   {
     id: "evergreen-walk",
-    title: "Evergreen Walk",
+    title: "Lit Canopy Walk",
     duration: "2 hours",
-    image:
-      "/mock_images/Screenshot 2026-01-20 at 12.44.59.png",
+    image: "/mock_images/lit-canopy-walk.png",
   },
   {
     id: "lake-reflection",
-    title: "Lake Reflection",
+    title: "Community Garden Harvest",
     duration: "60 minutes",
-    image:
-      "/mock_images/Screenshot 2026-01-20 at 12.45.08.png",
+    image: "/mock_images/community-garden-harvest.png",
   },
   {
     id: "grove-breathe",
-    title: "Grove Breathe",
+    title: "Orchard Feast",
     duration: "90 minutes",
-    image:
-      "/mock_images/Screenshot 2026-01-20 at 12.45.17.png",
+    image: "/mock_images/orchard-feast.png",
   },
   {
     id: "ridge-wind",
-    title: "Ridge Wind",
+    title: "Alpine Yoga Decks",
     duration: "75 minutes",
-    image:
-      "/mock_images/Screenshot 2026-01-20 at 12.45.26.png",
+    image: "/mock_images/alpine-yoga-decks.png",
   },
   {
     id: "marshlight",
-    title: "Marshlight",
+    title: "Forest Screen Night",
     duration: "2 hours",
-    image:
-      "/mock_images/Screenshot 2026-01-20 at 12.45.33.png",
+    image: "/mock_images/forest-screen-night.png",
   },
   {
     id: "wild-meadow",
-    title: "Wild Meadow",
+    title: "Woodland Concert",
     duration: "60 minutes",
-    image:
-      "/mock_images/Screenshot 2026-01-20 at 12.45.41.png",
+    image: "/mock_images/woodland-concert.png",
   },
   {
     id: "dune-path",
-    title: "Dune Path",
+    title: "Hammock Canopy",
     duration: "90 minutes",
-    image:
-      "/mock_images/Screenshot 2026-01-20 at 12.45.51.png",
+    image: "/mock_images/hammock-canopy.png",
   },
   {
     id: "national-park",
     title: "National Park Reset",
     duration: "3 hours",
-    image:
-      "/mock_images/21-Travel-Inspirations-That-Will-Ignite-Your-Wanderlust-and-Change-Your-Life-5.-The-Serenity-of-National-Parks.webp",
+    image: "/mock_images/national-park-reset.webp",
   },
   {
     id: "rural-escape",
     title: "Rural Escape",
     duration: "2 hours",
-    image:
-      "/mock_images/21-Travel-Inspirations-That-Will-Ignite-Your-Wanderlust-and-Change-Your-Life-8.-The-Beauty-of-Rural-Escapes.webp",
+    image: "/mock_images/rural-escape.webp",
   },
   {
     id: "spiritual-retreat",
     title: "Spiritual Retreat",
     duration: "Half day",
-    image:
-      "/mock_images/21-Travel-Inspirations-That-Will-Ignite-Your-Wanderlust-and-Change-Your-Life-10.-The-Journey-of-Spiritual-Retreats.webp",
+    image: "/mock_images/spiritual-retreat.webp",
   },
 ];
 

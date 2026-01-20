@@ -8,18 +8,23 @@ const EventsSection = async () => {
   noStore();
   await connectMongo();
 
-  let events = await Event.find({}).sort({ createdAt: 1 }).lean();
-  if (!events.length) {
-    await Event.insertMany(
-      eventsSeed.map((event) => ({
-        eventId: event.id,
-        title: event.title,
-        duration: event.duration,
-        image: event.image,
-      }))
-    );
-    events = await Event.find({}).sort({ createdAt: 1 }).lean();
-  }
+  await Event.bulkWrite(
+    eventsSeed.map((event) => ({
+      updateOne: {
+        filter: { eventId: event.id },
+        update: {
+          $set: {
+            title: event.title,
+            duration: event.duration,
+            image: event.image,
+          },
+        },
+        upsert: true,
+      },
+    }))
+  );
+
+  const events = await Event.find({}).sort({ createdAt: 1 }).lean();
 
   const normalizedEvents = events.map((event) => ({
     id: event.eventId,

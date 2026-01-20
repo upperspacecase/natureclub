@@ -20,12 +20,11 @@ export default function Page() {
             muted
             playsInline
             preload="metadata"
-            poster="/hero-bg.jpg"
             aria-hidden="true"
           >
             <source src={heroVideoSrc} type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-black/20" />
+          <div className="absolute inset-0 bg-black/40" />
         </div>
 
         {/* Content Container */}
