@@ -94,57 +94,65 @@ const EventsList = ({ events }) => {
           const isLiked = likedSet.has(event.id);
           const isBusy = activeEventId === event.id;
           return (
-            <article
+            <div
               key={event.id}
-              className="group relative h-[420px] w-[78vw] min-w-[78vw] snap-center overflow-hidden rounded-[32px] border border-white/10 bg-black/30 shadow-xl sm:h-[520px] sm:w-[420px] sm:min-w-[420px]"
+              className="flex w-[78vw] min-w-[78vw] snap-center flex-col items-center gap-6 sm:w-[420px] sm:min-w-[420px]"
             >
-              <Image
-                src={event.image}
-                alt={event.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 80vw, 420px"
-              />
-              <div className="absolute inset-0 bg-black/10" />
-              <div className="absolute left-6 top-6">
-                <p className="text-2xl font-serif text-[#f6f5f0] sm:text-3xl">
-                  {event.title}
-                </p>
-                <p className="mt-1 text-sm tracking-[0.2em] text-[#f6f5f0]/80">
-                  {event.duration}
-                </p>
-              </div>
+              <article className="group relative h-[420px] w-full overflow-hidden rounded-[32px] border border-white/10 bg-black/30 shadow-xl sm:h-[520px]">
+                <Image
+                  src={event.image}
+                  alt={event.title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 80vw, 420px"
+                />
+                <div className="absolute inset-0 bg-black/10" />
+                <div className="absolute left-6 top-6">
+                  <p className="text-2xl font-serif text-[#f6f5f0] sm:text-3xl">
+                    {event.title}
+                  </p>
+                  <p className="mt-1 text-sm tracking-[0.2em] text-[#f6f5f0]/80">
+                    {event.duration}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  aria-label={isLiked ? "Unlike event" : "Like event"}
+                  aria-pressed={isLiked}
+                  disabled={isLoading || isBusy}
+                  onClick={() => handleToggleLike(event.id)}
+                  className="absolute bottom-6 right-6 rounded-full border border-white/50 bg-white/10 p-3 text-[#f6f5f0] backdrop-blur transition hover:bg-white/20 disabled:opacity-50"
+                >
+                  {isLiked ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="h-5 w-5"
+                    >
+                      <path d="M11.999 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 3.99 4 6.5 4c1.74 0 3.41.81 4.5 2.09C12.09 4.81 13.76 4 15.5 4 18.01 4 20 6 20 8.5c0 3.78-3.4 6.86-8.55 11.54l-1.451 1.31Z" />
+                    </svg>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      className="h-5 w-5"
+                    >
+                      <path d="M12.1 20.15 12 20.25l-.11-.1C7.14 15.8 4 12.96 4 9.5 4 7 5.99 5 8.5 5c1.54 0 3.04.73 4 1.88C13.46 5.73 14.96 5 16.5 5 19.01 4 21 7 21 9.5c0 3.46-3.14 6.3-8.9 10.65Z" />
+                    </svg>
+                  )}
+                </button>
+              </article>
               <button
                 type="button"
-                aria-label={isLiked ? "Unlike event" : "Like event"}
-                aria-pressed={isLiked}
-                disabled={isLoading || isBusy}
-                onClick={() => handleToggleLike(event.id)}
-                className="absolute bottom-6 right-6 rounded-full border border-white/50 bg-white/10 p-3 text-[#f6f5f0] backdrop-blur transition hover:bg-white/20 disabled:opacity-50"
+                className="rounded-full border border-[#f6f5f0]/40 px-8 py-2.5 text-sm font-medium text-[#f6f5f0] transition hover:bg-[#f6f5f0] hover:text-[#1d1212]"
               >
-                {isLiked ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="h-5 w-5"
-                  >
-                    <path d="M11.999 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 3.99 4 6.5 4c1.74 0 3.41.81 4.5 2.09C12.09 4.81 13.76 4 15.5 4 18.01 4 20 6 20 8.5c0 3.78-3.4 6.86-8.55 11.54l-1.451 1.31Z" />
-                  </svg>
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    className="h-5 w-5"
-                  >
-                    <path d="M12.1 20.15 12 20.25l-.11-.1C7.14 15.8 4 12.96 4 9.5 4 7 5.99 5 8.5 5c1.54 0 3.04.73 4 1.88C13.46 5.73 14.96 5 16.5 5 19.01 5 21 7 21 9.5c0 3.46-3.14 6.3-8.9 10.65Z" />
-                  </svg>
-                )}
+                Get 1 month free
               </button>
-            </article>
+            </div>
           );
         })}
       </div>
