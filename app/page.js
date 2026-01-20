@@ -1,45 +1,43 @@
-import Link from "next/link";
-import ButtonSignin from "@/components/ButtonSignin";
+import HexagonLogo from "@/components/HexagonLogo";
 
 export default function Page() {
   return (
-    <>
-      <header className="p-4 flex justify-end max-w-7xl mx-auto">
-        <ButtonSignin text="Login" />
+    <div className="min-h-screen bg-neutral-800 text-white">
+      {/* Header */}
+      <header className="p-6 md:p-8">
+        <div className="flex items-center gap-3">
+          <HexagonLogo className="w-10 h-10 text-neutral-400" />
+          <div className="flex flex-col leading-tight">
+            <span className="text-sm font-medium tracking-wide">Nature</span>
+            <span className="text-sm font-medium tracking-wide">Club</span>
+          </div>
+        </div>
       </header>
-      <main>
-        <section className="flex flex-col items-center justify-center text-center gap-12 px-8 py-24">
-          <h1 className="text-3xl font-extrabold">Ship Fast ⚡️</h1>
 
-          <p className="text-lg opacity-80">
-            The start of your new startup... What are you gonna build?
-          </p>
+      {/* Hero Section */}
+      <main className="px-6 md:px-8 pb-16 md:pb-24">
+        <div className="max-w-4xl">
+          {/* Main Headline */}
+          <h1 className="text-5xl md:text-7xl lg:text-8xl leading-[1.1] mb-8">
+            <span className="font-serif italic text-stone-100">Make time</span>
+            <br />
+            <span className="font-sans font-light text-stone-100">for </span>
+            <span className="font-serif italic text-stone-100">Nature.</span>
+          </h1>
 
-          <a
-            className="btn btn-primary"
-            href="https://shipfa.st/docs"
-            target="_blank"
-          >
-            Documentation & tutorials{" "}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="w-5 h-5"
-            >
-              <path
-                fillRule="evenodd"
-                d="M5 10a.75.75 0 01.75-.75h6.638L10.23 7.29a.75.75 0 111.04-1.08l3.5 3.25a.75.75 0 010 1.08l-3.5 3.25a.75.75 0 11-1.04-1.08l2.158-1.96H5.75A.75.75 0 015 10z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </a>
+          {/* Subtext and CTA Row */}
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mt-12">
+            <p className="text-lg md:text-xl text-stone-300 max-w-md leading-relaxed">
+              Connect to a whole world of <em className="font-serif">Nature</em> based
+              experiences, events and facilitators.
+            </p>
 
-          <Link href="/blog" className="link link-hover text-sm">
-            Fancy a blog?
-          </Link>
-        </section>
+            <button className="btn btn-outline border-stone-400 text-stone-100 hover:bg-stone-100 hover:text-neutral-800 hover:border-stone-100 rounded-full px-8 py-3 text-base font-medium transition-all">
+              Explore Experiences
+            </button>
+          </div>
+        </div>
       </main>
-    </>
+    </div>
   );
 }
