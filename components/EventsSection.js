@@ -1,7 +1,33 @@
-import events from "@/data/events";
+import { unstable_noStore as noStore } from "next/cache";
+import eventsSeed from "@/data/events";
+import connectMongo from "@/libs/mongoose";
+import Event from "@/models/Event";
 import EventsList from "./EventsList";
 
-const EventsSection = () => {
+const EventsSection = async () => {
+  noStore();
+  await connectMongo();
+
+  let events = await Event.find({}).sort({ createdAt: 1 }).lean();
+  if (!events.length) {
+    await Event.insertMany(
+      eventsSeed.map((event) => ({
+        eventId: event.id,
+        title: event.title,
+        duration: event.duration,
+        image: event.image,
+      }))
+    );
+    events = await Event.find({}).sort({ createdAt: 1 }).lean();
+  }
+
+  const normalizedEvents = events.map((event) => ({
+    id: event.eventId,
+    title: event.title,
+    duration: event.duration,
+    image: event.image,
+  }));
+
   return (
     <section className="bg-[#1d1212] px-6 py-16 text-[#f6f5f0] md:px-10">
       <div className="mx-auto max-w-6xl space-y-8">
@@ -11,7 +37,7 @@ const EventsSection = () => {
             Explore upcoming experiences in nature.
           </p>
         </div>
-        <EventsList events={events} />
+        <EventsList events={normalizedEvents} />
       </div>
     </section>
   );

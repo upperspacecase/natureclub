@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import apiClient from "@/libs/api";
 
@@ -21,6 +21,7 @@ const EventsList = ({ events }) => {
   const [likedIds, setLikedIds] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeEventId, setActiveEventId] = useState(null);
+  const scrollerRef = useRef(null);
 
   useEffect(() => {
     setClientId(getClientId());
@@ -61,6 +62,15 @@ const EventsList = ({ events }) => {
     }
   };
 
+  const handleScroll = (direction) => {
+    if (!scrollerRef.current) return;
+    const scrollAmount = scrollerRef.current.clientWidth * 0.9;
+    scrollerRef.current.scrollBy({
+      left: direction === "next" ? scrollAmount : -scrollAmount,
+      behavior: "smooth",
+    });
+  };
+
   if (!events?.length) {
     return (
       <div className="rounded-2xl border border-white/10 bg-black/20 p-8 text-center text-sm text-[#f6f5f0]/70">
@@ -70,39 +80,39 @@ const EventsList = ({ events }) => {
   }
 
   return (
-    <div
-      className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
-      aria-busy={isLoading}
-    >
+    <div className="relative" aria-busy={isLoading}>
       {isLoading && (
         <span className="sr-only" aria-live="polite">
           Loading likes
         </span>
       )}
-      {events.map((event) => {
-        const isLiked = likedSet.has(event.id);
-        const isBusy = activeEventId === event.id;
-        return (
-          <article
-            key={event.id}
-            className="group relative overflow-hidden rounded-3xl border border-white/10 bg-black/30 shadow-lg"
-          >
-            <div className="relative h-56 w-full">
+      <div
+        ref={scrollerRef}
+        className="flex snap-x snap-mandatory gap-6 overflow-x-auto pb-6 scrollbar-hide"
+      >
+        {events.map((event) => {
+          const isLiked = likedSet.has(event.id);
+          const isBusy = activeEventId === event.id;
+          return (
+            <article
+              key={event.id}
+              className="group relative h-[420px] w-[78vw] min-w-[78vw] snap-center overflow-hidden rounded-[32px] border border-white/10 bg-black/30 shadow-xl sm:h-[520px] sm:w-[420px] sm:min-w-[420px]"
+            >
               <Image
                 src={event.image}
                 alt={event.title}
                 fill
-                className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+                sizes="(max-width: 768px) 80vw, 420px"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-            </div>
-            <div className="flex items-center justify-between gap-4 px-5 py-4">
-              <div>
-                <h3 className="text-xl font-serif text-[#f6f5f0]">
+              <div className="absolute inset-0 bg-black/10" />
+              <div className="absolute left-6 top-6">
+                <p className="text-2xl font-serif text-[#f6f5f0] sm:text-3xl">
                   {event.title}
-                </h3>
-                <p className="text-sm text-[#f6f5f0]/80">{event.duration}</p>
+                </p>
+                <p className="mt-1 text-sm tracking-[0.2em] text-[#f6f5f0]/80">
+                  {event.duration}
+                </p>
               </div>
               <button
                 type="button"
@@ -110,7 +120,7 @@ const EventsList = ({ events }) => {
                 aria-pressed={isLiked}
                 disabled={isLoading || isBusy}
                 onClick={() => handleToggleLike(event.id)}
-                className="rounded-full border border-white/30 bg-white/10 p-3 text-[#f6f5f0] transition hover:bg-white/20 disabled:opacity-50"
+                className="absolute bottom-6 right-6 rounded-full border border-white/50 bg-white/10 p-3 text-[#f6f5f0] backdrop-blur transition hover:bg-white/20 disabled:opacity-50"
               >
                 {isLiked ? (
                   <svg
@@ -127,17 +137,51 @@ const EventsList = ({ events }) => {
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="1.8"
+                    strokeWidth="1.6"
                     className="h-5 w-5"
                   >
                     <path d="M12.1 20.15 12 20.25l-.11-.1C7.14 15.8 4 12.96 4 9.5 4 7 5.99 5 8.5 5c1.54 0 3.04.73 4 1.88C13.46 5.73 14.96 5 16.5 5 19.01 5 21 7 21 9.5c0 3.46-3.14 6.3-8.9 10.65Z" />
                   </svg>
                 )}
               </button>
-            </div>
-          </article>
-        );
-      })}
+            </article>
+          );
+        })}
+      </div>
+      <button
+        type="button"
+        aria-label="Previous events"
+        onClick={() => handleScroll("prev")}
+        className="absolute left-2 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-white/20 text-[#f6f5f0] backdrop-blur transition hover:bg-white/30 sm:flex"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          className="h-5 w-5"
+        >
+          <path d="m15 19-7-7 7-7" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        aria-label="Next events"
+        onClick={() => handleScroll("next")}
+        className="absolute right-2 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-white/20 text-[#f6f5f0] backdrop-blur transition hover:bg-white/30 sm:flex"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          className="h-5 w-5"
+        >
+          <path d="m9 5 7 7-7 7" />
+        </svg>
+      </button>
     </div>
   );
 };

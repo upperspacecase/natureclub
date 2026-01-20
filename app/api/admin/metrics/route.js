@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import connectMongo from "@/libs/mongoose";
 import Lead from "@/models/Lead";
+import Event from "@/models/Event";
 import EventLike from "@/models/EventLike";
 import User from "@/models/User";
 import Visit from "@/models/Visit";
-import events from "@/data/events";
 
 export async function POST(req) {
   const body = await req.json();
@@ -31,6 +31,7 @@ export async function POST(req) {
       likesTotal,
       usersTotal,
       visits,
+      eventsTotal,
     ] = await Promise.all([
       Lead.countDocuments(),
       Lead.countDocuments({ role: "participant" }),
@@ -38,6 +39,7 @@ export async function POST(req) {
       EventLike.countDocuments(),
       User.countDocuments(),
       Visit.find({}).lean(),
+      Event.countDocuments(),
     ]);
 
     const visitsTotal = visits.reduce((sum, visit) => sum + visit.count, 0);
@@ -50,7 +52,7 @@ export async function POST(req) {
       signupsTotal: totalLeads,
       signupsParticipant: participantLeads,
       signupsHostInterest: hostLeads,
-      eventsTotal: events.length,
+      eventsTotal,
       likesTotal,
       usersTotal,
     });
