@@ -1,11 +1,11 @@
 const config = {
   // REQUIRED
-  appName: "ShipFast",
+  appName: "Nature Club",
   // REQUIRED: a short description of your app for SEO tags (can be overwritten)
   appDescription:
-    "The NextJS boilerplate with all you need to build your SaaS, AI tool, or any other web app.",
+    "Nature-based classes and experiences you can discover and book in the outdoors.",
   // REQUIRED (no https://, not trialing slash at the end, just the naked domain)
-  domainName: "shipfa.st",
+  domainName: "natureclub.com",
   crisp: {
     // Crisp website ID. IF YOU DON'T USE CRISP: just remove this => Then add a support email in this config file (resend.supportEmail) otherwise customer support won't work.
     id: "",
@@ -87,6 +87,9 @@ const config = {
     // REQUIRED — the path to log in users. It's use to protect private routes (like /dashboard). It's used in apiClient (/libs/api.js) upon 401 errors from our API
     loginUrl: "/api/auth/signin",
     callbackUrl: "/dashboard",
+  },
+  social: {
+    twitter: "@natureclub",
   },
 };
 

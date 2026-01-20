@@ -1,43 +1,77 @@
-import HexagonLogo from "@/components/HexagonLogo";
+import EventsSection from "@/components/EventsSection";
+import RecordVisit from "@/components/RecordVisit";
+import WaitlistSection from "@/components/WaitlistSection";
 
 export default function Page() {
+  const HERO_VIDEO = "forest";
+  const heroVideoSrc =
+    HERO_VIDEO === "beach" ? "/hero-bg-beach.mp4" : "/hero-bg-forest.mp4";
+
   return (
-    <div className="min-h-screen bg-neutral-800 text-white">
-      {/* Header */}
-      <header className="p-6 md:p-8">
-        <div className="flex items-center gap-3">
-          <HexagonLogo className="w-10 h-10 text-neutral-400" />
-          <div className="flex flex-col leading-tight">
-            <span className="text-sm font-medium tracking-wide">Nature</span>
-            <span className="text-sm font-medium tracking-wide">Club</span>
-          </div>
+    <div className="bg-[#1d1212] text-white">
+      <RecordVisit />
+      <section className="relative min-h-screen overflow-hidden">
+        {/* Background Video with Overlay */}
+        <div className="absolute inset-0 z-0">
+          <video
+            className="h-full w-full object-cover"
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            poster="/hero-bg.jpg"
+            aria-hidden="true"
+          >
+            <source src={heroVideoSrc} type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-black/20" />
         </div>
-      </header>
 
-      {/* Hero Section */}
-      <main className="px-6 md:px-8 pb-16 md:pb-24">
-        <div className="max-w-4xl">
-          {/* Main Headline */}
-          <h1 className="text-5xl md:text-7xl lg:text-8xl leading-[1.1] mb-8">
-            <span className="font-serif italic text-stone-100">Make time</span>
-            <br />
-            <span className="font-sans font-light text-stone-100">for </span>
-            <span className="font-serif italic text-stone-100">Nature.</span>
-          </h1>
+        {/* Content Container */}
+        <div className="relative z-10 min-h-screen flex flex-col">
+          {/* Header/Logo */}
+          <header className="p-6 md:p-10">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.svg"
+            alt="Nature Club"
+            className="h-48 md:h-60 w-auto"
+          />
+          </header>
 
-          {/* Subtext and CTA Row */}
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mt-12">
-            <p className="text-lg md:text-xl text-stone-300 max-w-md leading-relaxed">
-              Connect to a whole world of <em className="font-serif">Nature</em> based
-              experiences, events and facilitators.
-            </p>
+          {/* Hero Content — left aligned like reference */}
+          <main className="flex-1 flex items-start px-6 md:px-10 pb-16">
+            <div className="w-full max-w-4xl pt-6 md:pt-10">
+              {/* Main Headline */}
+              <h1
+                className="leading-[1.05] mb-8 text-[#f6f5f0]"
+                style={{ fontSize: "clamp(3.25rem, 9vw, 6.5rem)" }}
+              >
+                <span className="font-serif italic">Make time</span>
+                <br />
+                <span className="font-sans font-light">for </span>
+                <span className="font-serif italic">Nature.</span>
+              </h1>
 
-            <button className="btn btn-outline border-stone-400 text-stone-100 hover:bg-stone-100 hover:text-neutral-800 hover:border-stone-100 rounded-full px-8 py-3 text-base font-medium transition-all">
-              Explore Experiences
-            </button>
-          </div>
+              {/* Subtext and CTA — flex with space-between */}
+              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 max-w-3xl">
+                <p className="text-base md:text-lg text-[#f6f5f0]/90 leading-relaxed max-w-sm">
+                  Connect to a whole world of{" "}
+                  <em className="font-serif">Nature</em> based experiences,
+                  events and facilitators.
+                </p>
+
+                <button className="self-start sm:self-auto bg-neutral-900/60 border border-[#f6f5f0]/40 text-[#f6f5f0] hover:bg-[#f6f5f0] hover:text-neutral-900 hover:border-[#f6f5f0] rounded-full px-8 py-2.5 text-sm font-medium transition-all backdrop-blur-sm whitespace-nowrap">
+                  Explore Experiences
+                </button>
+              </div>
+            </div>
+          </main>
         </div>
-      </main>
+      </section>
+      <EventsSection />
+      <WaitlistSection />
     </div>
   );
 }

@@ -13,6 +13,12 @@ const leadSchema = mongoose.Schema(
       private: true,
       required: true,
     },
+    role: {
+      type: String,
+      trim: true,
+      required: true,
+      enum: ["participant", "host_interest"],
+    },
   },
   {
     timestamps: true,
