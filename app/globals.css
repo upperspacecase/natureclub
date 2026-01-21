@@ -1,34 +1,17 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap');
 
 @plugin "daisyui" {
   themes: light --default;
 }
 
 @theme {
-  --font-sans: "Inter", sans-serif;
-  --font-serif: "Libre Baskerville", serif;
-  --font-display: "Satoshi", "sans-serif";
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-libre);
 
-  --animate-shimmer: shimmer 3s ease-out infinite alternate;
   --animate-opacity: opacity 0.25s ease-in-out;
   --animate-appearFromRight: appearFromRight 300ms ease-in-out;
   --animate-wiggle: wiggle 1.5s ease-in-out infinite;
   --animate-popup: popup 0.25s ease-in-out;
-
-  @keyframes shimmer {
-    0% {
-      background-position: 0 50%;
-    }
-
-    50% {
-      background-position: 100% 50%;
-    }
-
-    100% {
-      background-position: 0% 50%;
-    }
-  }
 
   @keyframes opacity {
     0% {
@@ -98,36 +81,32 @@
   }
 }
 
+html[data-theme="light"] {
+  --color-base-100: oklch(19.73% 0.0221 16.89);
+  --color-base-200: oklch(18.39% 0.0221 16.67);
+  --color-base-300: oklch(15.95% 0.0156 17.44);
+  --color-base-content: oklch(97.26% 0.0338 33.02);
+  --color-primary: oklch(97.26% 0.0338 33.02);
+  --color-primary-content: oklch(19.73% 0.0221 16.89);
+  --color-secondary: oklch(97.26% 0.0338 33.02);
+  --color-secondary-content: oklch(19.73% 0.0221 16.89);
+  --color-accent: oklch(97.26% 0.0338 33.02);
+  --color-accent-content: oklch(19.73% 0.0221 16.89);
+  --color-neutral: oklch(18.39% 0.0221 16.67);
+  --color-neutral-content: oklch(97.26% 0.0338 33.02);
+}
+
 html,
 body {
   scroll-behavior: smooth !important;
 }
 
 section {
-  background-color: #000;
+  background-color: var(--color-base-100);
 }
 
 progress::-webkit-progress-value {
   transition: 0.6s width ease-out;
-}
-
-.btn-gradient {
-  background: linear-gradient(60deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82) !important;
-  background-size: 300% 300% !important;
-  animation: var(--animate-shimmer) !important;
-  border: 0 !important;
-  border-color: transparent !important;
-  color: white !important;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
-}
-
-.btn-gradient:hover {
-  filter: saturate(1.2) !important;
-}
-
-.btn-gradient:disabled {
-  background: rgb(107 114 128 / 0.3) !important;
-  color: rgb(156 163 175) !important;
 }
 
 .btn {

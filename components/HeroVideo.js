@@ -29,7 +29,7 @@ const HeroVideo = ({ src, poster }) => {
   }, [src]);
 
   return (
-    <div className="absolute inset-0 z-0 bg-black">
+    <div className="absolute inset-0 z-0 bg-base-100">
       <video
         ref={videoRef}
         className={`h-full w-full object-cover transition-opacity duration-500 ${
@@ -52,8 +52,8 @@ const HeroVideo = ({ src, poster }) => {
       >
         <source src={src} type="video/mp4" />
       </video>
-      <div className="absolute inset-0 bg-black/20" />
-      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-black" />
+      <div className="absolute inset-0 bg-base-100/20" />
+      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-base-100" />
     </div>
   );
 };

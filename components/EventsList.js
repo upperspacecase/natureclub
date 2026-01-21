@@ -73,7 +73,7 @@ const EventsList = ({ events }) => {
 
   if (!events?.length) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-black/20 p-8 text-center text-sm text-[#f6f5f0]/70">
+      <div className="rounded-2xl border border-base-content/10 bg-base-200/40 p-8 text-center text-sm text-base-content/70">
         No events yet.
       </div>
     );
@@ -98,7 +98,7 @@ const EventsList = ({ events }) => {
               key={event.id}
               className="flex w-[78vw] min-w-[78vw] snap-center flex-col items-center gap-6 sm:w-[420px] sm:min-w-[420px]"
             >
-              <article className="group relative h-[420px] w-full overflow-hidden rounded-[32px] border border-white/10 bg-black/30 shadow-xl sm:h-[520px]">
+              <article className="group relative h-[420px] w-full overflow-hidden rounded-[32px] border border-base-content/10 bg-base-200/40 shadow-xl sm:h-[520px]">
                 <Image
                   src={event.image}
                   alt={event.title}
@@ -106,12 +106,12 @@ const EventsList = ({ events }) => {
                   className="object-cover"
                   sizes="(max-width: 768px) 80vw, 420px"
                 />
-                <div className="absolute inset-0 bg-black/10" />
+                <div className="absolute inset-0 bg-base-100/10" />
                 <div className="absolute left-6 top-6">
-                  <p className="text-2xl font-serif text-[#f6f5f0] sm:text-3xl">
+                  <p className="text-2xl font-serif text-base-content sm:text-3xl">
                     {event.title}
                   </p>
-                  <p className="mt-1 text-sm tracking-[0.2em] text-[#f6f5f0]/80">
+                  <p className="mt-1 text-sm tracking-[0.2em] text-base-content/80">
                     {event.duration}
                   </p>
                 </div>
@@ -121,7 +121,7 @@ const EventsList = ({ events }) => {
                   aria-pressed={isLiked}
                   disabled={isLoading || isBusy}
                   onClick={() => handleToggleLike(event.id)}
-                  className="absolute bottom-6 right-6 rounded-full border border-white/50 bg-white/10 p-3 text-[#f6f5f0] backdrop-blur transition hover:bg-white/20 disabled:opacity-50"
+                  className="btn btn-circle btn-ghost absolute bottom-6 right-6 disabled:opacity-50"
                 >
                   {isLiked ? (
                     <svg
@@ -148,7 +148,7 @@ const EventsList = ({ events }) => {
               </article>
               <button
                 type="button"
-                className="rounded-full border border-[#f6f5f0]/40 px-8 py-2.5 text-sm font-medium text-[#f6f5f0] transition hover:bg-[#f6f5f0] hover:text-[#1d1212]"
+                className="btn btn-primary"
               >
                 Get 1 month free
               </button>
@@ -160,7 +160,7 @@ const EventsList = ({ events }) => {
         type="button"
         aria-label="Previous events"
         onClick={() => handleScroll("prev")}
-        className="absolute left-2 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-white/20 text-[#f6f5f0] backdrop-blur transition hover:bg-white/30 sm:flex"
+        className="btn btn-circle btn-ghost absolute left-2 top-1/2 hidden h-12 w-12 -translate-y-1/2 sm:flex"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -177,7 +177,7 @@ const EventsList = ({ events }) => {
         type="button"
         aria-label="Next events"
         onClick={() => handleScroll("next")}
-        className="absolute right-2 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-white/20 text-[#f6f5f0] backdrop-blur transition hover:bg-white/30 sm:flex"
+        className="btn btn-circle btn-ghost absolute right-2 top-1/2 hidden h-12 w-12 -translate-y-1/2 sm:flex"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

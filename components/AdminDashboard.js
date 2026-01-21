@@ -5,8 +5,8 @@ import apiClient from "@/libs/api";
 
 const StatCard = ({ label, value }) => {
   return (
-    <div className="rounded-2xl border border-white/10 bg-black/30 p-4 text-[#f6f5f0]">
-      <p className="text-xs uppercase tracking-wide text-[#f6f5f0]/60">
+    <div className="rounded-2xl border border-base-content/10 bg-base-200/60 p-4 text-base-content">
+      <p className="text-xs uppercase tracking-wide text-base-content/60">
         {label}
       </p>
       <p className="mt-2 text-2xl font-semibold">{value}</p>
@@ -33,11 +33,11 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#1a0f0f] px-6 py-16 text-[#f6f5f0] md:px-10">
+    <div className="min-h-screen bg-base-100 px-6 py-16 text-base-content md:px-10">
       <div className="mx-auto max-w-5xl space-y-10">
         <header className="space-y-2">
           <h1 className="text-3xl font-serif">Admin</h1>
-          <p className="text-sm text-[#f6f5f0]/70">
+          <p className="text-sm text-base-content/70">
             Metrics overview for the landing MVP.
           </p>
         </header>
@@ -48,7 +48,7 @@ const AdminDashboard = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Admin password"
-            className="input input-bordered w-full max-w-sm text-[#1a0f0f]"
+            className="input input-bordered w-full max-w-sm text-base-content"
             required
           />
           <button className="btn btn-primary" type="submit" disabled={isLoading}>

@@ -9,7 +9,7 @@ export default function Page() {
     HERO_VIDEO === "beach" ? "/hero-bg-beach.mp4" : "/hero-bg-forest.mp4";
 
   return (
-    <div className="bg-[#1d1212] text-white">
+    <div className="bg-base-100 text-base-content">
       <RecordVisit />
       <section className="relative min-h-screen overflow-hidden">
         {/* Background Video with black fallback */}
@@ -39,24 +39,22 @@ export default function Page() {
               <div className="w-full pt-6 md:pt-10">
                 {/* Main Headline */}
                 <h1
-                  className="mb-8 leading-[1.05] text-[#f6f5f0]"
+                  className="mb-8 font-serif leading-[1.05] text-base-content"
                   style={{ fontSize: "clamp(3.25rem, 9vw, 6.5rem)" }}
                 >
-                  <span className="font-serif italic">Make time</span>
+                  Make time
                   <br />
-                  <span className="font-sans font-light">for </span>
-                  <span className="font-serif italic">Nature.</span>
+                  for Nature.
                 </h1>
 
                 {/* Subtext and CTA */}
                 <div className="flex w-full flex-col gap-6 sm:flex-row sm:items-end">
-                  <p className="max-w-sm text-base leading-relaxed text-[#f6f5f0]/90 md:text-lg">
-                    Connect to a whole world of{" "}
-                    <em className="font-serif">Nature</em> based experiences,
-                    events and facilitators.
+                  <p className="max-w-sm text-base leading-relaxed text-base-content/90 md:text-lg">
+                    Connect to a whole world of nature based experiences, events
+                    and facilitators.
                   </p>
 
-                  <button className="self-start bg-neutral-900/60 border border-[#f6f5f0]/40 text-[#f6f5f0] hover:bg-[#f6f5f0] hover:text-neutral-900 hover:border-[#f6f5f0] rounded-full px-8 py-2.5 text-sm font-medium transition-all backdrop-blur-sm whitespace-nowrap sm:ml-auto sm:self-auto">
+                  <button className="btn btn-primary self-start whitespace-nowrap sm:ml-auto sm:self-auto">
                     Explore Experiences
                   </button>
                 </div>
