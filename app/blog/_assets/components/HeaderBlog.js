@@ -4,8 +4,6 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Popover, Transition } from "@headlessui/react";
 import Link from "next/link";
-import Image from "next/image";
-import logo from "@/app/icon.png";
 import config from "@/config";
 import { categories } from "../content";
 import ButtonSignin from "@/components/ButtonSignin";
@@ -158,14 +156,20 @@ const HeaderBlog = () => {
             href="/"
             title={`${config.appName} hompage`}
           >
-            <Image
-              src={logo}
-              alt={`${config.appName} logo`}
-              className="w-8"
-              priority={true}
-              width={32}
-              height={32}
-            />
+            <picture>
+              <source
+                srcSet="/logo-dark.svg"
+                media="(prefers-color-scheme: dark)"
+              />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo-light.svg"
+                alt={`${config.appName} logo`}
+                className="w-8"
+                width={32}
+                height={32}
+              />
+            </picture>
             <span className="font-extrabold text-lg">{config.appName}</span>
           </Link>
         </div>
@@ -226,15 +230,20 @@ const HeaderBlog = () => {
               title={`${config.appName} hompage`}
               href="/"
             >
-              <Image
-                src={logo}
-                alt={`${config.appName} logo`}
-                className="w-8"
-                placeholder="blur"
-                priority={true}
-                width={32}
-                height={32}
-              />
+              <picture>
+                <source
+                  srcSet="/logo-dark.svg"
+                  media="(prefers-color-scheme: dark)"
+                />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/logo-light.svg"
+                  alt={`${config.appName} logo`}
+                  className="w-8"
+                  width={32}
+                  height={32}
+                />
+              </picture>
               <span className="font-extrabold text-lg">{config.appName}</span>
             </Link>
             <button

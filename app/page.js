@@ -19,14 +19,20 @@ export default function Page() {
         <div className="relative z-10 min-h-screen">
           <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 pb-16 md:px-10">
             {/* Header/Logo */}
-            <header className="pt-6 md:pt-10">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/logo.svg"
-                alt="Nature Club"
-                className="h-48 md:h-60 w-auto"
-              />
-            </header>
+			<header className="pt-6 md:pt-10">
+				<picture>
+					<source
+						srcSet="/logo-dark.svg"
+						media="(prefers-color-scheme: dark)"
+					/>
+					{/* eslint-disable-next-line @next/next/no-img-element */}
+					<img
+						src="/logo-light.svg"
+						alt="Nature Club"
+						className="h-48 md:h-60 w-auto"
+					/>
+				</picture>
+			</header>
 
             {/* Hero Content — aligned with carousel edges */}
             <main className="flex flex-1 items-start">
