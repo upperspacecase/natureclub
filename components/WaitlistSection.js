@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { toast } from "react-hot-toast";
+import apiClient from "@/libs/api";
 import WaitlistModal from "./WaitlistModal";
 
 const WaitlistSection = () => {
@@ -81,6 +83,56 @@ const WaitlistSection = () => {
         setter((prev) => ({ ...prev, coords: "" }));
       }
     );
+  };
+
+  const submitHostLead = async () => {
+    try {
+      await apiClient.post("/lead", {
+        role: "host",
+        email: hostEmail,
+        source: "modal",
+        responses: {
+          location: hostLocation,
+          sessionsPerMonth: hostSessionsPerMonth,
+          bookingsPerSession: hostBookingsPerSession,
+          rate: hostRate,
+          messaging: hostMessaging,
+          features: hostFeatures,
+          featuresOther: hostFeaturesOther,
+        },
+      });
+      toast.success("Thanks! We’ll be in touch.");
+      return true;
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong. Please try again.");
+      return false;
+    }
+  };
+
+  const submitMemberLead = async () => {
+    try {
+      await apiClient.post("/lead", {
+        role: "member",
+        email: memberEmail,
+        source: "modal",
+        responses: {
+          location: memberLocation,
+          interests: memberInterests,
+          interestsOther: memberInterestsOther,
+          motivations: memberMotivations,
+          motivationsOther: memberMotivationsOther,
+          price: memberPrice,
+          payPerBooking: memberPayPerBooking,
+        },
+      });
+      toast.success("Thanks! We’ll be in touch.");
+      return true;
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong. Please try again.");
+      return false;
+    }
   };
 
   const hostSteps = useMemo(
@@ -440,12 +492,14 @@ const WaitlistSection = () => {
         isOpen={isHostModalOpen}
         onClose={() => setIsHostModalOpen(false)}
         steps={hostSteps}
+        onComplete={submitHostLead}
       />
       <WaitlistModal
         title="Members"
         isOpen={isMemberModalOpen}
         onClose={() => setIsMemberModalOpen(false)}
         steps={memberSteps}
+        onComplete={submitMemberLead}
       />
     </section>
   );

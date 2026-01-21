@@ -9,7 +9,7 @@ export async function POST(req) {
   await connectMongo();
 
   const body = await req.json();
-  const allowedRoles = ["participant", "host_interest"];
+  const allowedRoles = ["participant", "host_interest", "host", "member"];
 
   if (!body.email) {
     return NextResponse.json({ error: "Email is required" }, { status: 400 });
@@ -20,11 +20,18 @@ export async function POST(req) {
   }
 
   try {
-    const lead = await Lead.findOne({ email: body.email, role: body.role });
-
-    if (!lead) {
-      await Lead.create({ email: body.email, role: body.role });
-    }
+    await Lead.updateOne(
+      { email: body.email, role: body.role },
+      {
+        $set: {
+          email: body.email,
+          role: body.role,
+          source: body.source || "button",
+          responses: body.responses || {},
+        },
+      },
+      { upsert: true }
+    );
 
     return NextResponse.json({});
   } catch (e) {

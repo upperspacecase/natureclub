@@ -3,8 +3,9 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 
-const WaitlistModal = ({ title, isOpen, onClose, steps }) => {
+const WaitlistModal = ({ title, isOpen, onClose, steps, onComplete }) => {
   const [activeStep, setActiveStep] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -18,11 +19,25 @@ const WaitlistModal = ({ title, isOpen, onClose, steps }) => {
     [steps]
   );
 
-  const handleContinue = (index) => {
+  const handleContinue = async (index) => {
     if (index < totalSteps - 1) {
       setActiveStep(index + 1);
-    } else {
+      return;
+    }
+
+    if (!onComplete) {
       onClose();
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const didSucceed = await onComplete();
+      if (didSucceed !== false) {
+        onClose();
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -87,9 +102,15 @@ const WaitlistModal = ({ title, isOpen, onClose, steps }) => {
                       <button
                         className="btn btn-primary btn-sm"
                         onClick={() => handleContinue(activeStep)}
-                        disabled={!stepStatus[activeStep]}
+                        disabled={!stepStatus[activeStep] || isSubmitting}
                       >
-                        {activeStep === totalSteps - 1 ? "Finish" : "Continue"}
+                        {isSubmitting ? (
+                          <span className="loading loading-spinner loading-xs"></span>
+                        ) : activeStep === totalSteps - 1 ? (
+                          "Submit"
+                        ) : (
+                          "Continue"
+                        )}
                       </button>
                     </div>
                   </div>
