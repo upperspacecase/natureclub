@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const HeroVideo = ({ src }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
+const HeroVideo = ({ src, poster }) => {
+  const [isReady, setIsReady] = useState(false);
   const videoRef = useRef(null);
 
   useEffect(() => {
@@ -17,10 +17,11 @@ const HeroVideo = ({ src }) => {
           await result;
         }
         if (!video.paused) {
-          setIsPlaying(true);
+          setIsReady(true);
         }
       } catch (error) {
         console.error(error);
+        setIsReady(true);
       }
     };
 
@@ -32,19 +33,22 @@ const HeroVideo = ({ src }) => {
       <video
         ref={videoRef}
         className={`h-full w-full object-cover transition-opacity duration-500 ${
-          isPlaying ? "opacity-100" : "opacity-0"
+          isReady ? "opacity-100" : "opacity-0"
         }`}
         autoPlay
         loop
         muted
         playsInline
-        preload="metadata"
+        preload="auto"
         aria-hidden="true"
         controls={false}
         disablePictureInPicture
         controlsList="nodownload noplaybackrate noremoteplayback"
-        onCanPlay={() => setIsPlaying(true)}
-        onPlaying={() => setIsPlaying(true)}
+        poster={poster}
+        onLoadedData={() => setIsReady(true)}
+        onCanPlay={() => setIsReady(true)}
+        onPlaying={() => setIsReady(true)}
+        onError={() => setIsReady(true)}
       >
         <source src={src} type="video/mp4" />
       </video>
