@@ -1,13 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const HeroVideo = ({ src }) => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const tryPlay = async () => {
+      try {
+        const result = video.play();
+        if (result && typeof result.then === "function") {
+          await result;
+        }
+        if (!video.paused) {
+          setIsPlaying(true);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    tryPlay();
+  }, [src]);
 
   return (
     <div className="absolute inset-0 z-0 bg-black">
       <video
+        ref={videoRef}
         className={`h-full w-full object-cover transition-opacity duration-500 ${
           isPlaying ? "opacity-100" : "opacity-0"
         }`}
@@ -20,7 +43,7 @@ const HeroVideo = ({ src }) => {
         controls={false}
         disablePictureInPicture
         controlsList="nodownload noplaybackrate noremoteplayback"
-        onPlay={() => setIsPlaying(true)}
+        onCanPlay={() => setIsPlaying(true)}
         onPlaying={() => setIsPlaying(true)}
       >
         <source src={src} type="video/mp4" />
