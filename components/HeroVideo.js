@@ -53,6 +53,7 @@ const HeroVideo = ({ src, poster }) => {
         <source src={src} type="video/mp4" />
       </video>
       <div className="absolute inset-0 bg-black/20" />
+      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-black" />
     </div>
   );
 };
