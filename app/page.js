@@ -1,4 +1,5 @@
 import EventsSection from "@/components/EventsSection";
+import HeroVideo from "@/components/HeroVideo";
 import RecordVisit from "@/components/RecordVisit";
 import WaitlistSection from "@/components/WaitlistSection";
 
@@ -11,21 +12,8 @@ export default function Page() {
     <div className="bg-[#1d1212] text-white">
       <RecordVisit />
       <section className="relative min-h-screen overflow-hidden">
-        {/* Background Video with Overlay */}
-        <div className="absolute inset-0 z-0">
-          <video
-            className="h-full w-full object-cover"
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="metadata"
-            aria-hidden="true"
-          >
-            <source src={heroVideoSrc} type="video/mp4" />
-          </video>
-          <div className="absolute inset-0 bg-black/40" />
-        </div>
+        {/* Background Video with black fallback */}
+        <HeroVideo src={heroVideoSrc} />
 
         {/* Content Container */}
         <div className="relative z-10 min-h-screen flex flex-col">
