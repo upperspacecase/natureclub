@@ -50,14 +50,17 @@ export default function Page() {
                     Access local Nature events, experiences, and classes with one
                     membership.
                   </p>
-                  <div className="flex max-w-xs items-center gap-2 text-sm leading-relaxed text-base-content/70">
-                    <span>Every booking supports local ecosystem restoration +</span>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/1%25%20for%20the%20plant%20logo.svg"
-                      alt="1% for the Planet"
-                      className="h-6 w-auto opacity-80"
-                    />
+                  <div className="flex max-w-xs flex-wrap items-center gap-2 text-sm leading-relaxed text-base-content/70">
+                    <span>Every booking supports local ecosystem restoration</span>
+                    <span className="inline-flex items-center gap-1">
+                      +
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/1%25%20for%20the%20plant%20logo.svg"
+                        alt="1% for the Planet"
+                        className="h-24 w-auto opacity-80"
+                      />
+                    </span>
                   </div>
                 </div>
               </div>
@@ -65,9 +68,12 @@ export default function Page() {
           </div>
         </div>
         <div className="pointer-events-none absolute inset-x-0 bottom-6 z-10 flex justify-center">
-          <span className="rounded-full border border-base-content/30 px-4 py-2 text-xs uppercase tracking-[0.3em] text-base-content/70">
-            Scroll
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/scroll%20arrow.svg"
+            alt="Scroll"
+            className="h-10 w-10 opacity-70"
+          />
         </div>
       </section>
       <EventsSection />
