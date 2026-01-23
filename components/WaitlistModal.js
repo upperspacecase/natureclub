@@ -3,7 +3,14 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 
-const WaitlistModal = ({ title, isOpen, onClose, steps, onComplete }) => {
+const WaitlistModal = ({
+  title,
+  isOpen,
+  onClose,
+  steps,
+  onComplete,
+  backgroundImage,
+}) => {
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -58,8 +65,8 @@ const WaitlistModal = ({ title, isOpen, onClose, steps, onComplete }) => {
           <div className="fixed inset-0 bg-neutral-focus bg-opacity-50" />
         </Transition.Child>
 
-        <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-start justify-center p-2 md:items-center">
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4">
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
@@ -69,79 +76,63 @@ const WaitlistModal = ({ title, isOpen, onClose, steps, onComplete }) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="relative w-full max-w-xl transform rounded-2xl bg-base-100 p-6 text-left shadow-xl transition-all md:p-8">
-                <div className="mb-5 flex items-start justify-between gap-4">
-                  <Dialog.Title as="h2" className="text-xl font-semibold">
-                    {title}
-                  </Dialog.Title>
-                  <button className="btn btn-square btn-ghost btn-sm" onClick={onClose}>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      className="h-5 w-5"
-                    >
-                      <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                    </svg>
-                  </button>
+              <Dialog.Panel className="relative h-[calc(100vh-2rem)] w-full max-w-md transform overflow-hidden rounded-[36px] text-left shadow-xl transition-all">
+                <div className="pointer-events-none absolute inset-0">
+                  <div
+                    className="h-full w-full bg-cover bg-center"
+                    style={{
+                      backgroundImage: backgroundImage
+                        ? `url(${backgroundImage})`
+                        : "none",
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-black/60" />
                 </div>
-
-                <div className="mb-6">
-                  <div className="relative h-1.5 rounded-full bg-base-200/60">
-                    <div
-                      className="absolute left-0 top-0 h-full rounded-full bg-base-content/70 transition-all"
-                      style={{ width: `${progressPercent}%` }}
-                    />
-                  </div>
-                  <div className="mt-2 flex items-center justify-between">
-                    {steps.map((_, index) => (
-                      <span
-                        key={index}
-                        className={`h-2 w-2 rounded-full ${
-                          index <= activeStep ? "bg-base-content" : "bg-base-content/30"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-6">
-                  {steps.slice(0, activeStep + 1).map((step, index) => (
-                    <div key={step.key} className="space-y-3">
-                      <div className="flex items-center gap-3 text-base font-semibold">
-                        <span className="flex h-6 w-6 items-center justify-center rounded-full border border-base-content/20 text-xs">
-                          {index + 1}
-                        </span>
-                        <span>{step.title}</span>
-                      </div>
-                      <div
-                        className={`space-y-4 text-base-content/80 ${
-                          index < activeStep ? "opacity-70" : ""
-                        }`}
+                <div className="relative flex h-full flex-col px-8 py-10 md:px-10 md:py-12">
+                  <div className="flex items-start justify-between gap-4">
+                    <Dialog.Title as="h2" className="text-lg font-semibold text-base-content">
+                      {title}
+                    </Dialog.Title>
+                    <button className="btn btn-square btn-ghost btn-sm" onClick={onClose}>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="h-5 w-5"
                       >
-                        <div className={index < activeStep ? "pointer-events-none" : ""}>
-                          {step.content}
-                        </div>
-                        {index === activeStep && (
-                          <div className="flex justify-end">
-                            <button
-                              className="btn btn-primary btn-sm"
-                              onClick={() => handleContinue(activeStep)}
-                              disabled={!stepStatus[activeStep] || isSubmitting}
-                            >
-                              {isSubmitting ? (
-                                <span className="loading loading-spinner loading-xs"></span>
-                              ) : activeStep === totalSteps - 1 ? (
-                                "Submit"
-                              ) : (
-                                "Continue"
-                              )}
-                            </button>
-                          </div>
-                        )}
-                      </div>
+                        <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div className="mt-3 text-sm text-base-content/80">
+                    {activeStep + 1}/{totalSteps}
+                  </div>
+
+                  <div className="flex flex-1 flex-col justify-center space-y-4">
+                    <div className="text-2xl font-semibold text-base-content">
+                      {steps[activeStep].title}
                     </div>
-                  ))}
+                    <div className="rounded-3xl border border-white/15 bg-white/10 p-5 text-base-content/90 backdrop-blur-sm">
+                      {steps[activeStep].content}
+                    </div>
+                  </div>
+
+                  <div className="mt-6">
+                    <button
+                      className="btn btn-primary btn-block"
+                      onClick={() => handleContinue(activeStep)}
+                      disabled={!stepStatus[activeStep] || isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <span className="loading loading-spinner loading-xs"></span>
+                      ) : activeStep === totalSteps - 1 ? (
+                        "Submit"
+                      ) : (
+                        "Continue"
+                      )}
+                    </button>
+                  </div>
                 </div>
               </Dialog.Panel>
             </Transition.Child>

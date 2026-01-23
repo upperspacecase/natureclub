@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import apiClient from "@/libs/api";
 import WaitlistModal from "./WaitlistModal";
@@ -26,6 +26,7 @@ const WaitlistSection = () => {
   const [memberPrice, setMemberPrice] = useState(120);
   const [memberPayPerBooking, setMemberPayPerBooking] = useState(false);
   const [memberEmail, setMemberEmail] = useState("");
+  const [modalBackgroundImage, setModalBackgroundImage] = useState("");
 
   const hostFeatureOptions = [
     "Calendar sync (Google, Outlook)",
@@ -70,6 +71,18 @@ const WaitlistSection = () => {
       setter([...list, value]);
     }
   };
+
+  useEffect(() => {
+    const fetchBackground = async () => {
+      try {
+        const data = await apiClient.get("/events/random");
+        setModalBackgroundImage(data?.image || "");
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchBackground();
+  }, []);
 
   const handleUseLocation = (setter) => {
     if (!navigator.geolocation) return;
@@ -474,18 +487,20 @@ const WaitlistSection = () => {
         </button>
       </div>
       <WaitlistModal
-        title="Hosts"
+        title="Become a host"
         isOpen={isHostModalOpen}
         onClose={() => setIsHostModalOpen(false)}
         steps={hostSteps}
         onComplete={submitHostLead}
+        backgroundImage={modalBackgroundImage}
       />
       <WaitlistModal
-        title="Members"
+        title="Become a member"
         isOpen={isMemberModalOpen}
         onClose={() => setIsMemberModalOpen(false)}
         steps={memberSteps}
         onComplete={submitMemberLead}
+        backgroundImage={modalBackgroundImage}
       />
     </div>
   );

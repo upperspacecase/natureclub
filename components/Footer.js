@@ -19,25 +19,25 @@ const Footer = () => {
       <div className="absolute inset-0 bg-black/45" />
       <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-base-100 to-transparent" />
 
-      <div className="relative z-10 min-h-[240px] px-6 py-10 md:px-10">
-        <div className="mx-auto flex min-h-[240px] max-w-6xl items-end">
+      <div className="relative z-10 min-h-[200px] px-6 py-10 md:px-10">
+        <div className="mx-auto flex min-h-[200px] max-w-6xl items-end justify-between">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo-light.svg"
             alt="Logo"
-            className="absolute bottom-8 left-6 h-44 w-auto md:bottom-10 md:left-10 md:h-56"
+            className="h-22 w-auto md:h-28"
           />
-        </div>
-        <div className="absolute bottom-8 right-6 z-10 flex flex-col items-end gap-2 text-xs uppercase tracking-[0.3em] text-base-content/70 md:right-10">
-          <button type="button" onClick={() => setActiveModal("about")}>
-            About
-          </button>
-          <button type="button" onClick={() => setActiveModal("vision")}>
-            Vision
-          </button>
-          <button type="button" onClick={() => setActiveModal("contact")}>
-            Contact
-          </button>
+          <div className="flex flex-col items-end gap-2 text-xs uppercase tracking-[0.3em] text-base-content/70">
+            <button type="button" onClick={() => setActiveModal("about")}>
+              About
+            </button>
+            <button type="button" onClick={() => setActiveModal("vision")}>
+              Vision
+            </button>
+            <button type="button" onClick={() => setActiveModal("contact")}>
+              Contact
+            </button>
+          </div>
         </div>
       </div>
 
@@ -56,7 +56,7 @@ const Footer = () => {
           </Transition.Child>
 
           <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-start justify-center p-4 md:items-center">
+            <div className="flex min-h-full items-end justify-center p-4">
               <Transition.Child
                 as={Fragment}
                 enter="ease-out duration-300"
@@ -66,8 +66,8 @@ const Footer = () => {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="relative w-full max-w-2xl transform rounded-xl bg-base-100 p-6 text-left shadow-xl transition-all md:p-8">
-                  <div className="mb-4 flex items-start justify-between gap-4">
+                <Dialog.Panel className="relative w-full max-w-3xl transform rounded-[36px] border border-white/15 bg-white/10 p-8 text-left text-base-content/90 shadow-xl backdrop-blur-sm transition-all md:p-12">
+                  <div className="mb-6 flex items-start justify-between gap-4">
                     <Dialog.Title as="h2" className="text-xl font-semibold">
                       {activeModal === "about"
                         ? "About"
@@ -91,14 +91,14 @@ const Footer = () => {
                   </div>
 
                   {activeModal === "about" && (
-                    <div className="space-y-3 text-base-content/80">
+                    <div className="space-y-4 text-base-content/80">
                       <p>Just a couple of unique monkeys building the best tools we can.</p>
                       <p>With Love. Tay &amp; River</p>
                     </div>
                   )}
 
                   {activeModal === "vision" && (
-                    <div className="space-y-3 text-base-content/80">
+                    <div className="space-y-4 text-base-content/80">
                       <p>
                         We imagine a world where technology gracefully serves life instead
                         of consuming it—where people have more time for genuine
@@ -109,7 +109,7 @@ const Footer = () => {
                   )}
 
                   {activeModal === "contact" && (
-                    <div className="space-y-3 text-base-content/80">
+                    <div className="space-y-4 text-base-content/80">
                       <p>
                         Reach out if you want to build with us —{" "}
                         <a className="link link-hover" href="mailto:hi@life-time.co">
