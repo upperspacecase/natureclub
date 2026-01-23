@@ -46,6 +46,51 @@ const EventsList = ({ events }) => {
 
   const likedSet = useMemo(() => new Set(likedIds), [likedIds]);
 
+  useEffect(() => {
+    const scroller = scrollerRef.current;
+    if (!scroller || events.length === 0) return;
+
+    const frame = requestAnimationFrame(() => {
+      if (events.length > 1) {
+        scroller.children?.[1]?.scrollIntoView({
+          inline: "center",
+          block: "nearest",
+        });
+      }
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [events.length]);
+
+  useEffect(() => {
+    const scroller = scrollerRef.current;
+    if (!scroller || events.length === 0) return;
+
+    let scrollEndTimer;
+    const handleScrollEnd = () => {
+      const maxScrollLeft = scroller.scrollWidth - scroller.clientWidth;
+      if (maxScrollLeft <= 0) return;
+
+      if (scroller.scrollLeft >= maxScrollLeft - 1) {
+        scroller.scrollLeft = 0;
+      } else if (scroller.scrollLeft <= 1) {
+        scroller.scrollLeft = maxScrollLeft;
+      }
+    };
+
+    const handleScroll = () => {
+      window.clearTimeout(scrollEndTimer);
+      scrollEndTimer = window.setTimeout(handleScrollEnd, 80);
+    };
+
+    scroller.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.clearTimeout(scrollEndTimer);
+      scroller.removeEventListener("scroll", handleScroll);
+    };
+  }, [events.length]);
+
   const handleToggleLike = async (eventId) => {
     if (!clientId) return;
     setActiveEventId(eventId);
@@ -64,7 +109,7 @@ const EventsList = ({ events }) => {
 
   const handleScroll = (direction) => {
     if (!scrollerRef.current) return;
-    const scrollAmount = scrollerRef.current.clientWidth * 0.8;
+    const scrollAmount = scrollerRef.current.clientWidth * 0.75;
     scrollerRef.current.scrollBy({
       left: direction === "next" ? scrollAmount : -scrollAmount,
       behavior: "smooth",
@@ -88,7 +133,7 @@ const EventsList = ({ events }) => {
       )}
       <div
         ref={scrollerRef}
-        className="flex snap-x snap-proximity gap-6 overflow-x-auto px-6 pb-6 scrollbar-hide sm:px-10"
+        className="flex snap-x snap-mandatory snap-always gap-6 overflow-x-auto px-6 pb-6 scrollbar-hide sm:px-10"
       >
         {events.map((event) => {
           const isLiked = likedSet.has(event.id);
