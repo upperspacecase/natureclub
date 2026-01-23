@@ -3,9 +3,7 @@ import HeroVideo from "@/components/HeroVideo";
 import RecordVisit from "@/components/RecordVisit";
 
 export default function Page() {
-  const HERO_VIDEO = "forest";
-  const heroVideoSrc =
-    HERO_VIDEO === "beach" ? "/hero-bg-beach.mp4" : "/hero-bg-forest.mp4";
+  const heroVideoSrc = "/hero-bg-forest.mp4";
 
   return (
     <div className="bg-base-100 text-base-content">
@@ -52,14 +50,24 @@ export default function Page() {
                     Access local Nature events, experiences, and classes with one
                     membership.
                   </p>
-                  <p className="max-w-xs text-sm leading-relaxed text-base-content/70">
-                    Every booking supports local ecosystem restoration + 1% for the
-                    planet
-                  </p>
+                  <div className="flex max-w-xs items-center gap-2 text-sm leading-relaxed text-base-content/70">
+                    <span>Every booking supports local ecosystem restoration +</span>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/1%25%20for%20the%20plant%20logo.svg"
+                      alt="1% for the Planet"
+                      className="h-6 w-auto opacity-80"
+                    />
+                  </div>
                 </div>
               </div>
             </main>
           </div>
+        </div>
+        <div className="pointer-events-none absolute inset-x-0 bottom-6 z-10 flex justify-center">
+          <span className="rounded-full border border-base-content/30 px-4 py-2 text-xs uppercase tracking-[0.3em] text-base-content/70">
+            Scroll
+          </span>
         </div>
       </section>
       <EventsSection />

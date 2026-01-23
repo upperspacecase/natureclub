@@ -82,9 +82,9 @@
 }
 
 html[data-theme="light"] {
-  --color-base-100: oklch(19.73% 0.0221 16.89);
-  --color-base-200: oklch(18.39% 0.0221 16.67);
-  --color-base-300: oklch(15.95% 0.0156 17.44);
+  --color-base-100: oklch(0% 0 0);
+  --color-base-200: oklch(0% 0 0);
+  --color-base-300: oklch(0% 0 0);
   --color-base-content: oklch(97.26% 0.0338 33.02);
   --color-primary: oklch(97.26% 0.0338 33.02);
   --color-primary-content: oklch(19.73% 0.0221 16.89);
@@ -92,7 +92,7 @@ html[data-theme="light"] {
   --color-secondary-content: oklch(19.73% 0.0221 16.89);
   --color-accent: oklch(97.26% 0.0338 33.02);
   --color-accent-content: oklch(19.73% 0.0221 16.89);
-  --color-neutral: oklch(18.39% 0.0221 16.67);
+  --color-neutral: oklch(0% 0 0);
   --color-neutral-content: oklch(97.26% 0.0338 33.02);
 }
 

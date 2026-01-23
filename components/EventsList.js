@@ -64,7 +64,7 @@ const EventsList = ({ events }) => {
 
   const handleScroll = (direction) => {
     if (!scrollerRef.current) return;
-    const scrollAmount = scrollerRef.current.clientWidth * 0.9;
+    const scrollAmount = scrollerRef.current.clientWidth * 0.8;
     scrollerRef.current.scrollBy({
       left: direction === "next" ? scrollAmount : -scrollAmount,
       behavior: "smooth",
@@ -88,7 +88,7 @@ const EventsList = ({ events }) => {
       )}
       <div
         ref={scrollerRef}
-        className="flex snap-x snap-mandatory gap-6 overflow-x-auto pb-6 scrollbar-hide"
+        className="flex snap-x snap-proximity gap-6 overflow-x-auto px-6 pb-6 scrollbar-hide sm:px-10"
       >
         {events.map((event) => {
           const isLiked = likedSet.has(event.id);
@@ -96,7 +96,7 @@ const EventsList = ({ events }) => {
           return (
             <div
               key={event.id}
-              className="flex w-[78vw] min-w-[78vw] snap-center flex-col items-center sm:w-[420px] sm:min-w-[420px]"
+              className="flex w-[70vw] min-w-[70vw] snap-center flex-col items-center sm:w-[360px] sm:min-w-[360px] lg:w-[380px] lg:min-w-[380px]"
             >
               <article className="group relative h-[420px] w-full overflow-hidden rounded-[32px] border border-base-content/10 bg-base-200/40 shadow-xl sm:h-[520px]">
                 <Image
