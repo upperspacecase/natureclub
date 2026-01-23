@@ -113,6 +113,18 @@ const EventsList = ({ events }) => {
                     {event.title}
                   </p>
                 </div>
+                {event.tags?.length > 0 && (
+                  <div className="absolute bottom-6 left-6 flex flex-wrap gap-2">
+                    {event.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-full border border-base-content/30 bg-base-100/80 px-3 py-1 text-xs text-base-content/80 backdrop-blur"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
                 <button
                   type="button"
                   aria-label={isLiked ? "Unlike event" : "Like event"}

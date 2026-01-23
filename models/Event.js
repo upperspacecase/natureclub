@@ -24,6 +24,10 @@ const eventSchema = mongoose.Schema(
       trim: true,
       required: true,
     },
+    tags: {
+      type: [String],
+      default: [],
+    },
   },
   {
     timestamps: true,

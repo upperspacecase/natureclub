@@ -109,12 +109,14 @@ const WaitlistModal = ({
                     {activeStep + 1}/{totalSteps}
                   </div>
 
-                  <div className="flex flex-1 flex-col justify-center space-y-4">
+                  <div className="flex flex-1 flex-col justify-center space-y-4 overflow-hidden">
                     <div className="text-2xl font-semibold text-base-content">
                       {steps[activeStep].title}
                     </div>
                     <div className="rounded-3xl border border-white/15 bg-white/10 p-5 text-base-content/90 backdrop-blur-sm">
-                      {steps[activeStep].content}
+                      <div className="max-h-[45vh] overflow-y-auto pr-1">
+                        {steps[activeStep].content}
+                      </div>
                     </div>
                   </div>
 

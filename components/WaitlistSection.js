@@ -246,19 +246,23 @@ const WaitlistSection = () => {
         content: (
           <div className="space-y-3">
             <div className="grid gap-2">
-              {hostFeatureOptions.map((option) => (
-                <label key={option} className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    className="checkbox checkbox-sm"
-                    checked={hostFeatures.includes(option)}
-                    onChange={() =>
-                      toggleSelection(option, hostFeatures, setHostFeatures)
-                    }
-                  />
-                  <span>{option}</span>
-                </label>
-              ))}
+              {hostFeatureOptions.map((option) => {
+                const isSelected = hostFeatures.includes(option);
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => toggleSelection(option, hostFeatures, setHostFeatures)}
+                    className={`w-full rounded-full border px-4 py-2 text-left text-sm transition ${
+                      isSelected
+                        ? "border-base-content bg-base-content/15 text-base-content"
+                        : "border-base-content/20 text-base-content/80 hover:border-base-content"
+                    }`}
+                  >
+                    {option}
+                  </button>
+                );
+              })}
               <input
                 type="text"
                 placeholder="Other..."
@@ -344,19 +348,25 @@ const WaitlistSection = () => {
         content: (
           <div className="space-y-3">
             <div className="grid gap-2">
-              {memberInterestOptions.map((option) => (
-                <label key={option} className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    className="checkbox checkbox-sm"
-                    checked={memberInterests.includes(option)}
-                    onChange={() =>
+              {memberInterestOptions.map((option) => {
+                const isSelected = memberInterests.includes(option);
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() =>
                       toggleSelection(option, memberInterests, setMemberInterests)
                     }
-                  />
-                  <span>{option}</span>
-                </label>
-              ))}
+                    className={`w-full rounded-full border px-4 py-2 text-left text-sm transition ${
+                      isSelected
+                        ? "border-base-content bg-base-content/15 text-base-content"
+                        : "border-base-content/20 text-base-content/80 hover:border-base-content"
+                    }`}
+                  >
+                    {option}
+                  </button>
+                );
+              })}
               {memberInterests.includes("Other -") && (
                 <input
                   type="text"
@@ -379,19 +389,25 @@ const WaitlistSection = () => {
         content: (
           <div className="space-y-3">
             <div className="grid gap-2">
-              {memberMotivationOptions.map((option) => (
-                <label key={option} className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    className="checkbox checkbox-sm"
-                    checked={memberMotivations.includes(option)}
-                    onChange={() =>
+              {memberMotivationOptions.map((option) => {
+                const isSelected = memberMotivations.includes(option);
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() =>
                       toggleSelection(option, memberMotivations, setMemberMotivations)
                     }
-                  />
-                  <span>{option}</span>
-                </label>
-              ))}
+                    className={`w-full rounded-full border px-4 py-2 text-left text-sm transition ${
+                      isSelected
+                        ? "border-base-content bg-base-content/15 text-base-content"
+                        : "border-base-content/20 text-base-content/80 hover:border-base-content"
+                    }`}
+                  >
+                    {option}
+                  </button>
+                );
+              })}
               <input
                 type="text"
                 placeholder="Other..."
