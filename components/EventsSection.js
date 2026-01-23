@@ -37,12 +37,9 @@ const EventsSection = async () => {
   return (
     <section className="bg-base-100 px-6 py-16 text-base-content md:px-10">
       <div className="mx-auto max-w-6xl space-y-8">
-        <div className="space-y-3">
-          <h2 className="text-3xl font-serif">Browse events</h2>
-          <p className="text-sm text-base-content/80">
-            Explore upcoming experiences in nature.
-          </p>
-        </div>
+        <p className="text-center text-sm text-base-content/80">
+          Explore upcoming experiences in nature.
+        </p>
         <EventsList events={normalizedEvents} />
         <WaitlistSection />
       </div>

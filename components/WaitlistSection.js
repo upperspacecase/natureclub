@@ -448,12 +448,14 @@ const WaitlistSection = () => {
   );
 
   return (
-    <div className="space-y-4">
-      <p className="max-w-3xl text-sm text-base-content/80 md:text-base">
-        Science shows 2+ hours weekly in nature cuts stress, lifts mood, and
-        strengthens immunity.
-      </p>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+    <div className="space-y-6">
+      <div className="rounded-2xl border border-base-content/15 bg-base-100/10 px-6 py-4 text-center">
+        <p className="text-sm text-base-content/80 md:text-base">
+          Science shows 2+ hours weekly in nature cuts stress, lifts mood, and
+          strengthens immunity.
+        </p>
+      </div>
+      <div className="flex flex-col justify-center gap-3 sm:flex-row sm:items-center">
         <button
           className="btn btn-primary"
           onClick={() => setIsMemberModalOpen(true)}

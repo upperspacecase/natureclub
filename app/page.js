@@ -50,30 +50,37 @@ export default function Page() {
                     Access local Nature events, experiences, and classes with one
                     membership.
                   </p>
-                  <div className="flex max-w-xs flex-wrap items-center gap-2 text-sm leading-relaxed text-base-content/70">
-                    <span>Every booking supports local ecosystem restoration</span>
-                    <span className="inline-flex items-center gap-1">
-                      +
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src="/1%25%20for%20the%20plant%20logo.svg"
-                        alt="1% for the Planet"
-                        className="h-24 w-auto opacity-80"
-                      />
+                  <div className="flex items-center gap-3 text-sm leading-tight text-base-content/70">
+                    <span className="flex flex-col leading-tight">
+                      <span>Every booking supports</span>
+                      <span>local ecosystem restoration +</span>
                     </span>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/1%25%20for%20the%20plant%20logo.svg"
+                      alt="1% for the Planet"
+                      className="h-24 w-auto opacity-80"
+                    />
                   </div>
                 </div>
               </div>
             </main>
           </div>
         </div>
-        <div className="pointer-events-none absolute inset-x-0 bottom-6 z-10 flex justify-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/scroll%20arrow.svg"
-            alt="Scroll"
-            className="h-10 w-10 opacity-70"
-          />
+        <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center text-base-content/70">
+          <span className="animate-scrollHint opacity-50">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              className="h-15 w-15 rotate-180"
+              aria-hidden="true"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="m6 15 6-6 6 6" />
+            </svg>
+          </span>
         </div>
       </section>
       <EventsSection />
