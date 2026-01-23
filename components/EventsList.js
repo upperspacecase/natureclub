@@ -112,9 +112,6 @@ const EventsList = ({ events }) => {
                   <p className="text-2xl font-serif text-base-content sm:text-3xl">
                     {event.title}
                   </p>
-                  <p className="mt-1 text-sm tracking-[0.2em] text-base-content/80">
-                    {event.duration}
-                  </p>
                 </div>
                 <button
                   type="button"

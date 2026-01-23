@@ -40,16 +40,17 @@ const WaitlistSection = () => {
   ];
 
   const memberInterestOptions = [
-    "Yoga",
-    "Fitness Class",
-    "Meditation / Sound Bath",
-    "Hiking",
-    "Tea Ceremony",
-    "Breath Work",
-    "Dining Experience",
-    "Foraging",
-    "Wilderness Skills",
-    "Outdoor Concert",
+    "Movement (fitness, primal movement, mobility, qi gong, dance, surfing, paddling)",
+    "Wellness (yoga, breathwork, meditation, sound bath)",
+    "Arts (crafts, music, writing, visual arts)",
+    "Wildlife (birdwatching, citizen science, tracking, ecology walks)",
+    "Social (tea ceremony, outdoor dining)",
+    "Cultivation (gardening, farming, permaculture, composting)",
+    "Restoration (volunteering, conservation, clean-ups, tree planting)",
+    "Cultural (harvest festivals, music festivals, solstice events, seasonal rites)",
+    "Skills (foraging, natural building, sailing, navigation, firecraft)",
+    "Adventure (hiking, camping, expeditions)",
+    "Other -",
   ];
 
   const memberMotivationOptions = [
@@ -325,7 +326,8 @@ const WaitlistSection = () => {
         title:
           "What types of events, experiences and classes are you interested in?",
         isComplete: () =>
-          memberInterests.length > 0 || memberInterestsOther.trim().length > 0,
+          memberInterests.length > 0 &&
+          (!memberInterests.includes("Other -") || memberInterestsOther.trim()),
         content: (
           <div className="space-y-3">
             <div className="grid gap-2">
@@ -342,13 +344,15 @@ const WaitlistSection = () => {
                   <span>{option}</span>
                 </label>
               ))}
-              <input
-                type="text"
-                placeholder="Other..."
-                className="input input-bordered w-full"
-                value={memberInterestsOther}
-                onChange={(e) => setMemberInterestsOther(e.target.value)}
-              />
+              {memberInterests.includes("Other -") && (
+                <input
+                  type="text"
+                  placeholder="Other..."
+                  className="input input-bordered w-full"
+                  value={memberInterestsOther}
+                  onChange={(e) => setMemberInterestsOther(e.target.value)}
+                />
+              )}
             </div>
           </div>
         ),

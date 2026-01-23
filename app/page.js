@@ -1,9 +1,10 @@
 import EventsSection from "@/components/EventsSection";
+import Footer from "@/components/Footer";
 import HeroVideo from "@/components/HeroVideo";
 import RecordVisit from "@/components/RecordVisit";
 
 export default function Page() {
-  const heroVideoSrc = "/hero-bg-forest.mp4";
+  const heroVideoSrc = "/Nature%20Club%20%20Landing%20%28Video%29.mp4";
 
   return (
     <div className="bg-base-100 text-base-content">
@@ -84,39 +85,7 @@ export default function Page() {
         </div>
       </section>
       <EventsSection />
-      <section className="bg-base-200 px-6 py-16 text-base-content md:px-10">
-        <div className="mx-auto max-w-5xl space-y-8">
-          <h2 className="text-3xl font-serif">About</h2>
-          <div className="space-y-4">
-            <div className="collapse collapse-arrow border border-base-content/10 bg-base-100/40">
-              <input type="checkbox" />
-              <div className="collapse-title text-lg font-semibold">About Us</div>
-              <div className="collapse-content space-y-3 text-base-content/80">
-                <p>Just a couple of unique monkeys building the best tools we can.</p>
-                <p>With Love. Tay &amp; River</p>
-                <p>
-                  Reach out if you want to build with us -{" "}
-                  <a className="link link-hover" href="mailto:hi@life-time.co">
-                    hi@life-time.co
-                  </a>
-                </p>
-              </div>
-            </div>
-            <div className="collapse collapse-arrow border border-base-content/10 bg-base-100/40">
-              <input type="checkbox" />
-              <div className="collapse-title text-lg font-semibold">Vision</div>
-              <div className="collapse-content text-base-content/80">
-                <p>
-                  We imagine a world where technology gracefully serves life instead
-                  of consuming it—where people have more time for genuine
-                  connection, unexpected joy, and the pursuits that make them truly
-                  feel alive.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <Footer />
     </div>
   );
 }

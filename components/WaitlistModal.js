@@ -18,6 +18,8 @@ const WaitlistModal = ({ title, isOpen, onClose, steps, onComplete }) => {
     () => steps.map((step) => step.isComplete?.()),
     [steps]
   );
+  const progressPercent =
+    totalSteps > 1 ? (activeStep / (totalSteps - 1)) * 100 : 0;
 
   const handleContinue = async (index) => {
     if (index < totalSteps - 1) {
@@ -67,16 +69,11 @@ const WaitlistModal = ({ title, isOpen, onClose, steps, onComplete }) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="relative w-full max-w-3xl transform rounded-xl bg-base-100 p-6 text-left shadow-xl transition-all md:p-8">
-                <div className="mb-6 flex items-start justify-between gap-4">
-                  <div>
-                    <Dialog.Title as="h2" className="text-xl font-semibold">
-                      {title}
-                    </Dialog.Title>
-                    <p className="text-sm text-base-content/70">
-                      Step {Math.min(activeStep + 1, totalSteps)}/{totalSteps}
-                    </p>
-                  </div>
+              <Dialog.Panel className="relative w-full max-w-xl transform rounded-2xl bg-base-100 p-6 text-left shadow-xl transition-all md:p-8">
+                <div className="mb-5 flex items-start justify-between gap-4">
+                  <Dialog.Title as="h2" className="text-xl font-semibold">
+                    {title}
+                  </Dialog.Title>
                   <button className="btn btn-square btn-ghost btn-sm" onClick={onClose}>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -89,31 +86,62 @@ const WaitlistModal = ({ title, isOpen, onClose, steps, onComplete }) => {
                   </button>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3 text-base font-semibold">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full border border-base-content/20 text-xs">
-                      {activeStep + 1}
-                    </span>
-                    <span>{steps[activeStep].title}</span>
+                <div className="mb-6">
+                  <div className="relative h-1.5 rounded-full bg-base-200/60">
+                    <div
+                      className="absolute left-0 top-0 h-full rounded-full bg-base-content/70 transition-all"
+                      style={{ width: `${progressPercent}%` }}
+                    />
                   </div>
-                  <div className="space-y-4 text-base-content/80">
-                    {steps[activeStep].content}
-                    <div className="flex justify-end">
-                      <button
-                        className="btn btn-primary btn-sm"
-                        onClick={() => handleContinue(activeStep)}
-                        disabled={!stepStatus[activeStep] || isSubmitting}
+                  <div className="mt-2 flex items-center justify-between">
+                    {steps.map((_, index) => (
+                      <span
+                        key={index}
+                        className={`h-2 w-2 rounded-full ${
+                          index <= activeStep ? "bg-base-content" : "bg-base-content/30"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  {steps.slice(0, activeStep + 1).map((step, index) => (
+                    <div key={step.key} className="space-y-3">
+                      <div className="flex items-center gap-3 text-base font-semibold">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full border border-base-content/20 text-xs">
+                          {index + 1}
+                        </span>
+                        <span>{step.title}</span>
+                      </div>
+                      <div
+                        className={`space-y-4 text-base-content/80 ${
+                          index < activeStep ? "opacity-70" : ""
+                        }`}
                       >
-                        {isSubmitting ? (
-                          <span className="loading loading-spinner loading-xs"></span>
-                        ) : activeStep === totalSteps - 1 ? (
-                          "Submit"
-                        ) : (
-                          "Continue"
+                        <div className={index < activeStep ? "pointer-events-none" : ""}>
+                          {step.content}
+                        </div>
+                        {index === activeStep && (
+                          <div className="flex justify-end">
+                            <button
+                              className="btn btn-primary btn-sm"
+                              onClick={() => handleContinue(activeStep)}
+                              disabled={!stepStatus[activeStep] || isSubmitting}
+                            >
+                              {isSubmitting ? (
+                                <span className="loading loading-spinner loading-xs"></span>
+                              ) : activeStep === totalSteps - 1 ? (
+                                "Submit"
+                              ) : (
+                                "Continue"
+                              )}
+                            </button>
+                          </div>
                         )}
-                      </button>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
               </Dialog.Panel>
             </Transition.Child>
