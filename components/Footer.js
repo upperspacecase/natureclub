@@ -9,7 +9,7 @@ const Footer = () => {
   const closeModal = () => setActiveModal(null);
   return (
     <footer
-      className="relative overflow-hidden text-base-content"
+      className="mt-16 relative overflow-hidden text-base-content md:mt-24"
       style={{
         backgroundImage: "url(/pexels-andrejcook-396714.jpg)",
         backgroundSize: "cover",

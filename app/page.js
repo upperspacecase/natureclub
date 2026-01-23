@@ -84,7 +84,9 @@ export default function Page() {
           </span>
         </div>
       </section>
-      <EventsSection />
+      <div className="mt-16 md:mt-24">
+        <EventsSection />
+      </div>
       <Footer />
     </div>
   );
