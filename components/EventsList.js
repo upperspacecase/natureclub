@@ -96,7 +96,7 @@ const EventsList = ({ events }) => {
           return (
             <div
               key={event.id}
-              className="flex w-[78vw] min-w-[78vw] snap-center flex-col items-center gap-6 sm:w-[420px] sm:min-w-[420px]"
+              className="flex w-[78vw] min-w-[78vw] snap-center flex-col items-center sm:w-[420px] sm:min-w-[420px]"
             >
               <article className="group relative h-[420px] w-full overflow-hidden rounded-[32px] border border-base-content/10 bg-base-200/40 shadow-xl sm:h-[520px]">
                 <Image
@@ -146,12 +146,6 @@ const EventsList = ({ events }) => {
                   )}
                 </button>
               </article>
-              <button
-                type="button"
-                className="btn btn-primary"
-              >
-                Get 1 month free
-              </button>
             </div>
           );
         })}

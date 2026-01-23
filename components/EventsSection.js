@@ -3,6 +3,7 @@ import eventsSeed from "@/data/events";
 import connectMongo from "@/libs/mongoose";
 import Event from "@/models/Event";
 import EventsList from "./EventsList";
+import WaitlistSection from "./WaitlistSection";
 
 const EventsSection = async () => {
   noStore();
@@ -43,6 +44,7 @@ const EventsSection = async () => {
           </p>
         </div>
         <EventsList events={normalizedEvents} />
+        <WaitlistSection />
       </div>
     </section>
   );

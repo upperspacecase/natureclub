@@ -1,7 +1,6 @@
 import EventsSection from "@/components/EventsSection";
 import HeroVideo from "@/components/HeroVideo";
 import RecordVisit from "@/components/RecordVisit";
-import WaitlistSection from "@/components/WaitlistSection";
 
 export default function Page() {
   const HERO_VIDEO = "forest";
@@ -19,44 +18,44 @@ export default function Page() {
         <div className="relative z-10 min-h-screen">
           <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 pb-16 md:px-10">
             {/* Header/Logo */}
-			<header className="pt-6 md:pt-10">
-				<picture>
-					<source
-						srcSet="/logo-dark.svg"
-						media="(prefers-color-scheme: dark)"
-					/>
-					{/* eslint-disable-next-line @next/next/no-img-element */}
-					<img
-						src="/logo-light.svg"
-						alt="Nature Club"
-						className="h-48 md:h-60 w-auto"
-					/>
-				</picture>
-			</header>
+            <header className="pt-6 md:pt-10">
+              <picture>
+                <source
+                  srcSet="/logo-dark.svg"
+                  media="(prefers-color-scheme: dark) and (min-width: 768px)"
+                />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/logo-light.svg"
+                  alt="Nature Club"
+                  className="h-48 md:h-60 w-auto"
+                />
+              </picture>
+            </header>
 
             {/* Hero Content — aligned with carousel edges */}
             <main className="flex flex-1 items-start">
               <div className="w-full pt-6 md:pt-10">
                 {/* Main Headline */}
                 <h1
-                  className="mb-8 font-serif leading-[1.05] text-base-content"
+                  className="mb-6 font-serif leading-[1.05] text-base-content"
                   style={{ fontSize: "clamp(3.25rem, 9vw, 6.5rem)" }}
                 >
-                  Make time
+                  Spend more time
                   <br />
-                  for Nature.
+                  in Nature.
                 </h1>
 
-                {/* Subtext and CTA */}
-                <div className="flex w-full flex-col gap-6 sm:flex-row sm:items-end">
-                  <p className="max-w-sm text-base leading-relaxed text-base-content/90 md:text-lg">
-                    Connect to a whole world of nature based experiences, events
-                    and facilitators.
+                {/* Subtext */}
+                <div className="flex w-full flex-col gap-6">
+                  <p className="max-w-md text-base leading-relaxed text-base-content/90 md:text-lg">
+                    Access local Nature events, experiences, and classes with one
+                    membership.
                   </p>
-
-                  <button className="btn btn-primary self-start whitespace-nowrap sm:ml-auto sm:self-auto">
-                    Explore Experiences
-                  </button>
+                  <p className="max-w-xs text-sm leading-relaxed text-base-content/70">
+                    Every booking supports local ecosystem restoration + 1% for the
+                    planet
+                  </p>
                 </div>
               </div>
             </main>
@@ -64,7 +63,6 @@ export default function Page() {
         </div>
       </section>
       <EventsSection />
-      <WaitlistSection />
       <section className="bg-base-200 px-6 py-16 text-base-content md:px-10">
         <div className="mx-auto max-w-5xl space-y-8">
           <h2 className="text-3xl font-serif">About</h2>

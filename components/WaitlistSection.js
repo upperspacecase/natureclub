@@ -448,44 +448,24 @@ const WaitlistSection = () => {
   );
 
   return (
-    <section className="bg-base-200 px-6 py-16 text-base-content md:px-10">
-      <div className="mx-auto max-w-5xl space-y-10">
-        <div className="space-y-3">
-          <h2 className="text-3xl font-serif">Join the waitlist</h2>
-          <p className="text-sm text-base-content/80">
-            Choose how you want to be involved.
-          </p>
-        </div>
-        <div className="grid gap-8 md:grid-cols-2">
-          <div className="rounded-2xl border border-base-content/10 bg-base-100/40 p-6">
-            <h3 className="text-xl font-serif">Members</h3>
-            <p className="mt-2 text-sm text-base-content/80">
-              Be first to hear about upcoming sessions.
-            </p>
-            <div className="mt-4">
-              <button
-                className="btn btn-primary btn-block"
-                onClick={() => setIsMemberModalOpen(true)}
-              >
-                Join as member
-              </button>
-            </div>
-          </div>
-          <div className="rounded-2xl border border-base-content/10 bg-base-100/40 p-6">
-            <h3 className="text-xl font-serif">Host interest</h3>
-            <p className="mt-2 text-sm text-base-content/80">
-              Let us know you want to host sessions.
-            </p>
-            <div className="mt-4">
-              <button
-                className="btn btn-primary btn-block"
-                onClick={() => setIsHostModalOpen(true)}
-              >
-                Join as host
-              </button>
-            </div>
-          </div>
-        </div>
+    <div className="space-y-4">
+      <p className="max-w-3xl text-sm text-base-content/80 md:text-base">
+        Science shows 2+ hours weekly in nature cuts stress, lifts mood, and
+        strengthens immunity.
+      </p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <button
+          className="btn btn-primary"
+          onClick={() => setIsMemberModalOpen(true)}
+        >
+          Become a Member
+        </button>
+        <button
+          className="btn btn-outline"
+          onClick={() => setIsHostModalOpen(true)}
+        >
+          Become a Host
+        </button>
       </div>
       <WaitlistModal
         title="Hosts"
@@ -501,7 +481,7 @@ const WaitlistSection = () => {
         steps={memberSteps}
         onComplete={submitMemberLead}
       />
-    </section>
+    </div>
   );
 };
 
