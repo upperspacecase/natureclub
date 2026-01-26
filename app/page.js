@@ -68,8 +68,18 @@ export default function Page() {
             </main>
           </div>
         </div>
-        <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center text-base-content/70">
-          <span className="animate-scrollHint opacity-50">
+        <div className="absolute inset-x-0 bottom-6 z-20 flex justify-center text-base-content/70">
+          <button
+            type="button"
+            className="animate-scrollHint opacity-50"
+            aria-label="Scroll to experiences"
+            onClick={() => {
+              const target = document.getElementById("events-carousel");
+              if (target) {
+                target.scrollIntoView({ behavior: "smooth", block: "center" });
+              }
+            }}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -81,7 +91,7 @@ export default function Page() {
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="m6 15 6-6 6 6" />
             </svg>
-          </span>
+          </button>
         </div>
       </section>
       <div className="mt-16 md:mt-24">

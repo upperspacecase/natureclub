@@ -42,7 +42,9 @@ const EventsSection = async () => {
         <p className="text-center text-sm text-base-content/80">
           Explore upcoming experiences in nature.
         </p>
-        <EventsList events={normalizedEvents} />
+        <div id="events-carousel">
+          <EventsList events={normalizedEvents} />
+        </div>
         <WaitlistSection />
       </div>
     </section>
