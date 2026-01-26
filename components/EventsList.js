@@ -6,14 +6,14 @@ import apiClient from "@/libs/api";
 
 const CLIENT_ID_KEY = "nc-client-id";
 const BURST_HEARTS = [
-  { x: -18, y: -20, rotate: "-14deg", delay: 0 },
-  { x: -12, y: -20, rotate: "-8deg", delay: 40 },
-  { x: -6, y: -20, rotate: "-4deg", delay: 80 },
-  { x: 0, y: -20, rotate: "0deg", delay: 120 },
-  { x: 6, y: -20, rotate: "4deg", delay: 160 },
-  { x: 12, y: -20, rotate: "8deg", delay: 200 },
-  { x: 18, y: -20, rotate: "12deg", delay: 240 },
-  { x: 24, y: -20, rotate: "16deg", delay: 280 },
+  { x: 0, y: -20, rotate: "-10deg", delay: 0 },
+  { x: 0, y: -20, rotate: "-6deg", delay: 70 },
+  { x: 0, y: -20, rotate: "-3deg", delay: 140 },
+  { x: 0, y: -20, rotate: "0deg", delay: 210 },
+  { x: 0, y: -20, rotate: "3deg", delay: 280 },
+  { x: 0, y: -20, rotate: "6deg", delay: 350 },
+  { x: 0, y: -20, rotate: "10deg", delay: 420 },
+  { x: 0, y: -20, rotate: "14deg", delay: 490 },
 ];
 
 const getClientId = () => {
@@ -81,11 +81,30 @@ const EventsList = ({ events }) => {
   };
 
   const handleScroll = (direction) => {
-    if (!scrollerRef.current) return;
-    const scrollAmount = scrollerRef.current.clientWidth * 0.75;
-    scrollerRef.current.scrollBy({
-      left: direction === "next" ? scrollAmount : -scrollAmount,
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    const cards = Array.from(scroller.querySelectorAll("[data-event-card]"));
+    if (!cards.length) return;
+    const scrollerCenter = scroller.scrollLeft + scroller.clientWidth / 2;
+    const currentIndex = cards.reduce((closestIndex, card, index) => {
+      const cardCenter = card.offsetLeft + card.clientWidth / 2;
+      const closestCard = cards[closestIndex];
+      const closestCenter =
+        closestCard.offsetLeft + closestCard.clientWidth / 2;
+      return Math.abs(cardCenter - scrollerCenter) <
+        Math.abs(closestCenter - scrollerCenter)
+        ? index
+        : closestIndex;
+    }, 0);
+    const delta = direction === "next" ? 1 : -1;
+    const targetIndex = Math.min(
+      Math.max(currentIndex + delta, 0),
+      cards.length - 1
+    );
+    cards[targetIndex].scrollIntoView({
       behavior: "smooth",
+      block: "nearest",
+      inline: "center",
     });
   };
 
@@ -114,6 +133,7 @@ const EventsList = ({ events }) => {
           return (
             <div
               key={event.id}
+              data-event-card
               className="flex w-[70vw] min-w-[70vw] snap-center flex-col items-center sm:w-[360px] sm:min-w-[360px] lg:w-[380px] lg:min-w-[380px]"
             >
               <article className="group relative h-[420px] w-full overflow-hidden rounded-[10px] border border-base-content/10 bg-base-200/40 shadow-xl sm:h-[520px]">
@@ -172,7 +192,9 @@ const EventsList = ({ events }) => {
                   aria-pressed={isLiked}
                   disabled={isLoading || isBusy}
                   onClick={() => handleToggleLike(event.id)}
-                  className="btn btn-circle btn-ghost absolute bottom-6 right-6 disabled:opacity-50"
+                  className={`btn btn-circle absolute bottom-6 right-6 border-0 disabled:opacity-50 ${
+                    isLiked ? "bg-white text-red-500" : "bg-transparent text-white"
+                  }`}
                 >
                   {isLiked ? (
                     <svg

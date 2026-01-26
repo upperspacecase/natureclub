@@ -13,7 +13,7 @@
   --animate-wiggle: wiggle 1.5s ease-in-out infinite;
   --animate-popup: popup 0.25s ease-in-out;
   --animate-scrollHint: scrollHint 1.6s ease-in-out infinite;
-  --animate-heartBurst: heartBurst 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  --animate-heartBurst: heartBurst 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 
   @keyframes opacity {
     0% {
@@ -102,7 +102,7 @@
       opacity: 1;
     }
     100% {
-      transform: translate(var(--heart-x, 0px), var(--heart-y, -24px))
+      transform: translate(0px, var(--heart-y, -20px))
         scale(1.25)
         rotate(var(--heart-rotate, 0deg));
       opacity: 0;
