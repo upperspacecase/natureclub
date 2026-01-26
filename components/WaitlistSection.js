@@ -28,41 +28,50 @@ const WaitlistSection = () => {
   const [memberEmail, setMemberEmail] = useState("");
   const [modalBackgroundImage, setModalBackgroundImage] = useState("");
 
-  const hostFeatureOptions = [
-    "Calendar sync (Google, Outlook)",
-    "Automated reminders/confirmations",
-    "Payment processing",
-    "Member CRM (email, history, preferences)",
-    "Analytics (attendance trends, revenue tracking)",
-    "Reviews/ratings",
-    "Group booking capability",
-    "Waitlist management",
-    "Messaging with members",
-  ];
+  const hostFeatureOptions = useMemo(
+    () => [
+      "Calendar sync (Google, Outlook)",
+      "Automated reminders/confirmations",
+      "Payment processing",
+      "Member CRM (email, history, preferences)",
+      "Analytics (attendance trends, revenue tracking)",
+      "Reviews/ratings",
+      "Group booking capability",
+      "Waitlist management",
+      "Messaging with members",
+    ],
+    []
+  );
 
-  const memberInterestOptions = [
-    "Movement (fitness, primal movement, mobility, qi gong, dance, surfing, paddling)",
-    "Wellness (yoga, breathwork, meditation, sound bath)",
-    "Arts (crafts, music, writing, visual arts)",
-    "Wildlife (birdwatching, citizen science, tracking, ecology walks)",
-    "Social (tea ceremony, outdoor dining)",
-    "Cultivation (gardening, farming, permaculture, composting)",
-    "Restoration (volunteering, conservation, clean-ups, tree planting)",
-    "Cultural (harvest festivals, music festivals, solstice events, seasonal rites)",
-    "Skills (foraging, natural building, sailing, navigation, firecraft)",
-    "Adventure (hiking, camping, expeditions)",
-    "Other -",
-  ];
+  const memberInterestOptions = useMemo(
+    () => [
+      "Movement (fitness, primal movement, mobility, qi gong, dance, surfing, paddling)",
+      "Wellness (yoga, breathwork, meditation, sound bath)",
+      "Arts (crafts, music, writing, visual arts)",
+      "Wildlife (birdwatching, citizen science, tracking, ecology walks)",
+      "Social (tea ceremony, outdoor dining)",
+      "Cultivation (gardening, farming, permaculture, composting)",
+      "Restoration (volunteering, conservation, clean-ups, tree planting)",
+      "Cultural (harvest festivals, music festivals, solstice events, seasonal rites)",
+      "Skills (foraging, natural building, sailing, navigation, firecraft)",
+      "Adventure (hiking, camping, expeditions)",
+      "Other -",
+    ],
+    []
+  );
 
-  const memberMotivationOptions = [
-    "Transparent reviews from real members",
-    "Values/values alignment (sustainability, community-focused, etc.)",
-    "Bundled membership (book multiple activities across facilitators)",
-    "Better price/value",
-    "Time savings in booking process",
-    "Community connection with other members",
-    "Visible local impact/regeneration component",
-  ];
+  const memberMotivationOptions = useMemo(
+    () => [
+      "Transparent reviews from real members",
+      "Values/values alignment (sustainability, community-focused, etc.)",
+      "Bundled membership (book multiple activities across facilitators)",
+      "Better price/value",
+      "Time savings in booking process",
+      "Community connection with other members",
+      "Visible local impact/regeneration component",
+    ],
+    []
+  );
 
   const toggleSelection = (value, list, setter) => {
     if (list.includes(value)) {
@@ -298,6 +307,7 @@ const WaitlistSection = () => {
       hostMessaging,
       hostRate,
       hostSessionsPerMonth,
+      hostFeatureOptions,
     ]
   );
 
@@ -477,6 +487,8 @@ const WaitlistSection = () => {
       memberMotivationsOther,
       memberPayPerBooking,
       memberPrice,
+      memberInterestOptions,
+      memberMotivationOptions,
     ]
   );
 

@@ -25,8 +25,6 @@ const WaitlistModal = ({
     () => steps.map((step) => step.isComplete?.()),
     [steps]
   );
-  const progressPercent =
-    totalSteps > 1 ? (activeStep / (totalSteps - 1)) * 100 : 0;
 
   const handleContinue = async (index) => {
     if (index < totalSteps - 1) {
