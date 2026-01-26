@@ -5,6 +5,16 @@ import Image from "next/image";
 import apiClient from "@/libs/api";
 
 const CLIENT_ID_KEY = "nc-client-id";
+const BURST_HEARTS = [
+  { x: -18, y: -20, rotate: "-14deg", delay: 0 },
+  { x: -12, y: -20, rotate: "-8deg", delay: 40 },
+  { x: -6, y: -20, rotate: "-4deg", delay: 80 },
+  { x: 0, y: -20, rotate: "0deg", delay: 120 },
+  { x: 6, y: -20, rotate: "4deg", delay: 160 },
+  { x: 12, y: -20, rotate: "8deg", delay: 200 },
+  { x: 18, y: -20, rotate: "12deg", delay: 240 },
+  { x: 24, y: -20, rotate: "16deg", delay: 280 },
+];
 
 const getClientId = () => {
   if (typeof window === "undefined") return null;
@@ -130,16 +140,17 @@ const EventsList = ({ events }) => {
                 {burstEventId === event.id && (
                   <div
                     key={burstKey}
-                    className="pointer-events-none absolute bottom-10 right-10"
+                    className="pointer-events-none absolute bottom-6 right-6"
                   >
-                    {[0, 1, 2].map((index) => (
+                    {BURST_HEARTS.map((heart, index) => (
                       <span
                         key={index}
-                        className="absolute h-4 w-4 animate-[heartBurst] text-base-content"
+                        className="absolute h-4 w-4 animate-heartBurst text-base-content"
                         style={{
-                          "--heart-x": `${index === 0 ? -8 : index === 1 ? 0 : 8}px`,
-                          "--heart-y": `${index === 0 ? -24 : index === 1 ? -32 : -20}px`,
-                          animationDelay: `${index * 80}ms`,
+                          "--heart-x": `${heart.x}px`,
+                          "--heart-y": `${heart.y}px`,
+                          "--heart-rotate": heart.rotate,
+                          animationDelay: `${heart.delay}ms`,
                         }}
                       >
                         <svg
