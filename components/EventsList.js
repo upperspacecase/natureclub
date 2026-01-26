@@ -22,6 +22,7 @@ const EventsList = ({ events }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [activeEventId, setActiveEventId] = useState(null);
   const [burstEventId, setBurstEventId] = useState(null);
+  const [burstKey, setBurstKey] = useState(0);
   const scrollerRef = useRef(null);
 
   useEffect(() => {
@@ -52,6 +53,7 @@ const EventsList = ({ events }) => {
     if (!clientId) return;
     setActiveEventId(eventId);
     setBurstEventId(eventId);
+    setBurstKey((prev) => prev + 1);
     try {
       const data = await apiClient.post("/event-like", { eventId, clientId });
       setLikedIds((prev) => {
@@ -126,7 +128,10 @@ const EventsList = ({ events }) => {
                   </div>
                 )}
                 {burstEventId === event.id && (
-                  <div className="pointer-events-none absolute bottom-10 right-10">
+                  <div
+                    key={burstKey}
+                    className="pointer-events-none absolute bottom-10 right-10"
+                  >
                     {[0, 1, 2].map((index) => (
                       <span
                         key={index}
@@ -189,7 +194,7 @@ const EventsList = ({ events }) => {
         type="button"
         aria-label="Previous events"
         onClick={() => handleScroll("prev")}
-        className="btn btn-circle btn-ghost absolute left-2 top-1/2 h-12 w-12 -translate-y-1/2"
+        className="btn btn-circle btn-ghost absolute left-2 top-1/2 z-20 h-12 w-12 -translate-y-1/2 pointer-events-auto"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -206,7 +211,7 @@ const EventsList = ({ events }) => {
         type="button"
         aria-label="Next events"
         onClick={() => handleScroll("next")}
-        className="btn btn-circle btn-ghost absolute right-2 top-1/2 h-12 w-12 -translate-y-1/2"
+        className="btn btn-circle btn-ghost absolute right-2 top-1/2 z-20 h-12 w-12 -translate-y-1/2 pointer-events-auto"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
