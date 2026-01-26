@@ -5,6 +5,16 @@ import { toast } from "react-hot-toast";
 import apiClient from "@/libs/api";
 import WaitlistModal from "./WaitlistModal";
 
+const mapSliderToPrice = (sliderValue) => {
+  const clamped = Math.max(0, Math.min(100, sliderValue));
+  if (clamped >= 50) {
+    const t = (clamped - 50) / 50;
+    return Math.round(100 + Math.pow(t, 2) * 400);
+  }
+  const t = (50 - clamped) / 50;
+  return Math.round(100 - Math.pow(t, 1.6) * 80);
+};
+
 const WaitlistSection = () => {
   const [isHostModalOpen, setIsHostModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
@@ -13,7 +23,10 @@ const WaitlistSection = () => {
   const [hostSessionsPerMonth, setHostSessionsPerMonth] = useState("");
   const [hostBookingsPerSession, setHostBookingsPerSession] = useState("");
   const [hostRate, setHostRate] = useState("");
-  const [hostMessaging, setHostMessaging] = useState("");
+  const [hostRateOther, setHostRateOther] = useState(false);
+  const [hostRateOtherText, setHostRateOtherText] = useState("");
+  const [hostTools, setHostTools] = useState([]);
+  const [hostToolsOther, setHostToolsOther] = useState("");
   const [hostFeatures, setHostFeatures] = useState([]);
   const [hostFeaturesOther, setHostFeaturesOther] = useState("");
   const [hostEmail, setHostEmail] = useState("");
@@ -23,10 +36,14 @@ const WaitlistSection = () => {
   const [memberInterestsOther, setMemberInterestsOther] = useState("");
   const [memberMotivations, setMemberMotivations] = useState([]);
   const [memberMotivationsOther, setMemberMotivationsOther] = useState("");
-  const [memberPrice, setMemberPrice] = useState(120);
+  const [memberPriceSlider, setMemberPriceSlider] = useState(50);
   const [memberPayPerBooking, setMemberPayPerBooking] = useState(false);
   const [memberEmail, setMemberEmail] = useState("");
   const [modalBackgroundImage, setModalBackgroundImage] = useState("");
+  const memberPrice = useMemo(
+    () => mapSliderToPrice(memberPriceSlider),
+    [memberPriceSlider]
+  );
 
   const hostFeatureOptions = useMemo(
     () => [
@@ -69,6 +86,17 @@ const WaitlistSection = () => {
       "Time savings in booking process",
       "Community connection with other members",
       "Visible local impact/regeneration component",
+    ],
+    []
+  );
+
+  const hostToolOptions = useMemo(
+    () => [
+      "Personal Messaging (Whatsapp/Telegram)",
+      "Group Messaging",
+      "Word of Mouth",
+      "Studio booking system",
+      "Other",
     ],
     []
   );
@@ -119,7 +147,9 @@ const WaitlistSection = () => {
           sessionsPerMonth: hostSessionsPerMonth,
           bookingsPerSession: hostBookingsPerSession,
           rate: hostRate,
-          messaging: hostMessaging,
+          rateOther: hostRateOther ? hostRateOtherText : "",
+          tools: hostTools,
+          toolsOther: hostToolsOther,
           features: hostFeatures,
           featuresOther: hostFeaturesOther,
         },
@@ -162,7 +192,7 @@ const WaitlistSection = () => {
     () => [
       {
         key: "host-location",
-        title: "Location",
+        title: "Where are you based?",
         isComplete: () => Boolean(hostLocation.city || hostLocation.coords),
         content: (
           <div className="space-y-3">
@@ -194,57 +224,109 @@ const WaitlistSection = () => {
       },
       {
         key: "host-bookings",
-        title:
-          "Bookings/Sessions — how many sessions per month and average bookings?",
+        title: "Bookings",
         isComplete: () =>
           Boolean(hostSessionsPerMonth) && Boolean(hostBookingsPerSession),
         content: (
-          <div className="grid gap-3 sm:grid-cols-2">
-            <input
-              type="number"
-              min="0"
-              placeholder="Sessions per month"
-              className="input input-bordered w-full"
-              value={hostSessionsPerMonth}
-              onChange={(e) => setHostSessionsPerMonth(e.target.value)}
-            />
-            <input
-              type="number"
-              min="0"
-              placeholder="Avg. bookings per session"
-              className="input input-bordered w-full"
-              value={hostBookingsPerSession}
-              onChange={(e) => setHostBookingsPerSession(e.target.value)}
-            />
+          <div className="space-y-3 text-sm text-base-content/80">
+            <p>
+              In a normal month I host{" "}
+              <input
+                type="number"
+                min="0"
+                placeholder="No. of sessions"
+                className="input input-bordered mx-2 w-36"
+                value={hostSessionsPerMonth}
+                onChange={(e) => setHostSessionsPerMonth(e.target.value)}
+              />
+              with about{" "}
+              <input
+                type="number"
+                min="0"
+                placeholder="Avg. no. of bookings"
+                className="input input-bordered mx-2 w-44"
+                value={hostBookingsPerSession}
+                onChange={(e) => setHostBookingsPerSession(e.target.value)}
+              />{" "}
+              bookings per session.
+            </p>
           </div>
         ),
       },
       {
         key: "host-price",
-        title: "Price — what are your rates?",
-        isComplete: () => Boolean(hostRate),
+        title: "What are your rates?",
+        isComplete: () =>
+          Boolean(hostRate) ||
+          (hostRateOther && hostRateOtherText.trim().length > 0),
         content: (
-          <input
-            type="text"
-            placeholder="$ / session or package"
-            className="input input-bordered w-full"
-            value={hostRate}
-            onChange={(e) => setHostRate(e.target.value)}
-          />
+          <div className="space-y-3">
+            <input
+              type="text"
+              placeholder="$ / booking"
+              className="input input-bordered w-full"
+              value={hostRate}
+              onChange={(e) => setHostRate(e.target.value)}
+            />
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                checked={hostRateOther}
+                onChange={(e) => setHostRateOther(e.target.checked)}
+              />
+              <span>Other</span>
+            </label>
+            {hostRateOther && (
+              <input
+                type="text"
+                placeholder="Please say more..."
+                className="input input-bordered w-full"
+                value={hostRateOtherText}
+                onChange={(e) => setHostRateOtherText(e.target.value)}
+              />
+            )}
+          </div>
         ),
       },
       {
         key: "host-messaging",
-        title: "What do you currently use? (Messaging)",
-        isComplete: () => Boolean(hostMessaging),
+        title:
+          "Which tools do you currently use for finding clients and organizing sessions?",
+        isComplete: () =>
+          hostTools.length > 0 &&
+          (!hostTools.includes("Other") || hostToolsOther.trim().length > 0),
         content: (
-          <input
-            type="text"
-            placeholder="WhatsApp, email, SMS, etc."
-            className="input input-bordered w-full"
-            value={hostMessaging}
-            onChange={(e) => setHostMessaging(e.target.value)}
-          />
+          <div className="space-y-3">
+            <div className="grid gap-2">
+              {hostToolOptions.map((option) => {
+                const isSelected = hostTools.includes(option);
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => toggleSelection(option, hostTools, setHostTools)}
+                    className={`w-full rounded-full border px-4 py-2 text-left text-sm transition ${
+                      isSelected
+                        ? "border-base-content bg-base-content/15 text-base-content"
+                        : "border-base-content/20 text-base-content/80 hover:border-base-content"
+                    }`}
+                  >
+                    {option}
+                  </button>
+                );
+              })}
+              {hostTools.includes("Other") && (
+                <input
+                  type="text"
+                  placeholder="Other..."
+                  className="input input-bordered w-full"
+                  value={hostToolsOther}
+                  onChange={(e) => setHostToolsOther(e.target.value)}
+                />
+              )}
+            </div>
+          </div>
         ),
       },
       {
@@ -304,10 +386,14 @@ const WaitlistSection = () => {
       hostFeaturesOther,
       hostLocation,
       hostEmail,
-      hostMessaging,
+      hostRateOther,
+      hostRateOtherText,
+      hostTools,
+      hostToolsOther,
       hostRate,
       hostSessionsPerMonth,
       hostFeatureOptions,
+      hostToolOptions,
     ]
   );
 
@@ -315,7 +401,7 @@ const WaitlistSection = () => {
     () => [
       {
         key: "member-location",
-        title: "Location",
+        title: "Where are you based?",
         isComplete: () => Boolean(memberLocation.city || memberLocation.coords),
         content: (
           <div className="space-y-3">
@@ -439,12 +525,12 @@ const WaitlistSection = () => {
             <div className="space-y-2">
               <input
                 type="range"
-                min="20"
-                max="500"
-                step="10"
+                min="0"
+                max="100"
+                step="1"
                 className="range range-primary"
-                value={memberPrice}
-                onChange={(e) => setMemberPrice(Number(e.target.value))}
+                value={memberPriceSlider}
+                onChange={(e) => setMemberPriceSlider(Number(e.target.value))}
               />
               <p className="text-sm text-base-content/70">
                 ${memberPrice}
