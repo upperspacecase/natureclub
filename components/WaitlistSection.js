@@ -5,16 +5,6 @@ import { toast } from "react-hot-toast";
 import apiClient from "@/libs/api";
 import WaitlistModal from "./WaitlistModal";
 
-const mapSliderToPrice = (sliderValue) => {
-  const clamped = Math.max(0, Math.min(100, sliderValue));
-  if (clamped >= 50) {
-    const t = (clamped - 50) / 50;
-    return Math.round(100 + Math.pow(t, 2) * 400);
-  }
-  const t = (50 - clamped) / 50;
-  return Math.round(100 - Math.pow(t, 1.6) * 80);
-};
-
 const WaitlistSection = () => {
   const [isHostModalOpen, setIsHostModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
@@ -37,14 +27,9 @@ const WaitlistSection = () => {
   const [memberInterestsOther, setMemberInterestsOther] = useState("");
   const [memberMotivations, setMemberMotivations] = useState([]);
   const [memberMotivationsOther, setMemberMotivationsOther] = useState("");
-  const [memberPriceSlider, setMemberPriceSlider] = useState(50);
-  const [memberPayPerBooking, setMemberPayPerBooking] = useState(false);
+  const [memberPricingSelections, setMemberPricingSelections] = useState([]);
   const [memberEmail, setMemberEmail] = useState("");
   const [modalBackgroundImage, setModalBackgroundImage] = useState("");
-  const memberPrice = useMemo(
-    () => mapSliderToPrice(memberPriceSlider),
-    [memberPriceSlider]
-  );
 
   const hostFeatureOptions = useMemo(
     () => [
@@ -87,6 +72,19 @@ const WaitlistSection = () => {
       "Time savings in booking process",
       "Community connection with other members",
       "Visible local impact/regeneration component",
+    ],
+    []
+  );
+
+  const memberPricingOptions = useMemo(
+    () => [
+      "$20/month - 1 booking",
+      "$50/month - 3 bookings",
+      "$100/month - 8 bookings",
+      "$200/month - 20 bookings",
+      "$500+/month - family bookings",
+      "$80/per year + discounted price per booking",
+      "Prefer pay full price per booking (no membership)",
     ],
     []
   );
@@ -178,8 +176,7 @@ const WaitlistSection = () => {
           interestsOther: memberInterestsOther,
           motivations: memberMotivations,
           motivationsOther: memberMotivationsOther,
-          price: memberPrice,
-          payPerBooking: memberPayPerBooking,
+          pricingSelections: memberPricingSelections,
         },
       });
       toast.success("Thanks! We’ll be in touch.");
@@ -541,33 +538,38 @@ const WaitlistSection = () => {
         key: "member-price",
         title:
           "What would you be willing to pay for a monthly membership to Nature Club?",
-        isComplete: () => Boolean(memberPrice || memberPayPerBooking),
+        isComplete: () => memberPricingSelections.length > 0,
         content: (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <input
-                type="range"
-                min="0"
-                max="100"
-                step="1"
-                className="range range-primary"
-                value={memberPriceSlider}
-                onChange={(e) => setMemberPriceSlider(Number(e.target.value))}
-              />
-              <p className="text-sm text-base-content/70">
-                ${memberPrice}
-                {memberPrice >= 500 ? "+" : ""} / month
-              </p>
+          <div className="space-y-3">
+            <div className="grid gap-2">
+              {memberPricingOptions.map((option) => {
+                const isSelected = memberPricingSelections.includes(option);
+                return (
+                  <label
+                    key={option}
+                    className={`flex items-center gap-3 rounded-full border px-4 py-2 text-left text-sm transition ${
+                      isSelected
+                        ? "border-base-content bg-base-content/15 text-base-content"
+                        : "border-base-content/20 text-base-content/80 hover:border-base-content"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      className="checkbox checkbox-sm"
+                      checked={isSelected}
+                      onChange={() =>
+                        toggleSelection(
+                          option,
+                          memberPricingSelections,
+                          setMemberPricingSelections
+                        )
+                      }
+                    />
+                    <span>{option}</span>
+                  </label>
+                );
+              })}
             </div>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                className="checkbox checkbox-sm"
-                checked={memberPayPerBooking}
-                onChange={(e) => setMemberPayPerBooking(e.target.checked)}
-              />
-              <span>Prefer pay-per-booking (no membership)</span>
-            </label>
           </div>
         ),
       },
@@ -593,10 +595,10 @@ const WaitlistSection = () => {
       memberEmail,
       memberMotivations,
       memberMotivationsOther,
-      memberPayPerBooking,
-      memberPrice,
       memberInterestOptions,
       memberMotivationOptions,
+      memberPricingOptions,
+      memberPricingSelections,
     ]
   );
 
@@ -606,7 +608,7 @@ const WaitlistSection = () => {
         <p className="text-sm text-base-content/80 md:text-base">
           Studies show{" "}
           <a
-            className="link link-hover"
+            className="link underline"
             href="https://www.ecehh.org/news/2hr-nature-dose/"
             target="_blank"
             rel="noreferrer"
