@@ -136,7 +136,7 @@ const EventsList = ({ events }) => {
               data-event-card
               className="flex w-[70vw] min-w-[70vw] snap-center flex-col items-center sm:w-[360px] sm:min-w-[360px] lg:w-[380px] lg:min-w-[380px]"
             >
-              <article className="group relative h-[420px] w-full overflow-hidden rounded-[10px] border border-base-content/10 bg-base-200/40 shadow-xl sm:h-[520px]">
+              <article className="group relative h-[420px] w-full overflow-hidden rounded-[6px] border border-base-content/10 bg-base-200/40 shadow-xl sm:h-[520px]">
                 <Image
                   src={event.image}
                   alt={event.title}
@@ -144,9 +144,9 @@ const EventsList = ({ events }) => {
                   className="object-cover"
                   sizes="(max-width: 768px) 80vw, 420px"
                 />
-                <div className="absolute inset-0 bg-base-100/10" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/60" />
                 <div className="absolute left-6 top-6">
-                  <p className="text-2xl font-serif text-base-content sm:text-3xl">
+                  <p className="text-3xl font-serif text-white drop-shadow sm:text-4xl">
                     {event.title}
                   </p>
                 </div>
@@ -194,10 +194,8 @@ const EventsList = ({ events }) => {
                       aria-pressed={isLiked}
                       disabled={isLoading || isBusy}
                       onClick={() => handleToggleLike(event.id)}
-                      className={`btn btn-circle h-12 w-12 border-0 disabled:opacity-50 ${
-                        isLiked
-                          ? "bg-white text-red-500"
-                          : "bg-transparent text-white"
+                      className={`flex h-12 w-12 items-center justify-center bg-transparent disabled:opacity-50 ${
+                        isLiked ? "text-white" : "text-white"
                       }`}
                     >
                       {isLiked ? (
@@ -205,7 +203,7 @@ const EventsList = ({ events }) => {
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 24 24"
                           fill="currentColor"
-                          className="h-5 w-5"
+                          className="h-6 w-6"
                         >
                           <path d="M11.999 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 3.99 4 6.5 4c1.74 0 3.41.81 4.5 2.09C12.09 4.81 13.76 4 15.5 4 18.01 4 20 6 20 8.5c0 3.78-3.4 6.86-8.55 11.54l-1.451 1.31Z" />
                         </svg>
@@ -216,7 +214,7 @@ const EventsList = ({ events }) => {
                           fill="none"
                           stroke="currentColor"
                           strokeWidth="1.6"
-                          className="h-5 w-5"
+                          className="h-6 w-6"
                         >
                           <path d="M12.1 20.15 12 20.25l-.11-.1C7.14 15.8 4 12.96 4 9.5 4 7 5.99 5 8.5 5c1.54 0 3.04.73 4 1.88C13.46 5.73 14.96 5 16.5 5 19.01 4 21 7 21 9.5c0 3.46-3.14 6.3-8.9 10.65Z" />
                         </svg>
@@ -233,7 +231,7 @@ const EventsList = ({ events }) => {
         type="button"
         aria-label="Previous events"
         onClick={() => handleScroll("prev")}
-        className="btn btn-circle btn-ghost absolute left-2 top-1/2 z-20 h-12 w-12 -translate-y-1/2 pointer-events-auto"
+        className="absolute left-6 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-base-content/80 shadow-lg backdrop-blur pointer-events-auto"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -250,7 +248,7 @@ const EventsList = ({ events }) => {
         type="button"
         aria-label="Next events"
         onClick={() => handleScroll("next")}
-        className="btn btn-circle btn-ghost absolute right-2 top-1/2 z-20 h-12 w-12 -translate-y-1/2 pointer-events-auto"
+        className="absolute right-6 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-base-content/80 shadow-lg backdrop-blur pointer-events-auto"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
