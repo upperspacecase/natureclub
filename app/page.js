@@ -69,7 +69,7 @@ export default function Page() {
             </main>
           </div>
         </div>
-        <div className="absolute inset-x-0 bottom-6 z-20 flex justify-center text-base-content/70">
+        <div className="z-20 mt-6 flex justify-center text-base-content/70 md:absolute md:inset-x-0 md:bottom-6 md:mt-0">
           <ScrollToCarouselButton />
         </div>
       </section>

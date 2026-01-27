@@ -158,7 +158,7 @@ const EventsList = ({ events }) => {
                   </div>
                 )}
                 <div className="absolute bottom-6 right-6">
-                  <div className="relative h-12 w-12">
+                  <div className="relative h-16 w-16">
                     {burstEventId === event.id && (
                       <div
                         key={burstKey}
@@ -194,7 +194,7 @@ const EventsList = ({ events }) => {
                       aria-pressed={isLiked}
                       disabled={isLoading || isBusy}
                       onClick={() => handleToggleLike(event.id)}
-                      className={`flex h-12 w-12 items-center justify-center bg-transparent disabled:opacity-50 ${
+                      className={`flex h-16 w-16 items-center justify-center bg-transparent disabled:opacity-50 ${
                         isLiked ? "text-white" : "text-white"
                       }`}
                     >
@@ -203,7 +203,7 @@ const EventsList = ({ events }) => {
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 24 24"
                           fill="currentColor"
-                          className="h-6 w-6"
+                          className="h-12 w-12"
                         >
                           <path d="M11.999 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 3.99 4 6.5 4c1.74 0 3.41.81 4.5 2.09C12.09 4.81 13.76 4 15.5 4 18.01 4 20 6 20 8.5c0 3.78-3.4 6.86-8.55 11.54l-1.451 1.31Z" />
                         </svg>
@@ -214,7 +214,7 @@ const EventsList = ({ events }) => {
                           fill="none"
                           stroke="currentColor"
                           strokeWidth="1.6"
-                          className="h-6 w-6"
+                          className="h-12 w-12"
                         >
                           <path d="M12.1 20.15 12 20.25l-.11-.1C7.14 15.8 4 12.96 4 9.5 4 7 5.99 5 8.5 5c1.54 0 3.04.73 4 1.88C13.46 5.73 14.96 5 16.5 5 19.01 4 21 7 21 9.5c0 3.46-3.14 6.3-8.9 10.65Z" />
                         </svg>
