@@ -23,8 +23,9 @@ const WaitlistSection = () => {
   const [hostSessionsPerMonth, setHostSessionsPerMonth] = useState("");
   const [hostBookingsPerSession, setHostBookingsPerSession] = useState("");
   const [hostRate, setHostRate] = useState("");
-  const [hostRateOther, setHostRateOther] = useState(false);
-  const [hostRateOtherText, setHostRateOtherText] = useState("");
+  const [hostRateIsRange, setHostRateIsRange] = useState(false);
+  const [hostRateMin, setHostRateMin] = useState("");
+  const [hostRateMax, setHostRateMax] = useState("");
   const [hostTools, setHostTools] = useState([]);
   const [hostToolsOther, setHostToolsOther] = useState("");
   const [hostFeatures, setHostFeatures] = useState([]);
@@ -147,7 +148,9 @@ const WaitlistSection = () => {
           sessionsPerMonth: hostSessionsPerMonth,
           bookingsPerSession: hostBookingsPerSession,
           rate: hostRate,
-          rateOther: hostRateOther ? hostRateOtherText : "",
+          rateRange: hostRateIsRange
+            ? { min: hostRateMin, max: hostRateMax }
+            : null,
           tools: hostTools,
           toolsOther: hostToolsOther,
           features: hostFeatures,
@@ -232,19 +235,23 @@ const WaitlistSection = () => {
             <p>
               In a normal month I host{" "}
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 min="0"
                 placeholder="No. of sessions"
-                className="input input-bordered mx-2 w-36"
+                className="input input-bordered mx-2 w-20 px-2 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 value={hostSessionsPerMonth}
                 onChange={(e) => setHostSessionsPerMonth(e.target.value)}
               />
               with about{" "}
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 min="0"
                 placeholder="Avg. no. of bookings"
-                className="input input-bordered mx-2 w-44"
+                className="input input-bordered mx-2 w-24 px-2 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 value={hostBookingsPerSession}
                 onChange={(e) => setHostBookingsPerSession(e.target.value)}
               />{" "}
@@ -257,33 +264,47 @@ const WaitlistSection = () => {
         key: "host-price",
         title: "What are your rates?",
         isComplete: () =>
-          Boolean(hostRate) ||
-          (hostRateOther && hostRateOtherText.trim().length > 0),
+          (hostRateIsRange
+            ? Boolean(hostRateMin && hostRateMax)
+            : Boolean(hostRate)),
         content: (
           <div className="space-y-3">
-            <input
-              type="text"
-              placeholder="$ / booking"
-              className="input input-bordered w-full"
-              value={hostRate}
-              onChange={(e) => setHostRate(e.target.value)}
-            />
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
                 className="checkbox checkbox-sm"
-                checked={hostRateOther}
-                onChange={(e) => setHostRateOther(e.target.checked)}
+                checked={hostRateIsRange}
+                onChange={(e) => setHostRateIsRange(e.target.checked)}
               />
-              <span>Other</span>
+              <span>Use a range</span>
             </label>
-            {hostRateOther && (
+            {hostRateIsRange ? (
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="Min price"
+                  className="input input-bordered w-full"
+                  value={hostRateMin}
+                  onChange={(e) => setHostRateMin(e.target.value)}
+                />
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="Max price"
+                  className="input input-bordered w-full"
+                  value={hostRateMax}
+                  onChange={(e) => setHostRateMax(e.target.value)}
+                />
+              </div>
+            ) : (
               <input
                 type="text"
-                placeholder="Please say more..."
+                inputMode="decimal"
+                placeholder="$ / booking"
                 className="input input-bordered w-full"
-                value={hostRateOtherText}
-                onChange={(e) => setHostRateOtherText(e.target.value)}
+                value={hostRate}
+                onChange={(e) => setHostRate(e.target.value)}
               />
             )}
           </div>
@@ -386,8 +407,9 @@ const WaitlistSection = () => {
       hostFeaturesOther,
       hostLocation,
       hostEmail,
-      hostRateOther,
-      hostRateOtherText,
+      hostRateIsRange,
+      hostRateMin,
+      hostRateMax,
       hostTools,
       hostToolsOther,
       hostRate,
@@ -582,23 +604,47 @@ const WaitlistSection = () => {
     <div className="space-y-6">
       <div className="rounded-2xl border border-base-content/15 bg-base-100/10 px-6 py-4 text-center">
         <p className="text-sm text-base-content/80 md:text-base">
-          Science shows 2+ hours weekly in nature cuts stress, lifts mood, and
-          strengthens immunity.
+          Studies show{" "}
+          <a
+            className="link link-hover"
+            href="https://www.ecehh.org/news/2hr-nature-dose/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            at least 2 hours in Nature a week
+          </a>{" "}
+          have measurable effects on stress, mood, heart health, immune function,
+          and overall life satisfaction.
         </p>
       </div>
-      <div className="flex flex-col justify-center gap-3 sm:flex-row sm:items-center">
-        <button
-          className="btn btn-primary"
-          onClick={() => setIsMemberModalOpen(true)}
-        >
-          Become a Member
-        </button>
-        <button
-          className="btn btn-outline"
-          onClick={() => setIsHostModalOpen(true)}
-        >
-          Become a Host
-        </button>
+      <div className="flex flex-col justify-center gap-6 sm:flex-row sm:items-start">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <button
+            className="btn btn-primary"
+            onClick={() => setIsMemberModalOpen(true)}
+          >
+            Become a Member
+          </button>
+          <p className="max-w-xs text-sm text-base-content/70">
+            We are in currently in beta testing and would like to offer you free
+            founding membership as we get launched in your area. Please fill out
+            answer a few questions below to secure your founding membership.
+          </p>
+        </div>
+        <div className="flex flex-col items-center gap-3 text-center">
+          <button
+            className="btn btn-outline"
+            onClick={() => setIsHostModalOpen(true)}
+          >
+            Become a Host
+          </button>
+          <p className="max-w-xs text-sm text-base-content/70">
+            We are in currently in beta testing and would like to offer you a
+            founding host membership as we get launched in your area. Please
+            fill out answer a few questions below to secure your founding
+            membership.
+          </p>
+        </div>
       </div>
       <WaitlistModal
         title="Become a host"

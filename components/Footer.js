@@ -92,18 +92,38 @@ const Footer = () => {
 
                   {activeModal === "about" && (
                     <div className="space-y-4 text-base-content/80">
-                      <p>Just a couple of unique monkeys building the best tools we can.</p>
-                      <p>With Love. Tay &amp; River</p>
+                      <p>
+                        Nature Club started to make the proven “Nature dose” effortless,
+                        fostering deeper belonging to earth and each other — one local
+                        experience at a time. Not to replace spontaneity, but to make
+                        Nature a habit again—for individuals, families, and teams who
+                        forgot how to get started.
+                      </p>
+                      <p>
+                        We’re a community of guides, teachers, and Nature lovers making it
+                        simple to get outside with people who know what they’re doing.
+                        Every listing is hosted by someone local. Every review is from
+                        someone who actually showed up. No middlemen, no mass tourism—just
+                        real people sharing what they love. Join as a guest. Host as an
+                        expert. Or both.
+                      </p>
                     </div>
                   )}
 
                   {activeModal === "vision" && (
                     <div className="space-y-4 text-base-content/80">
                       <p>
-                        We imagine a world where technology gracefully serves life instead
-                        of consuming it—where people have more time for genuine
-                        connection, unexpected joy, and the pursuits that make them truly
-                        feel alive.
+                        Our vision is to support a million people spending two more hours
+                        outside each week. That’s it. Small actions, repeated, create
+                        change. When you book a foraging class, you learn a skill. When
+                        you join a hike, you meet neighbors. When you volunteer, we
+                        restore land.
+                      </p>
+                      <p>
+                        We want anyone to be able to find an outdoor activity within 20
+                        minutes of wherever they live—and for hosts to earn sustainable
+                        income doing what they love, with each booking also supporting
+                        local ecosystem restoration.
                       </p>
                     </div>
                   )}

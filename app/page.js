@@ -54,7 +54,7 @@ export default function Page() {
                   </p>
                   <div className="flex items-center gap-3 text-sm leading-tight text-base-content/70">
                     <span className="flex flex-col leading-tight">
-                      <span>Every booking supports</span>
+                      <span>Every membership supports</span>
                       <span>local ecosystem restoration +</span>
                     </span>
                     {/* eslint-disable-next-line @next/next/no-img-element */}

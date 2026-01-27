@@ -40,7 +40,7 @@ const EventsSection = async () => {
     <section className="bg-base-100 px-6 py-16 text-base-content md:px-10">
       <div className="mx-auto max-w-6xl space-y-8">
         <p className="text-center text-sm text-base-content/80">
-          Explore upcoming experiences in nature.
+          Which events, experiences and classes excite you?
         </p>
         <div id="events-carousel">
           <EventsList events={normalizedEvents} />
