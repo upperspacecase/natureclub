@@ -5,6 +5,8 @@ import Image from "next/image";
 import apiClient from "@/libs/api";
 
 const CLIENT_ID_KEY = "nc-client-id";
+const HEART_PATH =
+  "M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35Z";
 const BURST_HEARTS = [
   { x: -26, y: -10, rotate: "-18deg", delay: 0 },
   { x: -18, y: -28, rotate: "-10deg", delay: 80 },
@@ -25,6 +27,22 @@ const getClientId = () => {
   }
   return clientId;
 };
+
+const HeartIcon = ({ filled, className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill={filled ? "currentColor" : "none"}
+    stroke={filled ? "none" : "currentColor"}
+    strokeWidth={filled ? 0 : 1.8}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+    aria-hidden="true"
+  >
+    <path d={HEART_PATH} />
+  </svg>
+);
 
 const EventsList = ({ events }) => {
   const [clientId, setClientId] = useState(null);
@@ -175,15 +193,7 @@ const EventsList = ({ events }) => {
                               animationDelay: `${heart.delay}ms`,
                             }}
                           >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 24 24"
-                              fill="currentColor"
-                              className="h-4 w-4"
-                              aria-hidden="true"
-                            >
-                              <path d="M11.999 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 3.99 4 6.5 4c1.74 0 3.41.81 4.5 2.09C12.09 4.81 13.76 4 15.5 4 18.01 4 20 6 20 8.5c0 3.78-3.4 6.86-8.55 11.54l-1.451 1.31Z" />
-                            </svg>
+                            <HeartIcon filled className="h-4 w-4" />
                           </span>
                         ))}
                       </div>
@@ -199,25 +209,9 @@ const EventsList = ({ events }) => {
                       }`}
                     >
                       {isLiked ? (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          className="h-12 w-12"
-                        >
-                          <path d="M11.999 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 3.99 4 6.5 4c1.74 0 3.41.81 4.5 2.09C12.09 4.81 13.76 4 15.5 4 18.01 4 20 6 20 8.5c0 3.78-3.4 6.86-8.55 11.54l-1.451 1.31Z" />
-                        </svg>
+                        <HeartIcon filled className="h-6 w-6" />
                       ) : (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.6"
-                          className="h-12 w-12"
-                        >
-                          <path d="M12.1 20.15 12 20.25l-.11-.1C7.14 15.8 4 12.96 4 9.5 4 7 5.99 5 8.5 5c1.54 0 3.04.73 4 1.88C13.46 5.73 14.96 5 16.5 5 19.01 4 21 7 21 9.5c0 3.46-3.14 6.3-8.9 10.65Z" />
-                        </svg>
+                        <HeartIcon className="h-6 w-6" />
                       )}
                     </button>
                   </div>
