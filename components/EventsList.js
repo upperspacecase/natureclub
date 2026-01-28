@@ -225,7 +225,7 @@ const EventsList = ({ events }) => {
         type="button"
         aria-label="Previous events"
         onClick={() => handleScroll("prev")}
-        className="absolute left-4 top-1/2 z-30 flex h-24 w-24 -translate-y-1/2 items-center justify-center pointer-events-auto md:-left-6"
+        className="absolute left-0 top-1/2 z-30 flex h-24 w-24 -translate-x-1/2 -translate-y-1/2 items-center justify-center pointer-events-auto md:-left-6 md:translate-x-0"
       >
         <span className="btn btn-outline btn-circle pointer-events-none h-12 w-12 bg-base-100/70 text-base-content/80 shadow-lg backdrop-blur-sm">
         <svg
@@ -244,7 +244,7 @@ const EventsList = ({ events }) => {
         type="button"
         aria-label="Next events"
         onClick={() => handleScroll("next")}
-        className="absolute right-4 top-1/2 z-30 flex h-24 w-24 -translate-y-1/2 items-center justify-center pointer-events-auto md:-right-6"
+        className="absolute right-0 top-1/2 z-30 flex h-24 w-24 translate-x-1/2 -translate-y-1/2 items-center justify-center pointer-events-auto md:-right-6 md:translate-x-0"
       >
         <span className="btn btn-outline btn-circle pointer-events-none h-12 w-12 bg-base-100/70 text-base-content/80 shadow-lg backdrop-blur-sm">
         <svg
