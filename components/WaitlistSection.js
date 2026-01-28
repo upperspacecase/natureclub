@@ -604,8 +604,8 @@ const WaitlistSection = () => {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-base-content/15 bg-base-100/10 px-6 py-4 text-center">
-        <p className="text-sm text-base-content/80 md:text-base">
+      <div className="rounded-[36px] border border-white/25 bg-white/20 px-6 py-5 text-center text-base-content/90 shadow-xl backdrop-blur-sm">
+        <p className="text-base font-medium md:text-lg">
           Studies show{" "}
           <a
             className="link underline"
@@ -619,52 +619,47 @@ const WaitlistSection = () => {
           and overall life satisfaction.
         </p>
       </div>
-      <div className="flex flex-col justify-center gap-6 sm:flex-row sm:items-start">
-        <div className="flex flex-col items-center gap-3 text-center">
-          <button
-            className="btn btn-primary"
-            onClick={() => setIsMemberModalOpen(true)}
-          >
-            Become a Member
-          </button>
-          <p className="max-w-xs text-sm text-base-content/70">
-            We are in currently in beta testing and would like to offer you free
-            founding membership as we get launched in your area. Please fill out
-            answer a few questions below to secure your founding membership.
-          </p>
+        <div className="flex flex-col justify-center gap-6 sm:flex-row sm:items-start">
+          <div className="flex flex-col items-center gap-3 text-center">
+            <button
+              className="btn btn-primary"
+              onClick={() => setIsMemberModalOpen(true)}
+            >
+              Become a Member
+            </button>
+          </div>
+          <div className="flex flex-col items-center gap-3 text-center">
+            <button
+              className="btn btn-outline"
+              onClick={() => setIsHostModalOpen(true)}
+            >
+              Become a Host
+            </button>
+          </div>
         </div>
-        <div className="flex flex-col items-center gap-3 text-center">
-          <button
-            className="btn btn-outline"
-            onClick={() => setIsHostModalOpen(true)}
-          >
-            Become a Host
-          </button>
-          <p className="max-w-xs text-sm text-base-content/70">
-            We are in currently in beta testing and would like to offer you a
-            founding host membership as we get launched in your area. Please
-            fill out answer a few questions below to secure your founding
-            membership.
-          </p>
-        </div>
+        <WaitlistModal
+          title="Become a host"
+          isOpen={isHostModalOpen}
+          onClose={() => setIsHostModalOpen(false)}
+          steps={hostSteps}
+          onComplete={submitHostLead}
+          backgroundImage={modalBackgroundImage}
+          introCopy={
+            "We are in currently in beta testing and would like to offer you a founding host membership as we get launched in your area. Please fill out answer a few questions below to secure your founding membership."
+          }
+        />
+        <WaitlistModal
+          title="Become a member"
+          isOpen={isMemberModalOpen}
+          onClose={() => setIsMemberModalOpen(false)}
+          steps={memberSteps}
+          onComplete={submitMemberLead}
+          backgroundImage={modalBackgroundImage}
+          introCopy={
+            "We are in currently in beta testing and would like to offer you free founding membership as we get launched in your area. Please fill out answer a few questions below to secure your founding membership."
+          }
+        />
       </div>
-      <WaitlistModal
-        title="Become a host"
-        isOpen={isHostModalOpen}
-        onClose={() => setIsHostModalOpen(false)}
-        steps={hostSteps}
-        onComplete={submitHostLead}
-        backgroundImage={modalBackgroundImage}
-      />
-      <WaitlistModal
-        title="Become a member"
-        isOpen={isMemberModalOpen}
-        onClose={() => setIsMemberModalOpen(false)}
-        steps={memberSteps}
-        onComplete={submitMemberLead}
-        backgroundImage={modalBackgroundImage}
-      />
-    </div>
   );
 };
 

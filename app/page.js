@@ -18,7 +18,7 @@ export default function Page() {
         <div className="relative z-10 min-h-screen">
           <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 pb-16 md:px-10">
             {/* Header/Logo */}
-            <header className="my-16 md:my-20">
+            <header className="my-8 md:my-10">
               <picture>
                 <source
                   srcSet="/logo-dark.svg"
@@ -28,7 +28,7 @@ export default function Page() {
                 <img
                   src="/logo-light.svg"
                   alt="Nature Club"
-                  className="h-32 md:h-40 w-auto"
+                  className="h-22 md:h-28 w-auto"
                 />
               </picture>
             </header>

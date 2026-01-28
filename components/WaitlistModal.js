@@ -10,6 +10,7 @@ const WaitlistModal = ({
   steps,
   onComplete,
   backgroundImage,
+  introCopy,
 }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -108,11 +109,16 @@ const WaitlistModal = ({
                   </div>
 
                   <div className="flex flex-1 flex-col justify-center space-y-4 overflow-hidden">
-                    <div className="text-2xl font-semibold text-base-content">
-                      {steps[activeStep].title}
-                    </div>
+                    {introCopy && activeStep === 0 && (
+                      <p className="text-sm text-base-content/80">
+                        {introCopy}
+                      </p>
+                    )}
                     <div className="rounded-3xl border border-white/15 bg-white/10 p-5 text-base-content/90 backdrop-blur-sm">
-                      <div className="max-h-[45vh] overflow-y-auto pr-1">
+                      <div className="text-2xl font-semibold text-base-content">
+                        {steps[activeStep].title}
+                      </div>
+                      <div className="mt-4 max-h-[45vh] overflow-y-auto pr-1">
                         {steps[activeStep].content}
                       </div>
                     </div>

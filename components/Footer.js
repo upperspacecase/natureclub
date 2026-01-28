@@ -131,7 +131,7 @@ const Footer = () => {
                   {activeModal === "contact" && (
                     <div className="space-y-4 text-base-content/80">
                       <p>
-                        Reach out if you want to build with us —{" "}
+                        Get in touch by emailing us at -{" "}
                         <a className="link link-hover" href="mailto:hi@life-time.co">
                           hi@life-time.co
                         </a>
