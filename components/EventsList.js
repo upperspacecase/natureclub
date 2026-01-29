@@ -226,39 +226,35 @@ const EventsList = ({ events }) => {
           type="button"
           aria-label="Previous events"
           onClick={() => handleScroll("prev")}
-          className="pointer-events-auto absolute left-0 top-1/2 flex h-24 w-24 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+          className="btn btn-outline btn-circle pointer-events-auto absolute left-0 top-1/2 h-12 w-12 -translate-y-1/2 bg-base-100/70 text-base-content/80 shadow-lg backdrop-blur-sm"
         >
-          <span className="btn btn-outline btn-circle pointer-events-none h-12 w-12 bg-base-100/70 text-base-content/80 shadow-lg backdrop-blur-sm">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              className="h-5 w-5"
-            >
-              <path d="m15 19-7-7 7-7" />
-            </svg>
-          </span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            className="h-5 w-5"
+          >
+            <path d="m15 19-7-7 7-7" />
+          </svg>
         </button>
         <button
           type="button"
           aria-label="Next events"
           onClick={() => handleScroll("next")}
-          className="pointer-events-auto absolute right-0 top-1/2 flex h-24 w-24 translate-x-1/2 -translate-y-1/2 items-center justify-center"
+          className="btn btn-outline btn-circle pointer-events-auto absolute right-0 top-1/2 h-12 w-12 -translate-y-1/2 bg-base-100/70 text-base-content/80 shadow-lg backdrop-blur-sm"
         >
-          <span className="btn btn-outline btn-circle pointer-events-none h-12 w-12 bg-base-100/70 text-base-content/80 shadow-lg backdrop-blur-sm">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              className="h-5 w-5"
-            >
-              <path d="m9 5 7 7-7 7" />
-            </svg>
-          </span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            className="h-5 w-5"
+          >
+            <path d="m9 5 7 7-7 7" />
+          </svg>
         </button>
       </div>
     </div>
