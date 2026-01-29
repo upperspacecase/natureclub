@@ -221,44 +221,46 @@ const EventsList = ({ events }) => {
           );
         })}
       </div>
-      <button
-        type="button"
-        aria-label="Previous events"
-        onClick={() => handleScroll("prev")}
-        className="absolute left-0 top-1/2 z-30 flex h-24 w-24 -translate-x-1/2 -translate-y-1/2 items-center justify-center pointer-events-auto md:-left-6 md:translate-x-0"
-      >
-        <span className="btn btn-outline btn-circle pointer-events-none h-12 w-12 bg-base-100/70 text-base-content/80 shadow-lg backdrop-blur-sm">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          className="h-5 w-5"
+      <div className="pointer-events-none absolute inset-y-0 left-0 right-0 z-30 px-6 sm:px-10">
+        <button
+          type="button"
+          aria-label="Previous events"
+          onClick={() => handleScroll("prev")}
+          className="pointer-events-auto absolute left-0 top-1/2 flex h-24 w-24 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
         >
-          <path d="m15 19-7-7 7-7" />
-        </svg>
-        </span>
-      </button>
-      <button
-        type="button"
-        aria-label="Next events"
-        onClick={() => handleScroll("next")}
-        className="absolute right-0 top-1/2 z-30 flex h-24 w-24 translate-x-1/2 -translate-y-1/2 items-center justify-center pointer-events-auto md:-right-6 md:translate-x-0"
-      >
-        <span className="btn btn-outline btn-circle pointer-events-none h-12 w-12 bg-base-100/70 text-base-content/80 shadow-lg backdrop-blur-sm">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          className="h-5 w-5"
+          <span className="btn btn-outline btn-circle pointer-events-none h-12 w-12 bg-base-100/70 text-base-content/80 shadow-lg backdrop-blur-sm">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              className="h-5 w-5"
+            >
+              <path d="m15 19-7-7 7-7" />
+            </svg>
+          </span>
+        </button>
+        <button
+          type="button"
+          aria-label="Next events"
+          onClick={() => handleScroll("next")}
+          className="pointer-events-auto absolute right-0 top-1/2 flex h-24 w-24 translate-x-1/2 -translate-y-1/2 items-center justify-center"
         >
-          <path d="m9 5 7 7-7 7" />
-        </svg>
-        </span>
-      </button>
+          <span className="btn btn-outline btn-circle pointer-events-none h-12 w-12 bg-base-100/70 text-base-content/80 shadow-lg backdrop-blur-sm">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              className="h-5 w-5"
+            >
+              <path d="m9 5 7 7-7 7" />
+            </svg>
+          </span>
+        </button>
+      </div>
     </div>
   );
 };
