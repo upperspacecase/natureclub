@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Dialog, Transition } from "@headlessui/react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import apiClient from "@/libs/api";
 import WaitlistModal from "./WaitlistModal";
 
 const WaitlistSection = () => {
+  const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [isHostModalOpen, setIsHostModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
 
@@ -602,6 +604,16 @@ const WaitlistSection = () => {
     ]
   );
 
+  const openMemberFlow = () => {
+    setIsJoinModalOpen(false);
+    setIsMemberModalOpen(true);
+  };
+
+  const openHostFlow = () => {
+    setIsJoinModalOpen(false);
+    setIsHostModalOpen(true);
+  };
+
   return (
     <div className="space-y-6">
       <div className="rounded-[36px] border border-white/25 bg-white/20 px-6 py-5 text-center text-base-content/90 shadow-xl backdrop-blur-sm">
@@ -615,51 +627,119 @@ const WaitlistSection = () => {
           >
             at least 2 hours in Nature a week
           </a>{" "}
-          have measurable effects on stress, mood, heart health, immune function,
-          and overall life satisfaction.
+          reduces stress, boosts mood & improves immune function.
         </p>
       </div>
-        <div className="flex flex-col justify-center gap-6 sm:flex-row sm:items-start">
-          <div className="flex flex-col items-center gap-3 text-center">
-            <button
-              className="btn btn-primary"
-              onClick={() => setIsMemberModalOpen(true)}
-            >
-              Become a Member
-            </button>
-          </div>
-          <div className="flex flex-col items-center gap-3 text-center">
-            <button
-              className="btn btn-outline"
-              onClick={() => setIsHostModalOpen(true)}
-            >
-              Become a Host
-            </button>
-          </div>
-        </div>
-        <WaitlistModal
-          title="Become a host"
-          isOpen={isHostModalOpen}
-          onClose={() => setIsHostModalOpen(false)}
-          steps={hostSteps}
-          onComplete={submitHostLead}
-          backgroundImage={modalBackgroundImage}
-          introCopy={
-            "We are in currently in beta testing and would like to offer you a founding host membership as we get launched in your area. Please fill out answer a few questions below to secure your founding membership."
-          }
-        />
-        <WaitlistModal
-          title="Become a member"
-          isOpen={isMemberModalOpen}
-          onClose={() => setIsMemberModalOpen(false)}
-          steps={memberSteps}
-          onComplete={submitMemberLead}
-          backgroundImage={modalBackgroundImage}
-          introCopy={
-            "We are in currently in beta testing and would like to offer you free founding membership as we get launched in your area. Please fill out answer a few questions below to secure your founding membership."
-          }
-        />
+      <div className="flex flex-col items-center justify-center gap-6 sm:flex-row sm:items-start">
+        <button className="btn btn-primary" onClick={() => setIsJoinModalOpen(true)}>
+          Join now
+        </button>
       </div>
+      <Transition appear show={isJoinModalOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-50"
+          onClose={() => setIsJoinModalOpen(false)}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-neutral-focus bg-opacity-50" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="relative h-[calc(100vh-2rem)] w-full max-w-md transform overflow-hidden rounded-[36px] text-left shadow-xl transition-all">
+                  <div className="pointer-events-none absolute inset-0">
+                    <div
+                      className="h-full w-full bg-cover bg-center"
+                      style={{
+                        backgroundImage: modalBackgroundImage
+                          ? `url(${modalBackgroundImage})`
+                          : "none",
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-black/60" />
+                  </div>
+                  <div className="relative flex h-full flex-col px-8 py-10 text-white md:px-10 md:py-12">
+                  <div className="flex items-start justify-between gap-4">
+                    <Dialog.Title as="h3" className="text-lg font-semibold text-base-content">
+                      Join now
+                    </Dialog.Title>
+                    <button
+                      className="btn btn-square btn-ghost btn-sm"
+                      onClick={() => setIsJoinModalOpen(false)}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="h-5 w-5"
+                      >
+                        <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="flex flex-1 flex-col justify-center">
+                    <div className="rounded-3xl border border-white/15 bg-white/10 p-6 text-base-content/90 backdrop-blur-sm">
+                      <div className="text-2xl font-semibold text-base-content">
+                        Choose your role
+                      </div>
+                      <div className="mt-6 flex flex-col gap-4">
+                        <button className="btn btn-outline" onClick={openHostFlow}>
+                          Become a Host
+                        </button>
+                        <button className="btn btn-primary" onClick={openMemberFlow}>
+                          Become a Member
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+      <WaitlistModal
+        title="Become a host"
+        isOpen={isHostModalOpen}
+        onClose={() => setIsHostModalOpen(false)}
+        steps={hostSteps}
+        onComplete={submitHostLead}
+        backgroundImage={modalBackgroundImage}
+        introCopy={
+          "We are in currently in beta testing and would like to offer you a founding host membership as we get launched in your area. Please fill out answer a few questions below to secure your founding membership."
+        }
+      />
+      <WaitlistModal
+        title="Become a member"
+        isOpen={isMemberModalOpen}
+        onClose={() => setIsMemberModalOpen(false)}
+        steps={memberSteps}
+        onComplete={submitMemberLead}
+        backgroundImage={modalBackgroundImage}
+        introCopy={
+          "We are in currently in beta testing and would like to offer you free founding membership as we get launched in your area. Please fill out answer a few questions below to secure your founding membership."
+        }
+      />
+    </div>
   );
 };
 

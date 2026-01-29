@@ -163,7 +163,7 @@ const AdminDashboard = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password"
-                className="mt-2 w-full rounded-full border border-white/20 bg-white/90 px-4 py-2 text-sm text-base-content"
+                className="mt-2 w-full rounded-full border border-white/20 bg-white/90 px-4 py-2 text-sm text-black"
                 required
               />
             </div>
@@ -185,7 +185,7 @@ const AdminDashboard = () => {
                 type="date"
                 value={rangeStart}
                 onChange={(e) => setRangeStart(e.target.value)}
-                className="mt-2 w-full rounded-full border border-white/20 bg-white/90 px-4 py-2 text-sm text-base-content"
+                className="mt-2 w-full rounded-full border border-white/20 bg-white/90 px-4 py-2 text-sm text-black"
                 disabled={granularity === "all"}
               />
             </div>
@@ -197,7 +197,7 @@ const AdminDashboard = () => {
                 type="date"
                 value={rangeEnd}
                 onChange={(e) => setRangeEnd(e.target.value)}
-                className="mt-2 w-full rounded-full border border-white/20 bg-white/90 px-4 py-2 text-sm text-base-content"
+                className="mt-2 w-full rounded-full border border-white/20 bg-white/90 px-4 py-2 text-sm text-black"
                 disabled={granularity === "all"}
               />
             </div>
@@ -208,7 +208,7 @@ const AdminDashboard = () => {
               <select
                 value={granularity}
                 onChange={(e) => setGranularity(e.target.value)}
-                className="mt-2 w-full rounded-full border border-white/20 bg-white/90 px-4 py-2 text-sm text-base-content"
+                className="mt-2 w-full rounded-full border border-white/20 bg-white/90 px-4 py-2 text-sm text-black"
               >
                 <option value="day">Daily</option>
                 <option value="week">Weekly</option>
@@ -226,7 +226,7 @@ const AdminDashboard = () => {
                   setLeadRole(e.target.value);
                   setLeadOffset(0);
                 }}
-                className="mt-2 w-full rounded-full border border-white/20 bg-white/90 px-4 py-2 text-sm text-base-content"
+                className="mt-2 w-full rounded-full border border-white/20 bg-white/90 px-4 py-2 text-sm text-black"
               >
                 <option value="all">All roles</option>
                 <option value="participant">Participant</option>

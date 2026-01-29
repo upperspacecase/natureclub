@@ -35,9 +35,7 @@ export default function Page() {
                   className="mb-6 font-serif leading-[1.05] text-base-content"
                   style={{ fontSize: "clamp(3.25rem, 9vw, 6.5rem)" }}
                 >
-                  Spend more time
-                  <br />
-                  in Nature.
+                  Spend more time in Nature.
                 </h1>
 
                 {/* Subtext */}

@@ -168,15 +168,13 @@ const EventsList = ({ events }) => {
                     {event.title}
                   </p>
                 </div>
-                {event.tags?.length > 0 && (
-                  <div className="absolute bottom-6 left-6">
+                <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between translate-y-[20%]">
+                  {event.tags?.length > 0 && (
                     <span className="rounded-full border border-base-content/30 bg-base-100/80 px-3 py-1 text-xs text-base-content/80 backdrop-blur">
                       {event.tags[0]}
                     </span>
-                  </div>
-                )}
-                <div className="absolute bottom-6 right-6">
-                  <div className="relative h-16 w-16">
+                  )}
+                  <div className="relative h-16 w-16 translate-x-[20%]">
                     {burstEventId === event.id && (
                       <div
                         key={burstKey}

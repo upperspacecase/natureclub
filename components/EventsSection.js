@@ -44,12 +44,14 @@ const EventsSection = async () => {
           aria-hidden="true"
         />
         <h2 className="text-center font-serif text-2xl text-base-content sm:text-3xl">
-          Which events, experiences and classes excite you?
+          Which experiences excite you?
         </h2>
         <div id="events-carousel">
           <EventsList events={normalizedEvents} />
         </div>
-        <WaitlistSection />
+        <div className="-mt-2 sm:-mt-4">
+          <WaitlistSection />
+        </div>
       </div>
     </section>
   );
