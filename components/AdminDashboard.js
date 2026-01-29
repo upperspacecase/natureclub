@@ -9,6 +9,15 @@ const formatNumber = (value) =>
 const formatPercent = (value) =>
   Number.isFinite(value) ? `${(value * 100).toFixed(1)}%` : "-";
 
+const formatDuration = (durationMs) => {
+  if (!Number.isFinite(durationMs) || durationMs <= 0) return "-";
+  const totalSeconds = Math.round(durationMs / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  if (minutes === 0) return `${seconds}s`;
+  return `${minutes}m ${seconds}s`;
+};
+
 const formatResponsePreview = (responses) => {
   if (!responses || typeof responses !== "object") return "-";
   const entries = Object.entries(responses)
@@ -74,7 +83,6 @@ const AdminDashboard = () => {
   const [rangeStart, setRangeStart] = useState(defaultStart);
   const [rangeEnd, setRangeEnd] = useState(todayKey);
   const [granularity, setGranularity] = useState("day");
-  const [leadRole, setLeadRole] = useState("all");
   const [leadOffset, setLeadOffset] = useState(0);
   const leadLimit = 50;
 
@@ -92,7 +100,6 @@ const AdminDashboard = () => {
         rangeStart: granularity === "all" ? null : rangeStart,
         rangeEnd: granularity === "all" ? null : rangeEnd,
         granularity,
-        leadRole: leadRole === "all" ? null : leadRole,
         leadOffset,
         leadLimit,
       });
@@ -113,7 +120,6 @@ const AdminDashboard = () => {
         rangeStart: granularity === "all" ? null : rangeStart,
         rangeEnd: granularity === "all" ? null : rangeEnd,
         granularity,
-        leadRole: leadRole === "all" ? null : leadRole,
         leadOffset: nextOffset,
         leadLimit,
       });
@@ -176,7 +182,7 @@ const AdminDashboard = () => {
             </button>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-4">
+          <div className="grid gap-3 md:grid-cols-3">
             <div>
               <label className="text-xs uppercase tracking-[0.2em] text-white/50">
                 Range start
@@ -216,34 +222,15 @@ const AdminDashboard = () => {
                 <option value="all">All time</option>
               </select>
             </div>
-            <div>
-              <label className="text-xs uppercase tracking-[0.2em] text-white/50">
-                Lead role
-              </label>
-              <select
-                value={leadRole}
-                onChange={(e) => {
-                  setLeadRole(e.target.value);
-                  setLeadOffset(0);
-                }}
-                className="mt-2 w-full rounded-full border border-white/20 bg-white/90 px-4 py-2 text-sm text-black"
-              >
-                <option value="all">All roles</option>
-                <option value="participant">Participant</option>
-                <option value="host">Host</option>
-                <option value="host_interest">Host interest</option>
-                <option value="member">Member</option>
-              </select>
-            </div>
           </div>
         </form>
 
         {metrics && (
-          <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
-            <div className="grid gap-6 md:grid-cols-2">
+          <div className="space-y-6">
+            <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
               <div className="rounded-[32px] bg-gradient-to-br from-[#5B3BFF] via-[#5A35E0] to-[#8B6BFF] p-6 text-white shadow-[0_30px_70px_rgba(41,24,120,0.45)]">
                 <p className="text-xs uppercase tracking-[0.3em] text-white/70">
-                  Total waitlist
+                  Signups trend
                 </p>
                 <p className="mt-4 text-4xl font-semibold">
                   {formatNumber(metrics.signupsTotal)}
@@ -278,75 +265,171 @@ const AdminDashboard = () => {
                   />
                 </div>
               </div>
+            </div>
 
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+              <StatCard label="Users" value={formatNumber(metrics.usersTotal)} />
+              <StatCard label="Visits" value={formatNumber(metrics.visitsTotal)} />
+              <StatCard label="Visits today" value={formatNumber(metrics.visitsToday)} />
               <StatCard
-                label="Signups today"
-                value={formatNumber(metrics.signupsToday)}
-                helper="New leads today"
+                label="Time on page"
+                value={formatDuration(metrics.avgTimeOnPageMs)}
+                helper={
+                  metrics.timeOnPageCount
+                    ? `${formatNumber(metrics.timeOnPageCount)} sessions`
+                    : "No sessions yet"
+                }
               />
               <StatCard
-                label="Likes"
-                value={formatNumber(metrics.likesTotal)}
-                helper={`Per event: ${formatNumber(
-                  metrics.eventsTotal ? metrics.likesTotal / metrics.eventsTotal : 0
-                )}`}
-              />
-              <StatCard
-                label="Host interest"
-                value={formatNumber(metrics.signupsHostInterest)}
-                helper="High-intent hosts"
-              />
-              <StatCard
-                label="Participants"
-                value={formatNumber(metrics.signupsParticipant)}
-                helper="Member-side demand"
+                label="Conversion"
+                value={formatPercent(conversionRate)}
+                helper="Signups / visits"
               />
             </div>
 
-            <div className="grid gap-6">
+            <div className="grid gap-6 lg:grid-cols-2">
               <div className="rounded-[32px] border border-white/10 bg-white/10 p-6 text-white shadow-[0_30px_70px_rgba(16,10,32,0.35)]">
                 <p className="text-xs uppercase tracking-[0.3em] text-white/60">
-                  Supply
+                  Demand metrics
                 </p>
                 <p className="mt-4 text-3xl font-semibold">
-                  {formatNumber(metrics.eventsTotal)} events
+                  {formatNumber(metrics.signupsMember)} member signups
                 </p>
                 <p className="mt-2 text-sm text-white/70">
-                  {formatNumber(metrics.usersTotal)} users in system
+                  {formatNumber(metrics.memberClicksTotal)} become a member clicks
                 </p>
+                <div className="mt-6">
+                  <p className="text-xs uppercase tracking-[0.2em] text-white/50">
+                    Members by country
+                  </p>
+                  <div className="mt-3 space-y-2 text-sm">
+                    {metrics.membersByCountry.length ? (
+                      metrics.membersByCountry.map((item) => (
+                        <div key={item.country} className="flex items-center justify-between">
+                          <span className="text-white/70">{item.country}</span>
+                          <span className="text-white">
+                            {formatNumber(item.count)}
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-xs text-white/50">No country data yet.</p>
+                    )}
+                  </div>
+                </div>
               </div>
+
               <div className="rounded-[32px] border border-white/10 bg-white/10 p-6 text-white shadow-[0_30px_70px_rgba(16,10,32,0.35)]">
                 <p className="text-xs uppercase tracking-[0.3em] text-white/60">
-                  Role split
+                  Supply metrics
                 </p>
-                <div className="mt-4 space-y-2 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-white/70">Hosts</span>
-                    <span className="text-white">
-                      {formatNumber(metrics.signupsHost)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-white/70">Host interest</span>
-                    <span className="text-white">
-                      {formatNumber(metrics.signupsHostInterest)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-white/70">Members</span>
-                    <span className="text-white">
-                      {formatNumber(metrics.signupsMember)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-white/70">Participants</span>
-                    <span className="text-white">
-                      {formatNumber(metrics.signupsParticipant)}
-                    </span>
+                <p className="mt-4 text-3xl font-semibold">
+                  {formatNumber(metrics.signupsHost)} host signups
+                </p>
+                <p className="mt-2 text-sm text-white/70">
+                  {formatNumber(metrics.hostClicksTotal)} become a host clicks
+                </p>
+                <div className="mt-6">
+                  <p className="text-xs uppercase tracking-[0.2em] text-white/50">
+                    Hosts by country
+                  </p>
+                  <div className="mt-3 space-y-2 text-sm">
+                    {metrics.hostsByCountry.length ? (
+                      metrics.hostsByCountry.map((item) => (
+                        <div key={item.country} className="flex items-center justify-between">
+                          <span className="text-white/70">{item.country}</span>
+                          <span
+                            className={
+                              item.count >= 10
+                                ? "text-emerald-300"
+                                : "text-white"
+                            }
+                          >
+                            {formatNumber(item.count)}
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-xs text-white/50">No country data yet.</p>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
+
+            <section className="grid gap-6 lg:grid-cols-2">
+              <div className="rounded-[32px] border border-white/10 bg-white/10 p-6 text-white shadow-[0_30px_70px_rgba(16,10,32,0.35)]">
+                <p className="text-xs uppercase tracking-[0.3em] text-white/60">
+                  Likes by event
+                </p>
+                <div className="mt-4 overflow-auto rounded-2xl border border-white/10">
+                  <table className="min-w-full text-left text-sm text-white/80">
+                    <thead className="bg-white/10 text-xs uppercase tracking-[0.2em] text-white/50">
+                      <tr>
+                        <th className="px-4 py-3">Event</th>
+                        <th className="px-4 py-3">Likes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {metrics.likesByEvent.length ? (
+                        metrics.likesByEvent.map((event) => (
+                          <tr key={event.eventId} className="border-t border-white/10">
+                            <td className="px-4 py-3 text-sm text-white">
+                              {event.title}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-white/70">
+                              {formatNumber(event.count)}
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td className="px-4 py-3 text-xs text-white/50" colSpan={2}>
+                            No likes yet.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="rounded-[32px] border border-white/10 bg-white/10 p-6 text-white shadow-[0_30px_70px_rgba(16,10,32,0.35)]">
+                <p className="text-xs uppercase tracking-[0.3em] text-white/60">
+                  Likes by theme
+                </p>
+                <div className="mt-4 overflow-auto rounded-2xl border border-white/10">
+                  <table className="min-w-full text-left text-sm text-white/80">
+                    <thead className="bg-white/10 text-xs uppercase tracking-[0.2em] text-white/50">
+                      <tr>
+                        <th className="px-4 py-3">Theme</th>
+                        <th className="px-4 py-3">Likes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {metrics.likesByTheme.length ? (
+                        metrics.likesByTheme.map((theme) => (
+                          <tr key={theme.themeId} className="border-t border-white/10">
+                            <td className="px-4 py-3 text-sm text-white">
+                              {theme.label}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-white/70">
+                              {formatNumber(theme.count)}
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td className="px-4 py-3 text-xs text-white/50" colSpan={2}>
+                            No likes yet.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
           </div>
         )}
 

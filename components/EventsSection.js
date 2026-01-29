@@ -19,6 +19,7 @@ const EventsSection = async () => {
             duration: event.duration,
             image: event.image,
             tags: event.tags || [],
+            themes: event.themes || [],
           },
         },
         upsert: true,

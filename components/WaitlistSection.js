@@ -604,12 +604,22 @@ const WaitlistSection = () => {
     ]
   );
 
+  const trackClick = async (type) => {
+    try {
+      await apiClient.post("/click", { type });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const openMemberFlow = () => {
+    trackClick("member_click");
     setIsJoinModalOpen(false);
     setIsMemberModalOpen(true);
   };
 
   const openHostFlow = () => {
+    trackClick("host_click");
     setIsJoinModalOpen(false);
     setIsHostModalOpen(true);
   };

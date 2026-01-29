@@ -10,7 +10,7 @@ import apiClient from "@/libs/api";
 // It calls the /api/lead/route.js route and store a Lead document in the database
 const ButtonLead = ({
   extraStyle,
-  role = "participant",
+  role = "member",
   buttonLabel = "Join waitlist",
   placeholder = "tom@cruise.com",
 }) => {

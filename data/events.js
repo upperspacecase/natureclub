@@ -1,3 +1,90 @@
+export const THEMES = [
+  {
+    id: "movement",
+    label: "Movement",
+    examples: [
+      "fitness",
+      "primal movement",
+      "mobility",
+      "qi gong",
+      "dance",
+      "surfing",
+      "paddling",
+    ],
+  },
+  {
+    id: "wellness",
+    label: "Wellness",
+    examples: ["yoga", "breathwork", "meditation", "sound bath"],
+  },
+  {
+    id: "arts",
+    label: "Arts",
+    examples: ["crafts", "music", "writing", "visual arts"],
+  },
+  {
+    id: "wildlife",
+    label: "Wildlife",
+    examples: [
+      "birdwatching",
+      "citizen science",
+      "tracking",
+      "ecology walks",
+    ],
+  },
+  {
+    id: "social",
+    label: "Social",
+    examples: ["tea ceremony", "outdoor dining"],
+  },
+  {
+    id: "cultivation",
+    label: "Cultivation",
+    examples: ["gardening", "farming", "permaculture", "composting"],
+  },
+  {
+    id: "restoration",
+    label: "Restoration",
+    examples: [
+      "volunteering",
+      "conservation",
+      "clean-ups",
+      "tree planting",
+    ],
+  },
+  {
+    id: "cultural",
+    label: "Cultural",
+    examples: [
+      "harvest festivals",
+      "music festivals",
+      "solstice events",
+      "seasonal rites",
+    ],
+  },
+  {
+    id: "skills",
+    label: "Skills",
+    examples: [
+      "foraging",
+      "natural building",
+      "sailing",
+      "navigation",
+      "firecraft",
+    ],
+  },
+  {
+    id: "adventure",
+    label: "Adventure",
+    examples: ["hiking", "camping", "expeditions"],
+  },
+  {
+    id: "other",
+    label: "Other / Make a Suggestion",
+    examples: [],
+  },
+];
+
 const events = [
   {
     id: "forest-hike",
@@ -5,6 +92,7 @@ const events = [
     duration: "2 hours",
     image: "/mock_images/sunrise-mountain-yoga.png",
     tags: ["Beginner Friendly", "Science backed benefits"],
+    themes: ["wellness", "movement"],
   },
   {
     id: "bamboo-path",
@@ -12,6 +100,7 @@ const events = [
     duration: "90 minutes",
     image: "/mock_images/campfire-circle.png",
     tags: ["Family Friendly", "Kids Welcome"],
+    themes: ["social", "cultural"],
   },
   {
     id: "mossy-quiet",
@@ -19,6 +108,7 @@ const events = [
     duration: "75 minutes",
     image: "/mock_images/forest-foraging-walk.png",
     tags: ["Educational", "Local Expert"],
+    themes: ["skills", "wildlife"],
   },
   {
     id: "misty-trail",
@@ -26,6 +116,7 @@ const events = [
     duration: "2 hours",
     image: "/mock_images/woodland-supper.png",
     tags: ["Hidden Gem", "Local Expert"],
+    themes: ["social", "cultural"],
   },
   {
     id: "river-stroll",
@@ -33,6 +124,7 @@ const events = [
     duration: "60 minutes",
     image: "/mock_images/summit-celebration.png",
     tags: ["Hidden Gem", "Advanced Only"],
+    themes: ["adventure", "cultural"],
   },
   {
     id: "canopy-breeze",
@@ -40,6 +132,7 @@ const events = [
     duration: "90 minutes",
     image: "/mock_images/stargazing-night.png",
     tags: ["Educational", "Family Friendly"],
+    themes: ["wildlife", "cultural"],
   },
   {
     id: "fern-glade",
@@ -47,6 +140,7 @@ const events = [
     duration: "75 minutes",
     image: "/mock_images/quiet-river-paddle.png",
     tags: ["Beginner Friendly", "Hidden Gem"],
+    themes: ["movement", "adventure"],
   },
   {
     id: "sunlit-ridge",
@@ -54,6 +148,7 @@ const events = [
     duration: "2 hours",
     image: "/mock_images/coastal-treehouse-outlook.png",
     tags: ["Hidden Gem", "Family Friendly"],
+    themes: ["adventure", "wellness"],
   },
   {
     id: "quiet-cove",
@@ -61,6 +156,7 @@ const events = [
     duration: "60 minutes",
     image: "/mock_images/forest-canopy-bridge.png",
     tags: ["Family Friendly", "Beginner Friendly"],
+    themes: ["adventure"],
   },
   {
     id: "cedar-loop",
@@ -68,6 +164,7 @@ const events = [
     duration: "90 minutes",
     image: "/mock_images/hillside-candlelit-dinner.png",
     tags: ["Hidden Gem", "Local Expert"],
+    themes: ["social", "cultural"],
   },
   {
     id: "creekside-reset",
@@ -75,6 +172,7 @@ const events = [
     duration: "75 minutes",
     image: "/mock_images/forest-fire-circle.png",
     tags: ["Beginner Friendly", "Family Friendly"],
+    themes: ["social", "cultural"],
   },
   {
     id: "evergreen-walk",
@@ -82,6 +180,7 @@ const events = [
     duration: "2 hours",
     image: "/mock_images/lit-canopy-walk.png",
     tags: ["Kids Welcome", "Beginner Friendly"],
+    themes: ["adventure"],
   },
   {
     id: "lake-reflection",
@@ -89,6 +188,7 @@ const events = [
     duration: "60 minutes",
     image: "/mock_images/community-garden-harvest.png",
     tags: ["Volunteer", "Educational"],
+    themes: ["cultivation", "restoration"],
   },
   {
     id: "grove-breathe",
@@ -96,6 +196,7 @@ const events = [
     duration: "90 minutes",
     image: "/mock_images/orchard-feast.png",
     tags: ["Family Friendly", "Local Expert"],
+    themes: ["cultivation", "social"],
   },
   {
     id: "ridge-wind",
@@ -103,6 +204,7 @@ const events = [
     duration: "75 minutes",
     image: "/mock_images/alpine-yoga-decks.png",
     tags: ["Beginner Friendly", "Science backed benefits"],
+    themes: ["wellness", "movement"],
   },
   {
     id: "marshlight",
@@ -110,6 +212,7 @@ const events = [
     duration: "2 hours",
     image: "/mock_images/forest-screen-night.png",
     tags: ["Family Friendly", "Kids Welcome"],
+    themes: ["arts", "social"],
   },
   {
     id: "wild-meadow",
@@ -117,6 +220,7 @@ const events = [
     duration: "60 minutes",
     image: "/mock_images/woodland-concert.png",
     tags: ["Family Friendly", "Local Expert"],
+    themes: ["arts", "cultural"],
   },
   {
     id: "dune-path",
@@ -124,6 +228,7 @@ const events = [
     duration: "90 minutes",
     image: "/mock_images/hammock-canopy.png",
     tags: ["Beginner Friendly", "Hidden Gem"],
+    themes: ["wellness"],
   },
   {
     id: "national-park",
@@ -131,6 +236,7 @@ const events = [
     duration: "3 hours",
     image: "/mock_images/national-park-reset.webp",
     tags: ["Advanced Only", "Hidden Gem"],
+    themes: ["adventure", "wellness"],
   },
   {
     id: "rural-escape",
@@ -138,6 +244,7 @@ const events = [
     duration: "2 hours",
     image: "/mock_images/rural-escape.webp",
     tags: ["Flexible Scheduling", "Hidden Gem"],
+    themes: ["wellness", "adventure"],
   },
   {
     id: "spiritual-retreat",
@@ -145,6 +252,7 @@ const events = [
     duration: "Half day",
     image: "/mock_images/spiritual-retreat.webp",
     tags: ["Science backed benefits", "Advanced Only"],
+    themes: ["wellness", "cultural"],
   },
 ];
 

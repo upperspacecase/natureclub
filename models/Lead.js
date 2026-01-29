@@ -17,12 +17,17 @@ const leadSchema = mongoose.Schema(
       type: String,
       trim: true,
       required: true,
-      enum: ["participant", "host_interest", "host", "member"],
+      enum: ["host", "member"],
     },
     source: {
       type: String,
       trim: true,
       default: "button",
+    },
+    country: {
+      type: String,
+      trim: true,
+      default: "",
     },
     responses: {
       type: mongoose.Schema.Types.Mixed,
