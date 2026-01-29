@@ -39,10 +39,10 @@ const buildDonutData = (items, limit = 5) => {
   return sliced;
 };
 
-const BarChart = ({ data, barClass }) => {
+const BarChart = ({ data, barClass, labelClass }) => {
   if (!data?.length) {
     return (
-      <div className="flex h-32 items-center justify-center rounded-2xl bg-white/40 text-xs text-base-content/50">
+      <div className="flex h-32 items-center justify-center rounded-2xl bg-black/5 text-xs text-black/50">
         No data yet
       </div>
     );
@@ -50,24 +50,37 @@ const BarChart = ({ data, barClass }) => {
 
   const maxValue = Math.max(...data.map((item) => item.value), 1);
   const barWidth = 100 / data.length;
+  const labelStep = data.length > 8 ? Math.ceil(data.length / 6) : 1;
 
   return (
-    <svg viewBox="0 0 100 40" className="h-32 w-full">
+    <svg viewBox="0 0 100 52" className="h-32 w-full">
       {data.map((item, index) => {
         const height = (item.value / maxValue) * 32;
         const x = index * barWidth + barWidth * 0.15;
         const width = barWidth * 0.7;
-        const y = 40 - height;
+        const y = 36 - height;
+        const showLabel = index % labelStep === 0 || index === data.length - 1;
         return (
-          <rect
-            key={item.label}
-            x={x}
-            y={y}
-            width={width}
-            height={height}
-            rx="2"
-            className={barClass}
-          />
+          <g key={item.label}>
+            <rect
+              x={x}
+              y={y}
+              width={width}
+              height={height}
+              rx="2"
+              className={barClass}
+            />
+            {showLabel && (
+              <text
+                x={x + width / 2}
+                y={48}
+                textAnchor="middle"
+                className={labelClass}
+              >
+                {item.label}
+              </text>
+            )}
+          </g>
         );
       })}
     </svg>
@@ -78,7 +91,7 @@ const DonutChart = ({ data, colors }) => {
   const total = data.reduce((sum, item) => sum + item.value, 0);
   if (!total) {
     return (
-      <div className="flex h-32 items-center justify-center rounded-2xl bg-white/40 text-xs text-base-content/50">
+      <div className="flex h-32 items-center justify-center rounded-2xl bg-black/5 text-xs text-black/50">
         No data yet
       </div>
     );
@@ -123,14 +136,14 @@ const DonutChart = ({ data, colors }) => {
 };
 
 const StatCard = ({ label, value, helper }) => (
-  <div className="rounded-3xl border border-white/10 bg-white/70 p-5 text-base-content shadow-[0_24px_60px_rgba(22,16,44,0.18)] backdrop-blur">
-    <p className="text-xs uppercase tracking-[0.2em] text-base-content/50">
+  <div className="rounded-3xl border border-black/10 bg-white p-5 text-black shadow-[0_24px_60px_rgba(0,0,0,0.08)]">
+    <p className="text-xs uppercase tracking-[0.2em] text-black/50">
       {label}
     </p>
-    <p className="mt-3 text-3xl font-semibold text-base-content">
+    <p className="mt-3 text-3xl font-semibold text-black">
       {value}
     </p>
-    {helper && <p className="mt-2 text-xs text-base-content/60">{helper}</p>}
+    {helper && <p className="mt-2 text-xs text-black/60">{helper}</p>}
   </div>
 );
 
@@ -326,22 +339,22 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#2E2A3D] px-6 py-16 text-base-content md:px-10">
+    <div className="min-h-screen bg-white px-6 py-16 text-black md:px-10">
       <div className="mx-auto max-w-6xl space-y-10">
         <header className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
           <div>
-            <p className="text-xs uppercase tracking-[0.35em] text-white/50">
+            <p className="text-xs uppercase tracking-[0.35em] text-black/50">
               Admin panel
             </p>
-            <h1 className="mt-3 text-4xl font-serif text-white">
+            <h1 className="mt-3 text-4xl font-serif text-black">
               Nature Club Metrics
             </h1>
-            <p className="mt-2 text-sm text-white/60">
+            <p className="mt-2 text-sm text-black/60">
               MVP performance and waitlist intelligence.
             </p>
           </div>
-          <div className="rounded-3xl border border-white/10 bg-white/10 px-5 py-4 text-white/80">
-            <p className="text-xs uppercase tracking-[0.2em] text-white/60">
+          <div className="rounded-3xl border border-black/10 bg-white px-5 py-4 text-black/80">
+            <p className="text-xs uppercase tracking-[0.2em] text-black/60">
               Access
             </p>
             <p className="mt-2 text-sm">Password required</p>
@@ -350,11 +363,11 @@ const AdminDashboard = () => {
 
         <form
           onSubmit={handleSubmit}
-          className="grid gap-4 rounded-[32px] border border-white/10 bg-white/10 p-6 text-white/80 shadow-[0_24px_60px_rgba(16,10,32,0.35)] backdrop-blur"
+          className="grid gap-4 rounded-[32px] border border-black/10 bg-white p-6 text-black/80 shadow-[0_24px_60px_rgba(0,0,0,0.08)]"
         >
           <div className="flex flex-col gap-3 md:flex-row md:items-end">
             <div className="flex-1">
-              <label className="text-xs uppercase tracking-[0.2em] text-white/50">
+              <label className="text-xs uppercase tracking-[0.2em] text-black/50">
                 Admin password
               </label>
               <input
@@ -362,12 +375,12 @@ const AdminDashboard = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password"
-                className="mt-2 w-full rounded-full border border-white/20 bg-white/90 px-4 py-2 text-sm text-black"
+                className="mt-2 w-full rounded-full border border-black/20 bg-white px-4 py-2 text-sm text-black"
                 required
               />
             </div>
             <button
-              className="rounded-full bg-[#6B47FF] px-6 py-2 text-sm font-semibold text-white shadow-lg shadow-[#6B47FF]/30"
+              className="rounded-full bg-black px-6 py-2 text-sm font-semibold text-white"
               type="submit"
               disabled={isLoading}
             >
@@ -377,37 +390,37 @@ const AdminDashboard = () => {
 
           <div className="grid gap-3 md:grid-cols-3">
             <div>
-              <label className="text-xs uppercase tracking-[0.2em] text-white/50">
+              <label className="text-xs uppercase tracking-[0.2em] text-black/50">
                 Range start
               </label>
               <input
                 type="date"
                 value={rangeStart}
                 onChange={(e) => setRangeStart(e.target.value)}
-                className="mt-2 w-full rounded-full border border-white/20 bg-white/90 px-4 py-2 text-sm text-black"
+                className="mt-2 w-full rounded-full border border-black/20 bg-white px-4 py-2 text-sm text-black"
                 disabled={granularity === "all"}
               />
             </div>
             <div>
-              <label className="text-xs uppercase tracking-[0.2em] text-white/50">
+              <label className="text-xs uppercase tracking-[0.2em] text-black/50">
                 Range end
               </label>
               <input
                 type="date"
                 value={rangeEnd}
                 onChange={(e) => setRangeEnd(e.target.value)}
-                className="mt-2 w-full rounded-full border border-white/20 bg-white/90 px-4 py-2 text-sm text-black"
+                className="mt-2 w-full rounded-full border border-black/20 bg-white px-4 py-2 text-sm text-black"
                 disabled={granularity === "all"}
               />
             </div>
             <div>
-              <label className="text-xs uppercase tracking-[0.2em] text-white/50">
+              <label className="text-xs uppercase tracking-[0.2em] text-black/50">
                 Granularity
               </label>
               <select
                 value={granularity}
                 onChange={(e) => setGranularity(e.target.value)}
-                className="mt-2 w-full rounded-full border border-white/20 bg-white/90 px-4 py-2 text-sm text-black"
+                className="mt-2 w-full rounded-full border border-black/20 bg-white px-4 py-2 text-sm text-black"
               >
                 <option value="day">Daily</option>
                 <option value="week">Weekly</option>
@@ -421,35 +434,40 @@ const AdminDashboard = () => {
         {metrics && (
           <div className="space-y-6">
             <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
-              <div className="rounded-[32px] bg-gradient-to-br from-[#5B3BFF] via-[#5A35E0] to-[#8B6BFF] p-6 text-white shadow-[0_30px_70px_rgba(41,24,120,0.45)]">
-                <p className="text-xs uppercase tracking-[0.3em] text-white/70">
+              <div className="rounded-[32px] border border-black/10 bg-white p-6 text-black shadow-[0_30px_70px_rgba(0,0,0,0.08)]">
+                <p className="text-xs uppercase tracking-[0.3em] text-black/60">
                   Signups trend
                 </p>
                 <p className="mt-4 text-4xl font-semibold">
                   {formatNumber(metrics.signupsTotal)}
                 </p>
-                <p className="mt-2 text-sm text-white/80">
+                <p className="mt-2 text-sm text-black/70">
                   Conversion: {formatPercent(conversionRate)}
                 </p>
-                <div className="mt-6 h-28 rounded-2xl bg-white/10 p-3">
-                  <BarChart data={metrics.signupsSeries} barClass="fill-white" />
+                <div className="mt-6 h-28 rounded-2xl bg-black/5 p-3">
+                  <BarChart
+                    data={metrics.signupsSeries}
+                    barClass="fill-black"
+                    labelClass="fill-black text-[6px]"
+                  />
                 </div>
               </div>
 
-              <div className="rounded-[32px] bg-[#ECE6FF] p-6 text-[#2E2A3D] shadow-[0_30px_70px_rgba(22,16,44,0.15)]">
-                <p className="text-xs uppercase tracking-[0.3em] text-[#5D4C8F]">
+              <div className="rounded-[32px] border border-black/10 bg-white p-6 text-black shadow-[0_30px_70px_rgba(0,0,0,0.08)]">
+                <p className="text-xs uppercase tracking-[0.3em] text-black/60">
                   Visits trend
                 </p>
                 <p className="mt-4 text-3xl font-semibold">
                   {formatNumber(metrics.visitsTotal)}
                 </p>
-                <p className="mt-2 text-sm text-[#5D4C8F]">
+                <p className="mt-2 text-sm text-black/70">
                   Today: {formatNumber(metrics.visitsToday)}
                 </p>
-                <div className="mt-6 h-28 rounded-2xl bg-white/70 p-3">
+                <div className="mt-6 h-28 rounded-2xl bg-black/5 p-3">
                   <BarChart
                     data={metrics.visitsSeries}
-                    barClass="fill-[#5B3BFF]"
+                    barClass="fill-black"
+                    labelClass="fill-black text-[6px]"
                   />
                 </div>
               </div>
@@ -476,13 +494,13 @@ const AdminDashboard = () => {
             </div>
 
             <div className="grid gap-6 lg:grid-cols-2">
-              <div className="rounded-[32px] border border-white/10 bg-white/10 p-6 text-white shadow-[0_30px_70px_rgba(16,10,32,0.35)]">
-                <p className="text-xs uppercase tracking-[0.3em] text-white/60">
+              <div className="rounded-[32px] border border-black/10 bg-white p-6 text-black shadow-[0_30px_70px_rgba(0,0,0,0.08)]">
+                <p className="text-xs uppercase tracking-[0.3em] text-black/60">
                   Demand metrics
                 </p>
                 <div className="mt-4 grid gap-4 lg:grid-cols-[1.2fr_1fr]">
                   <div>
-                    <div className="h-28 rounded-2xl bg-white/5 p-3">
+                    <div className="h-28 rounded-2xl bg-black/5 p-3">
                       <BarChart
                         data={[
                           {
@@ -494,40 +512,41 @@ const AdminDashboard = () => {
                             value: metrics.memberClicksTotal,
                           },
                         ]}
-                        barClass="fill-[#8B6BFF]"
+                        barClass="fill-black"
+                        labelClass="fill-black text-[6px]"
                       />
                     </div>
                     <div className="mt-3 space-y-1 text-sm">
                       <div className="flex items-center justify-between">
-                        <span className="text-white/70">Member signups</span>
-                        <span className="text-white">
+                        <span className="text-black/70">Member signups</span>
+                        <span className="text-black">
                           {formatNumber(metrics.signupsMember)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-white/70">Member clicks</span>
-                        <span className="text-white">
+                        <span className="text-black/70">Member clicks</span>
+                        <span className="text-black">
                           {formatNumber(metrics.memberClicksTotal)}
                         </span>
                       </div>
                     </div>
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-[0.2em] text-white/50">
+                    <p className="text-xs uppercase tracking-[0.2em] text-black/50">
                       Members by country
                     </p>
                     <div className="mt-3 flex items-center gap-4">
                       <DonutChart
                         data={memberCountryChart}
                         colors={[
-                          "#8B6BFF",
-                          "#B39BFF",
-                          "#D9CCFF",
-                          "#6B47FF",
-                          "#F2EDFF",
+                          "#000000",
+                          "#444444",
+                          "#666666",
+                          "#999999",
+                          "#CCCCCC",
                         ]}
                       />
-                      <div className="space-y-1 text-xs text-white/70">
+                      <div className="space-y-1 text-xs text-black/70">
                         {memberCountryChart.length ? (
                           memberCountryChart.map((item) => (
                             <div
@@ -535,13 +554,13 @@ const AdminDashboard = () => {
                               className="flex items-center justify-between gap-4"
                             >
                               <span>{item.label}</span>
-                              <span className="text-white">
+                              <span className="text-black">
                                 {formatNumber(item.value)}
                               </span>
                             </div>
                           ))
                         ) : (
-                          <p className="text-xs text-white/50">
+                          <p className="text-xs text-black/50">
                             No country data yet.
                           </p>
                         )}
@@ -551,13 +570,13 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              <div className="rounded-[32px] border border-white/10 bg-white/10 p-6 text-white shadow-[0_30px_70px_rgba(16,10,32,0.35)]">
-                <p className="text-xs uppercase tracking-[0.3em] text-white/60">
+              <div className="rounded-[32px] border border-black/10 bg-white p-6 text-black shadow-[0_30px_70px_rgba(0,0,0,0.08)]">
+                <p className="text-xs uppercase tracking-[0.3em] text-black/60">
                   Supply metrics
                 </p>
                 <div className="mt-4 grid gap-4 lg:grid-cols-[1.2fr_1fr]">
                   <div>
-                    <div className="h-28 rounded-2xl bg-white/5 p-3">
+                    <div className="h-28 rounded-2xl bg-black/5 p-3">
                       <BarChart
                         data={[
                           {
@@ -569,40 +588,41 @@ const AdminDashboard = () => {
                             value: metrics.hostClicksTotal,
                           },
                         ]}
-                        barClass="fill-emerald-300"
+                        barClass="fill-black"
+                        labelClass="fill-black text-[6px]"
                       />
                     </div>
                     <div className="mt-3 space-y-1 text-sm">
                       <div className="flex items-center justify-between">
-                        <span className="text-white/70">Host signups</span>
-                        <span className="text-white">
+                        <span className="text-black/70">Host signups</span>
+                        <span className="text-black">
                           {formatNumber(metrics.signupsHost)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-white/70">Host clicks</span>
-                        <span className="text-white">
+                        <span className="text-black/70">Host clicks</span>
+                        <span className="text-black">
                           {formatNumber(metrics.hostClicksTotal)}
                         </span>
                       </div>
                     </div>
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-[0.2em] text-white/50">
+                    <p className="text-xs uppercase tracking-[0.2em] text-black/50">
                       Hosts by country
                     </p>
                     <div className="mt-3 flex items-center gap-4">
                       <DonutChart
                         data={hostCountryChart}
                         colors={[
-                          "#34D399",
-                          "#6EE7B7",
-                          "#A7F3D0",
-                          "#10B981",
-                          "#D1FAE5",
+                          "#000000",
+                          "#444444",
+                          "#666666",
+                          "#999999",
+                          "#CCCCCC",
                         ]}
                       />
-                      <div className="space-y-1 text-xs text-white/70">
+                      <div className="space-y-1 text-xs text-black/70">
                         {hostCountryChart.length ? (
                           hostCountryChart.map((item) => (
                             <div
@@ -613,8 +633,8 @@ const AdminDashboard = () => {
                               <span
                                 className={
                                   item.value >= 10
-                                    ? "text-emerald-300"
-                                    : "text-white"
+                                    ? "text-black"
+                                    : "text-black"
                                 }
                               >
                                 {formatNumber(item.value)}
@@ -622,7 +642,7 @@ const AdminDashboard = () => {
                             </div>
                           ))
                         ) : (
-                          <p className="text-xs text-white/50">
+                          <p className="text-xs text-black/50">
                             No country data yet.
                           </p>
                         )}
@@ -637,21 +657,21 @@ const AdminDashboard = () => {
         )}
 
         {metrics && (
-          <section className="rounded-[32px] border border-white/10 bg-white/10 p-6 text-white shadow-[0_30px_70px_rgba(16,10,32,0.35)]">
+          <section className="rounded-[32px] border border-black/10 bg-white p-6 text-black shadow-[0_30px_70px_rgba(0,0,0,0.08)]">
             <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-white/60">
+                <p className="text-xs uppercase tracking-[0.3em] text-black/60">
                   Signup answers
                 </p>
                 <p className="mt-2 text-lg font-semibold">
                   {formatNumber(metrics.leadsTotal)} total
                 </p>
               </div>
-              <div className="flex items-center gap-2 text-xs text-white/70">
+              <div className="flex items-center gap-2 text-xs text-black/70">
                 <button
                   type="button"
                   onClick={() => handlePageChange(Math.max(leadOffset - leadLimit, 0))}
-                  className="rounded-full border border-white/20 px-3 py-1 disabled:opacity-40"
+                  className="rounded-full border border-black/20 px-3 py-1 disabled:opacity-40"
                   disabled={leadOffset === 0 || isLoading}
                 >
                   Previous
@@ -659,7 +679,7 @@ const AdminDashboard = () => {
                 <button
                   type="button"
                   onClick={() => handlePageChange(leadOffset + leadLimit)}
-                  className="rounded-full border border-white/20 px-3 py-1 disabled:opacity-40"
+                  className="rounded-full border border-black/20 px-3 py-1 disabled:opacity-40"
                   disabled={leadOffset + leadLimit >= metrics.leadsTotal || isLoading}
                 >
                   Next
@@ -667,14 +687,14 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            <div className="mt-4 inline-flex rounded-full border border-white/20 bg-white/5 p-1 text-xs">
+            <div className="mt-4 inline-flex rounded-full border border-black/20 bg-black/5 p-1 text-xs">
               <button
                 type="button"
                 onClick={() => setSignupTab("member")}
                 className={`rounded-full px-4 py-2 uppercase tracking-[0.2em] ${
                   signupTab === "member"
-                    ? "bg-white text-[#2E2A3D]"
-                    : "text-white/70"
+                    ? "bg-black text-white"
+                    : "text-black/70"
                 }`}
               >
                 Members
@@ -684,17 +704,17 @@ const AdminDashboard = () => {
                 onClick={() => setSignupTab("host")}
                 className={`rounded-full px-4 py-2 uppercase tracking-[0.2em] ${
                   signupTab === "host"
-                    ? "bg-white text-[#2E2A3D]"
-                    : "text-white/70"
+                    ? "bg-black text-white"
+                    : "text-black/70"
                 }`}
               >
                 Hosts
               </button>
             </div>
 
-            <div className="mt-6 overflow-auto rounded-2xl border border-white/10">
-              <table className="min-w-full text-left text-sm text-white/80">
-                <thead className="bg-white/10 text-xs uppercase tracking-[0.2em] text-white/50">
+            <div className="mt-6 overflow-auto rounded-2xl border border-black/10">
+              <table className="min-w-full text-left text-sm text-black/80">
+                <thead className="bg-black/5 text-xs uppercase tracking-[0.2em] text-black/50">
                   <tr>
                     {(signupTab === "member" ? memberColumns : hostColumns).map(
                       (column) => (
@@ -739,7 +759,7 @@ const AdminDashboard = () => {
                         featuresOther: formatAnswer(responses.featuresOther),
                       };
                         return (
-                          <tr key={lead._id} className="border-t border-white/10">
+                          <tr key={lead._id} className="border-t border-black/10">
                             {(signupTab === "member"
                               ? memberColumns
                               : hostColumns
@@ -754,7 +774,7 @@ const AdminDashboard = () => {
                   ) : (
                     <tr>
                       <td
-                        className="px-4 py-3 text-xs text-white/50"
+                        className="px-4 py-3 text-xs text-black/50"
                         colSpan={
                           signupTab === "member"
                             ? memberColumns.length
