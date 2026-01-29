@@ -85,6 +85,42 @@ export const THEMES = [
   },
 ];
 
+export const MEMBER_INTEREST_OPTIONS = [
+  "Movement (fitness, primal movement, mobility, qi gong, dance, surfing, paddling)",
+  "Wellness (yoga, breathwork, meditation, sound bath)",
+  "Arts (crafts, music, writing, visual arts)",
+  "Wildlife (birdwatching, citizen science, tracking, ecology walks)",
+  "Social (tea ceremony, outdoor dining)",
+  "Cultivation (gardening, farming, permaculture, composting)",
+  "Restoration (volunteering, conservation, clean-ups, tree planting)",
+  "Cultural (harvest festivals, music festivals, solstice events, seasonal rites)",
+  "Skills (foraging, natural building, sailing, navigation, firecraft)",
+  "Adventure (hiking, camping, expeditions)",
+  "Other -",
+];
+
+export const MEMBER_INTEREST_THEME_MAP = {
+  "Movement (fitness, primal movement, mobility, qi gong, dance, surfing, paddling)": [
+    "movement",
+  ],
+  "Wellness (yoga, breathwork, meditation, sound bath)": ["wellness"],
+  "Arts (crafts, music, writing, visual arts)": ["arts"],
+  "Wildlife (birdwatching, citizen science, tracking, ecology walks)": [
+    "wildlife",
+  ],
+  "Social (tea ceremony, outdoor dining)": ["social"],
+  "Cultivation (gardening, farming, permaculture, composting)": ["cultivation"],
+  "Restoration (volunteering, conservation, clean-ups, tree planting)": [
+    "restoration",
+  ],
+  "Cultural (harvest festivals, music festivals, solstice events, seasonal rites)": [
+    "cultural",
+  ],
+  "Skills (foraging, natural building, sailing, navigation, firecraft)": ["skills"],
+  "Adventure (hiking, camping, expeditions)": ["adventure"],
+  "Other -": ["other"],
+};
+
 const events = [
   {
     id: "forest-hike",

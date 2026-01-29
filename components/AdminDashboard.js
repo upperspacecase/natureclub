@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import apiClient from "@/libs/api";
+import { THEMES } from "@/data/events";
 
 const formatNumber = (value) =>
   typeof value === "number" ? value.toLocaleString("en-US") : "-";
@@ -18,19 +19,27 @@ const formatDuration = (durationMs) => {
   return `${minutes}m ${seconds}s`;
 };
 
-const formatResponsePreview = (responses) => {
-  if (!responses || typeof responses !== "object") return "-";
-  const entries = Object.entries(responses)
-    .filter(([, value]) => value !== "" && value !== null && value !== undefined)
-    .map(([key, value]) => {
-      if (Array.isArray(value)) return `${key}: ${value.join(", ")}`;
-      if (typeof value === "object") return `${key}: ${JSON.stringify(value)}`;
-      return `${key}: ${value}`;
-    });
-  return entries.length ? entries.join(" · ") : "-";
+const formatAnswer = (value) => {
+  if (Array.isArray(value)) return value.join(", ");
+  if (value && typeof value === "object") return JSON.stringify(value);
+  if (value === null || value === undefined || value === "") return "-";
+  return `${value}`;
 };
 
-const LineChart = ({ data, accentClass, fillClass }) => {
+const sumValues = (items) => items.reduce((sum, item) => sum + item.value, 0);
+
+const buildDonutData = (items, limit = 5) => {
+  if (!items?.length) return [];
+  const sliced = items.slice(0, limit);
+  const remainder = items.slice(limit);
+  const remainderCount = sumValues(remainder);
+  if (remainderCount > 0) {
+    return [...sliced, { label: "Other", value: remainderCount }];
+  }
+  return sliced;
+};
+
+const BarChart = ({ data, barClass }) => {
   if (!data?.length) {
     return (
       <div className="flex h-32 items-center justify-center rounded-2xl bg-white/40 text-xs text-base-content/50">
@@ -40,19 +49,75 @@ const LineChart = ({ data, accentClass, fillClass }) => {
   }
 
   const maxValue = Math.max(...data.map((item) => item.value), 1);
-  const points = data.map((item, index) => {
-    const x = (index / Math.max(data.length - 1, 1)) * 100;
-    const y = 40 - (item.value / maxValue) * 32 - 4;
-    return `${x},${y}`;
-  });
-
-  const linePath = `M${points.join(" L")}`;
-  const areaPath = `${linePath} L100,40 L0,40 Z`;
+  const barWidth = 100 / data.length;
 
   return (
     <svg viewBox="0 0 100 40" className="h-32 w-full">
-      <path d={areaPath} className={fillClass} />
-      <path d={linePath} className={accentClass} fill="none" strokeWidth="2" />
+      {data.map((item, index) => {
+        const height = (item.value / maxValue) * 32;
+        const x = index * barWidth + barWidth * 0.15;
+        const width = barWidth * 0.7;
+        const y = 40 - height;
+        return (
+          <rect
+            key={item.label}
+            x={x}
+            y={y}
+            width={width}
+            height={height}
+            rx="2"
+            className={barClass}
+          />
+        );
+      })}
+    </svg>
+  );
+};
+
+const DonutChart = ({ data, colors }) => {
+  const total = data.reduce((sum, item) => sum + item.value, 0);
+  if (!total) {
+    return (
+      <div className="flex h-32 items-center justify-center rounded-2xl bg-white/40 text-xs text-base-content/50">
+        No data yet
+      </div>
+    );
+  }
+
+  const radius = 18;
+  const circumference = 2 * Math.PI * radius;
+  let offset = 0;
+
+  return (
+    <svg viewBox="0 0 60 60" className="h-32 w-32">
+      <circle
+        cx="30"
+        cy="30"
+        r={radius}
+        fill="none"
+        stroke="rgba(255,255,255,0.12)"
+        strokeWidth="8"
+      />
+      {data.map((item, index) => {
+        const value = item.value / total;
+        const dash = value * circumference;
+        const dashOffset = circumference - offset;
+        offset += dash;
+        return (
+          <circle
+            key={item.label}
+            cx="30"
+            cy="30"
+            r={radius}
+            fill="none"
+            stroke={colors[index % colors.length]}
+            strokeWidth="8"
+            strokeDasharray={`${dash} ${circumference - dash}`}
+            strokeDashoffset={dashOffset}
+            transform="rotate(-90 30 30)"
+          />
+        );
+      })}
     </svg>
   );
 };
@@ -85,15 +150,72 @@ const AdminDashboard = () => {
   const [granularity, setGranularity] = useState("day");
   const [leadOffset, setLeadOffset] = useState(0);
   const leadLimit = 50;
+  const [signupTab, setSignupTab] = useState("member");
+  const [events, setEvents] = useState([]);
+  const [eventsError, setEventsError] = useState("");
+  const [eventsLoading, setEventsLoading] = useState(false);
+  const [savingEventId, setSavingEventId] = useState("");
 
   const conversionRate =
     metrics && metrics.visitsTotal
       ? metrics.signupsTotal / metrics.visitsTotal
       : null;
 
+  const memberCountryChart = metrics
+    ? buildDonutData(
+        metrics.membersByCountry.map((item) => ({
+          label: item.country,
+          value: item.count,
+        }))
+      )
+    : [];
+
+  const hostCountryChart = metrics
+    ? buildDonutData(
+        metrics.hostsByCountry.map((item) => ({
+          label: item.country,
+          value: item.count,
+        }))
+      )
+    : [];
+
+  const likesMap = metrics
+    ? metrics.likesByEvent.reduce((acc, item) => {
+        acc[item.eventId] = item.count;
+        return acc;
+      }, {})
+    : {};
+
+  const memberColumns = [
+    { key: "date", label: "Date" },
+    { key: "email", label: "Email" },
+    { key: "location", label: "Location" },
+    { key: "interests", label: "Interests" },
+    { key: "interestsOther", label: "Interests Other" },
+    { key: "interestThemes", label: "Themes" },
+    { key: "motivations", label: "Motivations" },
+    { key: "motivationsOther", label: "Motivations Other" },
+    { key: "pricingSelections", label: "Pricing" },
+  ];
+
+  const hostColumns = [
+    { key: "date", label: "Date" },
+    { key: "email", label: "Email" },
+    { key: "location", label: "Location" },
+    { key: "sessionsPerMonth", label: "Sessions / Month" },
+    { key: "bookingsPerSession", label: "Bookings / Session" },
+    { key: "rate", label: "Rate" },
+    { key: "rateRange", label: "Rate Range" },
+    { key: "tools", label: "Tools" },
+    { key: "toolsOther", label: "Tools Other" },
+    { key: "features", label: "Features" },
+    { key: "featuresOther", label: "Features Other" },
+  ];
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setEventsError("");
     try {
       const data = await apiClient.post("/admin/metrics", {
         password,
@@ -104,10 +226,81 @@ const AdminDashboard = () => {
         leadLimit,
       });
       setMetrics(data);
+      await fetchEvents();
     } catch (error) {
       console.error(error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchEvents = async () => {
+    if (!password) return;
+    setEventsLoading(true);
+    try {
+      const data = await apiClient.post("/admin/events", {
+        password,
+        action: "list",
+      });
+      setEvents(data.events || []);
+    } catch (error) {
+      console.error(error);
+      setEventsError("Unable to load events.");
+    } finally {
+      setEventsLoading(false);
+    }
+  };
+
+  const updateEventTags = (eventId, value) => {
+    setEvents((prev) =>
+      prev.map((event) =>
+        event.eventId === eventId
+          ? {
+              ...event,
+              tags: value
+                .split(",")
+                .map((tag) => tag.trim())
+                .filter(Boolean),
+            }
+          : event
+      )
+    );
+  };
+
+  const toggleEventTheme = (eventId, themeId) => {
+    setEvents((prev) =>
+      prev.map((event) => {
+        if (event.eventId !== eventId) return event;
+        const themes = new Set(event.themes || []);
+        if (themes.has(themeId)) {
+          themes.delete(themeId);
+        } else {
+          themes.add(themeId);
+        }
+        return { ...event, themes: Array.from(themes) };
+      })
+    );
+  };
+
+  const saveEvent = async (event) => {
+    if (!password) return;
+    setSavingEventId(event.eventId);
+    try {
+      const data = await apiClient.post("/admin/events", {
+        password,
+        action: "update",
+        eventId: event.eventId,
+        tags: event.tags || [],
+        themes: event.themes || [],
+      });
+      setEvents((prev) =>
+        prev.map((item) => (item.eventId === event.eventId ? data.event : item))
+      );
+    } catch (error) {
+      console.error(error);
+      setEventsError("Unable to save event updates.");
+    } finally {
+      setSavingEventId("");
     }
   };
 
@@ -239,11 +432,7 @@ const AdminDashboard = () => {
                   Conversion: {formatPercent(conversionRate)}
                 </p>
                 <div className="mt-6 h-28 rounded-2xl bg-white/10 p-3">
-                  <LineChart
-                    data={metrics.signupsSeries}
-                    accentClass="stroke-white"
-                    fillClass="fill-white/20"
-                  />
+                  <BarChart data={metrics.signupsSeries} barClass="fill-white" />
                 </div>
               </div>
 
@@ -258,10 +447,9 @@ const AdminDashboard = () => {
                   Today: {formatNumber(metrics.visitsToday)}
                 </p>
                 <div className="mt-6 h-28 rounded-2xl bg-white/70 p-3">
-                  <LineChart
+                  <BarChart
                     data={metrics.visitsSeries}
-                    accentClass="stroke-[#5B3BFF]"
-                    fillClass="fill-[#C7B7FF]"
+                    barClass="fill-[#5B3BFF]"
                   />
                 </div>
               </div>
@@ -292,29 +480,73 @@ const AdminDashboard = () => {
                 <p className="text-xs uppercase tracking-[0.3em] text-white/60">
                   Demand metrics
                 </p>
-                <p className="mt-4 text-3xl font-semibold">
-                  {formatNumber(metrics.signupsMember)} member signups
-                </p>
-                <p className="mt-2 text-sm text-white/70">
-                  {formatNumber(metrics.memberClicksTotal)} become a member clicks
-                </p>
-                <div className="mt-6">
-                  <p className="text-xs uppercase tracking-[0.2em] text-white/50">
-                    Members by country
-                  </p>
-                  <div className="mt-3 space-y-2 text-sm">
-                    {metrics.membersByCountry.length ? (
-                      metrics.membersByCountry.map((item) => (
-                        <div key={item.country} className="flex items-center justify-between">
-                          <span className="text-white/70">{item.country}</span>
-                          <span className="text-white">
-                            {formatNumber(item.count)}
-                          </span>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-xs text-white/50">No country data yet.</p>
-                    )}
+                <div className="mt-4 grid gap-4 lg:grid-cols-[1.2fr_1fr]">
+                  <div>
+                    <div className="h-28 rounded-2xl bg-white/5 p-3">
+                      <BarChart
+                        data={[
+                          {
+                            label: "Members",
+                            value: metrics.signupsMember,
+                          },
+                          {
+                            label: "Clicks",
+                            value: metrics.memberClicksTotal,
+                          },
+                        ]}
+                        barClass="fill-[#8B6BFF]"
+                      />
+                    </div>
+                    <div className="mt-3 space-y-1 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/70">Member signups</span>
+                        <span className="text-white">
+                          {formatNumber(metrics.signupsMember)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/70">Member clicks</span>
+                        <span className="text-white">
+                          {formatNumber(metrics.memberClicksTotal)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.2em] text-white/50">
+                      Members by country
+                    </p>
+                    <div className="mt-3 flex items-center gap-4">
+                      <DonutChart
+                        data={memberCountryChart}
+                        colors={[
+                          "#8B6BFF",
+                          "#B39BFF",
+                          "#D9CCFF",
+                          "#6B47FF",
+                          "#F2EDFF",
+                        ]}
+                      />
+                      <div className="space-y-1 text-xs text-white/70">
+                        {memberCountryChart.length ? (
+                          memberCountryChart.map((item) => (
+                            <div
+                              key={item.label}
+                              className="flex items-center justify-between gap-4"
+                            >
+                              <span>{item.label}</span>
+                              <span className="text-white">
+                                {formatNumber(item.value)}
+                              </span>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-xs text-white/50">
+                            No country data yet.
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -323,113 +555,84 @@ const AdminDashboard = () => {
                 <p className="text-xs uppercase tracking-[0.3em] text-white/60">
                   Supply metrics
                 </p>
-                <p className="mt-4 text-3xl font-semibold">
-                  {formatNumber(metrics.signupsHost)} host signups
-                </p>
-                <p className="mt-2 text-sm text-white/70">
-                  {formatNumber(metrics.hostClicksTotal)} become a host clicks
-                </p>
-                <div className="mt-6">
-                  <p className="text-xs uppercase tracking-[0.2em] text-white/50">
-                    Hosts by country
-                  </p>
-                  <div className="mt-3 space-y-2 text-sm">
-                    {metrics.hostsByCountry.length ? (
-                      metrics.hostsByCountry.map((item) => (
-                        <div key={item.country} className="flex items-center justify-between">
-                          <span className="text-white/70">{item.country}</span>
-                          <span
-                            className={
-                              item.count >= 10
-                                ? "text-emerald-300"
-                                : "text-white"
-                            }
-                          >
-                            {formatNumber(item.count)}
-                          </span>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-xs text-white/50">No country data yet.</p>
-                    )}
+                <div className="mt-4 grid gap-4 lg:grid-cols-[1.2fr_1fr]">
+                  <div>
+                    <div className="h-28 rounded-2xl bg-white/5 p-3">
+                      <BarChart
+                        data={[
+                          {
+                            label: "Hosts",
+                            value: metrics.signupsHost,
+                          },
+                          {
+                            label: "Clicks",
+                            value: metrics.hostClicksTotal,
+                          },
+                        ]}
+                        barClass="fill-emerald-300"
+                      />
+                    </div>
+                    <div className="mt-3 space-y-1 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/70">Host signups</span>
+                        <span className="text-white">
+                          {formatNumber(metrics.signupsHost)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/70">Host clicks</span>
+                        <span className="text-white">
+                          {formatNumber(metrics.hostClicksTotal)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.2em] text-white/50">
+                      Hosts by country
+                    </p>
+                    <div className="mt-3 flex items-center gap-4">
+                      <DonutChart
+                        data={hostCountryChart}
+                        colors={[
+                          "#34D399",
+                          "#6EE7B7",
+                          "#A7F3D0",
+                          "#10B981",
+                          "#D1FAE5",
+                        ]}
+                      />
+                      <div className="space-y-1 text-xs text-white/70">
+                        {hostCountryChart.length ? (
+                          hostCountryChart.map((item) => (
+                            <div
+                              key={item.label}
+                              className="flex items-center justify-between gap-4"
+                            >
+                              <span>{item.label}</span>
+                              <span
+                                className={
+                                  item.value >= 10
+                                    ? "text-emerald-300"
+                                    : "text-white"
+                                }
+                              >
+                                {formatNumber(item.value)}
+                              </span>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-xs text-white/50">
+                            No country data yet.
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <section className="grid gap-6 lg:grid-cols-2">
-              <div className="rounded-[32px] border border-white/10 bg-white/10 p-6 text-white shadow-[0_30px_70px_rgba(16,10,32,0.35)]">
-                <p className="text-xs uppercase tracking-[0.3em] text-white/60">
-                  Likes by event
-                </p>
-                <div className="mt-4 overflow-auto rounded-2xl border border-white/10">
-                  <table className="min-w-full text-left text-sm text-white/80">
-                    <thead className="bg-white/10 text-xs uppercase tracking-[0.2em] text-white/50">
-                      <tr>
-                        <th className="px-4 py-3">Event</th>
-                        <th className="px-4 py-3">Likes</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {metrics.likesByEvent.length ? (
-                        metrics.likesByEvent.map((event) => (
-                          <tr key={event.eventId} className="border-t border-white/10">
-                            <td className="px-4 py-3 text-sm text-white">
-                              {event.title}
-                            </td>
-                            <td className="px-4 py-3 text-sm text-white/70">
-                              {formatNumber(event.count)}
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td className="px-4 py-3 text-xs text-white/50" colSpan={2}>
-                            No likes yet.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div className="rounded-[32px] border border-white/10 bg-white/10 p-6 text-white shadow-[0_30px_70px_rgba(16,10,32,0.35)]">
-                <p className="text-xs uppercase tracking-[0.3em] text-white/60">
-                  Likes by theme
-                </p>
-                <div className="mt-4 overflow-auto rounded-2xl border border-white/10">
-                  <table className="min-w-full text-left text-sm text-white/80">
-                    <thead className="bg-white/10 text-xs uppercase tracking-[0.2em] text-white/50">
-                      <tr>
-                        <th className="px-4 py-3">Theme</th>
-                        <th className="px-4 py-3">Likes</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {metrics.likesByTheme.length ? (
-                        metrics.likesByTheme.map((theme) => (
-                          <tr key={theme.themeId} className="border-t border-white/10">
-                            <td className="px-4 py-3 text-sm text-white">
-                              {theme.label}
-                            </td>
-                            <td className="px-4 py-3 text-sm text-white/70">
-                              {formatNumber(theme.count)}
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td className="px-4 py-3 text-xs text-white/50" colSpan={2}>
-                            No likes yet.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </section>
           </div>
         )}
 
@@ -438,7 +641,7 @@ const AdminDashboard = () => {
             <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
               <div>
                 <p className="text-xs uppercase tracking-[0.3em] text-white/60">
-                  Waitlist submissions
+                  Signup answers
                 </p>
                 <p className="mt-2 text-lg font-semibold">
                   {formatNumber(metrics.leadsTotal)} total
@@ -463,43 +666,250 @@ const AdminDashboard = () => {
                 </button>
               </div>
             </div>
+
+            <div className="mt-4 inline-flex rounded-full border border-white/20 bg-white/5 p-1 text-xs">
+              <button
+                type="button"
+                onClick={() => setSignupTab("member")}
+                className={`rounded-full px-4 py-2 uppercase tracking-[0.2em] ${
+                  signupTab === "member"
+                    ? "bg-white text-[#2E2A3D]"
+                    : "text-white/70"
+                }`}
+              >
+                Members
+              </button>
+              <button
+                type="button"
+                onClick={() => setSignupTab("host")}
+                className={`rounded-full px-4 py-2 uppercase tracking-[0.2em] ${
+                  signupTab === "host"
+                    ? "bg-white text-[#2E2A3D]"
+                    : "text-white/70"
+                }`}
+              >
+                Hosts
+              </button>
+            </div>
+
             <div className="mt-6 overflow-auto rounded-2xl border border-white/10">
               <table className="min-w-full text-left text-sm text-white/80">
                 <thead className="bg-white/10 text-xs uppercase tracking-[0.2em] text-white/50">
                   <tr>
-                    <th className="px-4 py-3">Date</th>
-                    <th className="px-4 py-3">Email</th>
-                    <th className="px-4 py-3">Role</th>
-                    <th className="px-4 py-3">Source</th>
-                    <th className="px-4 py-3">Answers</th>
+                    {(signupTab === "member" ? memberColumns : hostColumns).map(
+                      (column) => (
+                        <th key={column.key} className="px-4 py-3">
+                          {column.label}
+                        </th>
+                      )
+                    )}
                   </tr>
                 </thead>
                 <tbody>
-                  {metrics.leads.map((lead) => (
-                    <tr key={lead._id} className="border-t border-white/10">
-                      <td className="px-4 py-3 text-xs text-white/60">
-                        {new Date(lead.createdAt).toLocaleDateString("en-US", {
+                  {metrics.leads.filter((lead) => lead.role === signupTab)
+                    .length ? (
+                    metrics.leads
+                      .filter((lead) => lead.role === signupTab)
+                      .map((lead) => {
+                      const responses = lead.responses || {};
+                      const location = responses.location || {};
+                      const locationValue =
+                        location.city || location.coords || "-";
+                      const rowValues = {
+                        date: new Date(lead.createdAt).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "short",
                           day: "numeric",
-                        })}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-white">
-                        {lead.email}
-                      </td>
-                      <td className="px-4 py-3 text-xs uppercase tracking-[0.15em] text-white/70">
-                        {lead.role}
-                      </td>
-                      <td className="px-4 py-3 text-xs text-white/60">
-                        {lead.source || "-"}
-                      </td>
-                      <td className="px-4 py-3 text-xs text-white/60">
-                        {formatResponsePreview(lead.responses)}
+                        }),
+                        email: lead.email,
+                        location: locationValue,
+                        interests: formatAnswer(responses.interests),
+                        interestsOther: formatAnswer(responses.interestsOther),
+                        interestThemes: formatAnswer(responses.interestThemes),
+                        motivations: formatAnswer(responses.motivations),
+                        motivationsOther: formatAnswer(responses.motivationsOther),
+                        pricingSelections: formatAnswer(responses.pricingSelections),
+                        sessionsPerMonth: formatAnswer(responses.sessionsPerMonth),
+                        bookingsPerSession: formatAnswer(responses.bookingsPerSession),
+                        rate: formatAnswer(responses.rate),
+                        rateRange: formatAnswer(responses.rateRange),
+                        tools: formatAnswer(responses.tools),
+                        toolsOther: formatAnswer(responses.toolsOther),
+                        features: formatAnswer(responses.features),
+                        featuresOther: formatAnswer(responses.featuresOther),
+                      };
+                        return (
+                          <tr key={lead._id} className="border-t border-white/10">
+                            {(signupTab === "member"
+                              ? memberColumns
+                              : hostColumns
+                            ).map((column) => (
+                              <td key={column.key} className="px-4 py-3 text-xs">
+                                {rowValues[column.key]}
+                              </td>
+                            ))}
+                          </tr>
+                        );
+                      })
+                  ) : (
+                    <tr>
+                      <td
+                        className="px-4 py-3 text-xs text-white/50"
+                        colSpan={
+                          signupTab === "member"
+                            ? memberColumns.length
+                            : hostColumns.length
+                        }
+                      >
+                        No submissions for this role.
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
+            </div>
+          </section>
+        )}
+
+        {metrics && (
+          <section className="rounded-[32px] border border-white/10 bg-white/10 p-6 text-white shadow-[0_30px_70px_rgba(16,10,32,0.35)]">
+            <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-white/60">
+                  Events
+                </p>
+                <p className="mt-2 text-lg font-semibold">
+                  Likes, tags, and themes
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={fetchEvents}
+                className="rounded-full border border-white/20 px-4 py-2 text-xs uppercase tracking-[0.2em] text-white/70 disabled:opacity-40"
+                disabled={eventsLoading}
+              >
+                {eventsLoading ? "Refreshing..." : "Refresh events"}
+              </button>
+            </div>
+
+            {eventsError && (
+              <p className="mt-4 text-sm text-rose-200">{eventsError}</p>
+            )}
+
+            <div className="mt-6 overflow-auto rounded-2xl border border-white/10">
+              <table className="min-w-full text-left text-sm text-white/80">
+                <thead className="bg-white/10 text-xs uppercase tracking-[0.2em] text-white/50">
+                  <tr>
+                    <th className="px-4 py-3">Event</th>
+                    <th className="px-4 py-3">Likes</th>
+                    <th className="px-4 py-3">Tags</th>
+                    <th className="px-4 py-3">Themes</th>
+                    <th className="px-4 py-3">Save</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {events.length ? (
+                    events.map((event) => (
+                      <tr key={event.eventId} className="border-t border-white/10">
+                        <td className="px-4 py-3 text-sm text-white">
+                          <div className="font-semibold">{event.title}</div>
+                          <div className="text-xs text-white/50">{event.eventId}</div>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-white/70">
+                          {formatNumber(likesMap[event.eventId] || 0)}
+                        </td>
+                        <td className="px-4 py-3">
+                          <input
+                            type="text"
+                            value={(event.tags || []).join(", ")}
+                            onChange={(e) =>
+                              updateEventTags(event.eventId, e.target.value)
+                            }
+                            className="w-64 rounded-full border border-white/20 bg-white/90 px-3 py-2 text-xs text-black"
+                          />
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex flex-wrap gap-2">
+                            {THEMES.map((theme) => {
+                              const isActive = (event.themes || []).includes(
+                                theme.id
+                              );
+                              return (
+                                <button
+                                  key={`${event.eventId}-${theme.id}`}
+                                  type="button"
+                                  onClick={() =>
+                                    toggleEventTheme(event.eventId, theme.id)
+                                  }
+                                  className={`rounded-full border px-3 py-1 text-xs transition ${
+                                    isActive
+                                      ? "border-white bg-white text-[#2E2A3D]"
+                                      : "border-white/20 text-white/70 hover:border-white"
+                                  }`}
+                                >
+                                  {theme.label}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <button
+                            type="button"
+                            onClick={() => saveEvent(event)}
+                            className="rounded-full bg-white/10 px-3 py-2 text-xs uppercase tracking-[0.2em] text-white disabled:opacity-40"
+                            disabled={savingEventId === event.eventId}
+                          >
+                            {savingEventId === event.eventId ? "Saving..." : "Save"}
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td className="px-4 py-3 text-sm text-white/60" colSpan={5}>
+                        No events found.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-6">
+              <p className="text-xs uppercase tracking-[0.3em] text-white/60">
+                Likes by theme
+              </p>
+              <div className="mt-4 overflow-auto rounded-2xl border border-white/10">
+                <table className="min-w-full text-left text-sm text-white/80">
+                  <thead className="bg-white/10 text-xs uppercase tracking-[0.2em] text-white/50">
+                    <tr>
+                      <th className="px-4 py-3">Theme</th>
+                      <th className="px-4 py-3">Likes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {metrics.likesByTheme.length ? (
+                      metrics.likesByTheme.map((theme) => (
+                        <tr key={theme.themeId} className="border-t border-white/10">
+                          <td className="px-4 py-3 text-sm text-white">
+                            {theme.label}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-white/70">
+                            {formatNumber(theme.count)}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td className="px-4 py-3 text-sm text-white/60" colSpan={2}>
+                          No likes yet.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </section>
         )}

@@ -4,6 +4,10 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import apiClient from "@/libs/api";
+import {
+  MEMBER_INTEREST_OPTIONS,
+  MEMBER_INTEREST_THEME_MAP,
+} from "@/data/events";
 import WaitlistModal from "./WaitlistModal";
 
 const WaitlistSection = () => {
@@ -48,22 +52,16 @@ const WaitlistSection = () => {
     []
   );
 
-  const memberInterestOptions = useMemo(
-    () => [
-      "Movement (fitness, primal movement, mobility, qi gong, dance, surfing, paddling)",
-      "Wellness (yoga, breathwork, meditation, sound bath)",
-      "Arts (crafts, music, writing, visual arts)",
-      "Wildlife (birdwatching, citizen science, tracking, ecology walks)",
-      "Social (tea ceremony, outdoor dining)",
-      "Cultivation (gardening, farming, permaculture, composting)",
-      "Restoration (volunteering, conservation, clean-ups, tree planting)",
-      "Cultural (harvest festivals, music festivals, solstice events, seasonal rites)",
-      "Skills (foraging, natural building, sailing, navigation, firecraft)",
-      "Adventure (hiking, camping, expeditions)",
-      "Other -",
-    ],
-    []
-  );
+  const memberInterestOptions = useMemo(() => MEMBER_INTEREST_OPTIONS, []);
+
+  const mapInterestThemes = (interests) => {
+    const themes = new Set();
+    interests.forEach((interest) => {
+      const mapped = MEMBER_INTEREST_THEME_MAP[interest] || [];
+      mapped.forEach((theme) => themes.add(theme));
+    });
+    return Array.from(themes);
+  };
 
   const memberMotivationOptions = useMemo(
     () => [
@@ -176,6 +174,7 @@ const WaitlistSection = () => {
           location: memberLocation,
           interests: memberInterests,
           interestsOther: memberInterestsOther,
+          interestThemes: mapInterestThemes(memberInterests),
           motivations: memberMotivations,
           motivationsOther: memberMotivationsOther,
           pricingSelections: memberPricingSelections,

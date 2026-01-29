@@ -18,6 +18,11 @@
 # misc
 .DS_Store
 *.pem
+.agent/
+.agents/
+.cursor/
+.gemini/
+.opencode/
 
 # debug
 npm-debug.log*
