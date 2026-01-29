@@ -20,18 +20,12 @@ export async function POST(req) {
   }
 
   try {
-    await Lead.updateOne(
-      { email: body.email, role: body.role },
-      {
-        $set: {
-          email: body.email,
-          role: body.role,
-          source: body.source || "button",
-          responses: body.responses || {},
-        },
-      },
-      { upsert: true }
-    );
+    await Lead.create({
+      email: body.email,
+      role: body.role,
+      source: body.source || "button",
+      responses: body.responses || {},
+    });
 
     return NextResponse.json({});
   } catch (e) {
