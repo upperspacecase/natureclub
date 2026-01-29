@@ -19,18 +19,12 @@ export default function Page() {
           <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 pb-16 md:px-10">
             {/* Header/Logo */}
             <header className="my-8 md:my-10">
-              <picture>
-                <source
-                  srcSet="/logo-dark.svg"
-                  media="(prefers-color-scheme: dark) and (min-width: 768px)"
-                />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/logo-light.svg"
-                  alt="Nature Club"
-                  className="h-22 md:h-28 w-auto"
-                />
-              </picture>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo-light.svg"
+                alt="Nature Club"
+                className="h-22 md:h-28 w-auto"
+              />
             </header>
 
             {/* Hero Content — aligned with carousel edges */}
