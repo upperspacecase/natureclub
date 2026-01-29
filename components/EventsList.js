@@ -221,12 +221,12 @@ const EventsList = ({ events }) => {
           );
         })}
       </div>
-      <div className="pointer-events-none absolute inset-y-0 left-0 right-0 z-30 px-6 sm:px-10">
+      <div className="pointer-events-none absolute inset-y-0 left-0 right-0 z-30 flex items-center justify-between px-6 sm:px-10">
         <button
           type="button"
           aria-label="Previous events"
           onClick={() => handleScroll("prev")}
-          className="btn btn-outline btn-circle pointer-events-auto absolute left-0 top-1/2 h-12 w-12 -translate-y-1/2 bg-base-100/70 text-base-content/80 shadow-lg backdrop-blur-sm active:-translate-y-1/2 active:scale-100"
+          className="pointer-events-auto flex h-12 w-12 items-center justify-center rounded-full border border-base-content bg-transparent text-base-content/80 shadow-lg backdrop-blur-sm transition-colors hover:bg-base-content hover:text-base-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content/60"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -243,7 +243,7 @@ const EventsList = ({ events }) => {
           type="button"
           aria-label="Next events"
           onClick={() => handleScroll("next")}
-          className="btn btn-outline btn-circle pointer-events-auto absolute right-0 top-1/2 h-12 w-12 -translate-y-1/2 bg-base-100/70 text-base-content/80 shadow-lg backdrop-blur-sm active:-translate-y-1/2 active:scale-100"
+          className="pointer-events-auto flex h-12 w-12 items-center justify-center rounded-full border border-base-content bg-transparent text-base-content/80 shadow-lg backdrop-blur-sm transition-colors hover:bg-base-content hover:text-base-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content/60"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
