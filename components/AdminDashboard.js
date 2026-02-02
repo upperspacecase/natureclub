@@ -338,6 +338,15 @@ const AdminDashboard = () => {
     }
   };
 
+  const reset = async () => {
+    if (!password) return;
+    try {
+      await apiClient.post("/admin/reset-metrics", { password });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white px-6 py-16 text-black md:px-10">
       <div className="mx-auto max-w-6xl space-y-10">
@@ -386,20 +395,37 @@ const AdminDashboard = () => {
             >
               {isLoading ? "Loading..." : "Load dashboard"}
             </button>
-          </div>
+              </div>
 
-          <div className="grid gap-3 md:grid-cols-3">
-            <div>
-              <label className="text-xs uppercase tracking-[0.2em] text-black/50">
-                Range start
-              </label>
-              <input
-                type="date"
-                value={rangeStart}
-                onChange={(e) => setRangeStart(e.target.value)}
-                className="mt-2 w-full rounded-full border border-black/20 bg-white px-4 py-2 text-sm text-black"
-                disabled={granularity === "all"}
-              />
+            <div className="grid gap-4 rounded-[32px] border border-black/10 bg-white p-6 text-black/80 shadow-[0_30px_70px_rgba(0,0,0,0.08)]">
+              <div className="grid gap-3 md:grid-cols-4">
+                <label className="text-xs uppercase tracking-[0.2em] text-black/50">
+                  Admin password
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter password"
+                  className="mt-2 w-full rounded-full border border-black/20 bg-white px-4 py-2 text-sm text-black"
+                  required
+                />
+              </div>
+            </div>
+            <div className="mt-4 flex items-start justify-between gap-4">
+              <button
+                type="submit"
+                disabled={isLoading}
+              >
+                {isLoading ? "Loading..." : "Load dashboard"}
+              </button>
+              <button
+                type="button"
+                onClick={reset}
+                className="rounded-full border border-black/20 bg-red-500 px-4 py-2 text-xs font-semibold text-white hover:bg-red-600 transition-colors"
+              >
+                Reset all metrics
+              </button>
             </div>
             <div>
               <label className="text-xs uppercase tracking-[0.2em] text-black/50">
@@ -429,7 +455,145 @@ const AdminDashboard = () => {
               </select>
             </div>
           </div>
-        </form>
+              </form>
+            </div>
+
+          {metrics && (
+            <section className="rounded-[32px] border border-black/10 bg-white p-6 text-black shadow-[0_30px_70px_rgba(0,0,0,0.08)]">
+              <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+                <p className="text-xs uppercase tracking-[0.35em] text-black/60">
+                  Signup answers
+                </p>
+                <p className="mt-2 text-lg font-semibold">
+                  {formatNumber(metrics.leadsTotal)} total
+                </p>
+                <div className="mt-4 flex items-start justify-between gap-4 sm:flex-row sm:items-center">
+                  <button
+                    type="button"
+                    onClick={() => handlePageChange(Math.max(leadOffset - leadLimit, 0))}
+                    className="rounded-full border border-black/20 px-3 py-1 disabled:opacity-40"
+                    disabled={leadOffset === 0 || isLoading}
+                  >
+                    Previous
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handlePageChange(leadOffset + leadLimit)}
+                    className="rounded-full border border-black/20 px-3 py-1 disabled:opacity-40"
+                    disabled={leadOffset + leadLimit >= metrics.leadsTotal || isLoading}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+
+            <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-5">
+                <StatCard label="Users" value={formatNumber(metrics.usersTotal)} />
+                <StatCard label="Visits" value={formatNumber(metrics.visitsTotal)} />
+                <StatCard label="Visits today" value={formatNumber(metrics.visitsToday)} />
+                <StatCard label="Time on page" value={formatDuration(metrics.avgTimeOnPageMs)} helper={
+                  metrics.timeOnPageCount
+                    ? `${formatNumber(metrics.timeOnPageCount)} sessions`
+                    : "No sessions yet"
+                } />
+                <StatCard label="Conversion" value={formatPercent(conversionRate)} helper="Signups / visits" />
+              </div>
+
+          {metrics && (
+            <section className="rounded-[32px] border border-black/10 bg-white p-6 text-black shadow-[0_30px_70px_rgba(0,0,0,0.08)]">
+              <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+                <p className="text-xs uppercase tracking-[0.35em] text-black/60">
+                  Metrics
+                </p>
+                <button
+                  type="button"
+                  onClick={fetchEvents}
+                  className="rounded-full border border-black/20 bg-white px-4 py-2 text-xs uppercase tracking-[0.2em] text-black disabled:opacity-40"
+                  disabled={eventsLoading}
+                >
+                  {eventsLoading ? "Refreshing..." : "Refresh events"}
+                </button>
+                <button
+                  type="button"
+                  onClick={reset}
+                  className="rounded-full border border-black/20 bg-red-500 px-4 py-2 text-xs font-semibold text-white hover:bg-red-600 transition-colors"
+                >
+                  Reset all metrics
+                </button>
+              </div>
+            </section>
+
+          {metrics && (
+            <section className="rounded-[32px] border border-black/10 bg-white p-6 text-black shadow-[0_30px_70px_rgba(0,0,0,0.08)]">
+              <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+                <p className="text-xs uppercase tracking-[0.35em] text-black/60">
+                  Signup answers
+                </p>
+                <p className="mt-2 text-lg font-semibold">
+                  {formatNumber(metrics.leadsTotal)} total
+                </p>
+              </div>
+              <div className="mt-4 flex items-start justify-between gap-4 sm:flex-row sm:items-center">
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(Math.max(leadOffset - leadLimit, 0))}
+                  className="rounded-full border border-black/20 px-3 py-1 disabled:opacity-40"
+                  disabled={leadOffset === 0 || isLoading}
+                >
+                  Previous
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(leadOffset + leadLimit)}
+                  className="rounded-full border border-black/20 px-3 py-1 disabled:opacity-40"
+                  disabled={leadOffset + leadLimit >= metrics.leadsTotal || isLoading}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-4 inline-flex rounded-full border border-black/20 bg-black/5 p-1 text-xs">
+              <button
+                type="button"
+                onClick={() => setSignupTab("member")}
+                className={`rounded-full px-4 py-2 uppercase tracking-[0.2em] ${
+                  signupTab === "member"
+                    ? "bg-black text-white"
+                    : "text-black/70"
+                }`}
+              >
+                Members
+              </button>
+              <button
+                type="button"
+                onClick={() => setSignupTab("host")}
+                className={`rounded-full px-4 py-2 uppercase tracking-[0.2em] ${
+                  signupTab === "host"
+                    ? "bg-black text-white"
+                    : "text-black/70"
+                }`}
+              >
+                Hosts
+              </button>
+            </div>
+              <div className="grid gap-4 rounded-[32px] border border-black/10 bg-white p-6 text-black/80 shadow-[0_30px_70px_rgba(0,0,0,0.08)]">
+              <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+                <p className="text-xs uppercase tracking-[0.35em] text-black/60">
+                  Metrics
+                </p>
+                <button
+                  type="button"
+                  onClick={fetchEvents}
+                  className="rounded-full border border-black/20 bg-white px-4 py-2 text-xs uppercase tracking-[0.2em] text-black disabled:opacity-40"
+                  disabled={eventsLoading}
+                >
+                  {eventsLoading ? "Refreshing..." : "Refresh events"}
+                </button>
+              </div>
+            </div>
+            </div>
+            </div>
 
         {metrics && (
           <div className="space-y-6">
