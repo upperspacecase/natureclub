@@ -17,7 +17,6 @@ const eventSchema = mongoose.Schema(
     duration: {
       type: String,
       trim: true,
-      required: true,
     },
     image: {
       type: String,
@@ -31,6 +30,30 @@ const eventSchema = mongoose.Schema(
     themes: {
       type: [String],
       default: [],
+    },
+    categoryTag: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    attributeTags: {
+      type: [String],
+      default: [],
+    },
+    type: {
+      type: String,
+      trim: true,
+      default: "experience",
+    },
+    headline: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    buttonText: {
+      type: String,
+      trim: true,
+      default: "",
     },
   },
   {

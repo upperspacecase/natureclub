@@ -15,11 +15,13 @@ const EventsSection = async () => {
         filter: { eventId: event.id },
         update: {
           $set: {
-            title: event.title,
-            duration: event.duration,
+            title: event.title || event.headline || "Founding member",
             image: event.image,
-            tags: event.tags || [],
-            themes: event.themes || [],
+            categoryTag: event.categoryTag || "",
+            attributeTags: event.attributeTags || [],
+            type: event.type || "experience",
+            headline: event.headline || "",
+            buttonText: event.buttonText || "",
           },
         },
         upsert: true,
@@ -27,14 +29,19 @@ const EventsSection = async () => {
     }))
   );
 
+  await Event.deleteMany({ eventId: { $nin: eventsSeed.map((event) => event.id) } });
+
   const events = await Event.find({}).sort({ createdAt: 1 }).lean();
 
   const normalizedEvents = events.map((event) => ({
     id: event.eventId,
     title: event.title,
-    duration: event.duration,
     image: event.image,
-    tags: event.tags || [],
+    categoryTag: event.categoryTag || "",
+    attributeTags: event.attributeTags || [],
+    type: event.type || "experience",
+    headline: event.headline,
+    buttonText: event.buttonText,
   }));
 
   return (

@@ -42,17 +42,12 @@ const Modal = ({ isModalOpen, setIsModalOpen }) => {
                     I&apos;m a modal
                   </Dialog.Title>
                   <button
-                    className="btn btn-square btn-ghost btn-sm"
+                    type="button"
                     onClick={() => setIsModalOpen(false)}
+                    aria-label="Close"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-base-content/40 text-sm text-base-content/80 transition hover:border-base-content hover:text-base-content"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      className="w-5 h-5"
-                    >
-                      <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                    </svg>
+                    x
                   </button>
                 </div>
 

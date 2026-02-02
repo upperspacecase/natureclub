@@ -10,7 +10,10 @@ export default function Page() {
   return (
     <div className="bg-base-100 text-base-content">
       <RecordVisit />
-      <section className="relative min-h-screen overflow-hidden">
+      <section
+        className="relative min-h-screen overflow-hidden"
+        style={{ "--hero-scale": "clamp(27px, 6.5vw, 50px)" }}
+      >
         {/* Background Video with black fallback */}
         <HeroVideo src={heroVideoSrc} />
 
@@ -23,7 +26,8 @@ export default function Page() {
               <img
                 src="/logo-light.svg"
                 alt="Nature Club"
-                className="h-22 md:h-28 w-auto"
+                className="w-auto"
+                style={{ height: "calc(var(--hero-scale) * 2)" }}
               />
             </header>
 
@@ -32,10 +36,11 @@ export default function Page() {
               <div className="w-full pt-6 md:pt-10">
                 {/* Main Headline */}
                 <h1
-                  className="mb-6 font-serif leading-[1.05] text-base-content"
-                  style={{ fontSize: "clamp(3.25rem, 9vw, 6.5rem)" }}
+                  className="mb-6 font-serif leading-[1.05] text-base-content tracking-tight"
+                  style={{ fontSize: "var(--hero-scale)" }}
                 >
-                  Spend more time in Nature.
+                  <span className="block whitespace-nowrap">Spend more time</span>
+                  <span className="block whitespace-nowrap">in Nature.</span>
                 </h1>
 
                 {/* Subtext */}
@@ -65,7 +70,7 @@ export default function Page() {
           <ScrollToCarouselButton />
         </div>
       </section>
-      <div className="mt-16 md:mt-24">
+      <div className="mt-10 md:mt-16">
         <EventsSection />
       </div>
       <Footer />

@@ -137,24 +137,11 @@ const Header = () => {
             </Link>
             <button
               type="button"
-              className="-m-2.5 rounded-md p-2.5"
+              aria-label="Close menu"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-base-content/40 text-sm text-base-content/80 transition hover:border-base-content hover:text-base-content"
               onClick={() => setIsOpen(false)}
             >
-              <span className="sr-only">Close menu</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-6 h-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              x
             </button>
           </div>
 

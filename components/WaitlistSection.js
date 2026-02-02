@@ -120,6 +120,12 @@ const WaitlistSection = () => {
     fetchBackground();
   }, []);
 
+  useEffect(() => {
+    const handleOpenJoin = () => setIsJoinModalOpen(true);
+    window.addEventListener("nc:open-join", handleOpenJoin);
+    return () => window.removeEventListener("nc:open-join", handleOpenJoin);
+  }, []);
+
   const handleUseLocation = (setter) => {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
@@ -625,8 +631,9 @@ const WaitlistSection = () => {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-[36px] border border-white/25 bg-white/20 px-6 py-5 text-center text-base-content/90 shadow-xl backdrop-blur-sm">
-        <p className="text-base font-medium md:text-lg">
+      <div className="text-center text-base-content/90">
+        <div className="mx-auto h-px max-w-xl bg-base-content/20" />
+        <p className="my-4 text-base font-medium md:text-lg">
           Studies show{" "}
           <a
             className="link underline"
@@ -634,10 +641,11 @@ const WaitlistSection = () => {
             target="_blank"
             rel="noreferrer"
           >
-            at least 2 hours in Nature a week
+            2+ hours in Nature a week
           </a>{" "}
           reduces stress, boosts mood & improves immune function.
         </p>
+        <div className="mx-auto h-px max-w-xl bg-base-content/20" />
       </div>
       <div className="flex flex-col items-center justify-center gap-6 sm:flex-row sm:items-start">
         <button className="btn btn-primary" onClick={() => setIsJoinModalOpen(true)}>
@@ -691,17 +699,12 @@ const WaitlistSection = () => {
                       Join now
                     </Dialog.Title>
                     <button
-                      className="btn btn-square btn-ghost btn-sm"
+                      type="button"
                       onClick={() => setIsJoinModalOpen(false)}
+                      aria-label="Close"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-base-content/40 text-sm text-base-content/80 transition hover:border-base-content hover:text-base-content"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="h-5 w-5"
-                      >
-                        <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                      </svg>
+                      x
                     </button>
                   </div>
                   <div className="flex flex-1 flex-col justify-center">
