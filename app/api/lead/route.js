@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import connectMongo from "@/libs/mongoose";
 import Lead from "@/models/Lead";
+import { sendEmail } from "@/libs/resend";
+import { getMemberWelcomeEmail, getHostWelcomeEmail } from "@/libs/emails/welcome";
 
 // This route is used to store the leads that are generated from the landing page.
 // The API call is initiated by <ButtonLead /> component
@@ -28,6 +30,23 @@ export async function POST(req) {
       responses: body.responses || {},
       country,
     });
+
+    // Send welcome email based on role
+    try {
+      const emailContent = body.role === "host" 
+        ? getHostWelcomeEmail({ email: body.email })
+        : getMemberWelcomeEmail({ email: body.email });
+      
+      await sendEmail({
+        to: body.email,
+        subject: emailContent.subject,
+        text: emailContent.text,
+        html: emailContent.html,
+      });
+    } catch (emailError) {
+      // Log error but don't fail the request if email fails
+      console.error("Failed to send welcome email:", emailError.message);
+    }
 
     return NextResponse.json({});
   } catch (e) {

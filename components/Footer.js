@@ -2,6 +2,7 @@
 
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
+import config from "@/config";
 
 const Footer = () => {
   const [activeModal, setActiveModal] = useState(null);
@@ -127,8 +128,8 @@ const Footer = () => {
                     <div className="space-y-4 text-base-content/80">
                       <p>
                         Get in touch by emailing us at -{" "}
-                        <a className="link link-hover" href="mailto:hi@life-time.co">
-                          hi@life-time.co
+                        <a className="link link-hover" href={`mailto:${config.resend.supportEmail}`}>
+                          {config.resend.supportEmail}
                         </a>
                       </p>
                     </div>

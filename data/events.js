@@ -129,6 +129,7 @@ const events = [
     image: "/mock_images/1.png",
     categoryTag: "gather",
     attributeTags: ["free-event"],
+    themes: ["cultural", "social"],
   },
   {
     id: "weekend-surf-retreat",
@@ -137,6 +138,7 @@ const events = [
     image: "/mock_images/2.png",
     categoryTag: "move",
     attributeTags: ["beginner-friendly"],
+    themes: ["movement", "adventure"],
   },
   {
     id: "forest-planting",
@@ -145,6 +147,7 @@ const events = [
     image: "/mock_images/3.png",
     categoryTag: "restore",
     attributeTags: ["give-back"],
+    themes: ["restoration"],
   },
   {
     id: "forest-school-classes",
@@ -153,6 +156,7 @@ const events = [
     image: "/mock_images/4.png",
     categoryTag: "learn",
     attributeTags: ["drop-in"],
+    themes: ["skills"],
   },
   {
     id: "stargazing-tour",
@@ -161,6 +165,7 @@ const events = [
     image: "/mock_images/5.png",
     categoryTag: "explore",
     attributeTags: ["local-expert"],
+    themes: ["wildlife"],
   },
   {
     id: "trailmaking-workshop",
@@ -169,6 +174,7 @@ const events = [
     image: "/mock_images/6.png",
     categoryTag: "make",
     attributeTags: ["give-back"],
+    themes: ["skills", "restoration"],
   },
   {
     id: "nature-art-afternoon",
@@ -177,6 +183,7 @@ const events = [
     image: "/mock_images/7.png",
     categoryTag: "make",
     attributeTags: ["family-friendly"],
+    themes: ["arts"],
   },
   {
     id: "forest-yoga",
@@ -185,6 +192,7 @@ const events = [
     image: "/mock_images/8.png",
     categoryTag: "move",
     attributeTags: ["gear-included"],
+    themes: ["wellness", "movement"],
   },
   {
     id: "farm-to-long-table",
@@ -193,6 +201,7 @@ const events = [
     image: "/mock_images/9.png",
     categoryTag: "gather",
     attributeTags: ["family-friendly"],
+    themes: ["social", "cultivation"],
   },
   {
     id: "outdoor-tea-ceremony",
@@ -201,6 +210,7 @@ const events = [
     image: "/mock_images/10.png",
     categoryTag: "gather",
     attributeTags: ["hidden-gem"],
+    themes: ["social", "wellness"],
   },
   {
     id: "picnic-in-the-field",
@@ -209,6 +219,7 @@ const events = [
     image: "/mock_images/11.png",
     categoryTag: "gather",
     attributeTags: ["hidden-gem"],
+    themes: ["social"],
   },
   {
     id: "wild-foraging-cooking",
@@ -217,6 +228,7 @@ const events = [
     image: "/mock_images/12.png",
     categoryTag: "learn",
     attributeTags: ["local-expert"],
+    themes: ["skills", "cultivation"],
   },
   {
     id: "forest-bathing-meditation",
@@ -225,6 +237,7 @@ const events = [
     image: "/mock_images/13.png",
     categoryTag: "restore",
     attributeTags: ["science-backed"],
+    themes: ["wellness", "restoration"],
   },
   {
     id: "primal-movement",
@@ -233,6 +246,7 @@ const events = [
     image: "/mock_images/14.png",
     categoryTag: "move",
     attributeTags: ["beginner-friendly"],
+    themes: ["movement"],
   },
   {
     id: "open-air-open-mic",
@@ -241,6 +255,7 @@ const events = [
     image: "/mock_images/15.png",
     categoryTag: "gather",
     attributeTags: ["hidden-gem"],
+    themes: ["arts", "social"],
   },
   {
     id: "birdwatchers-guide-galaxy",
@@ -249,6 +264,7 @@ const events = [
     image: "/mock_images/16.png",
     categoryTag: "explore",
     attributeTags: ["local-expert"],
+    themes: ["wildlife"],
   },
   {
     id: "sailing-workshop",
@@ -257,6 +273,7 @@ const events = [
     image: "/mock_images/17.png",
     categoryTag: "learn",
     attributeTags: ["local-expert"],
+    themes: ["skills", "movement"],
   },
   {
     id: "community-farm-mornings",
@@ -265,6 +282,7 @@ const events = [
     image: "/mock_images/18.png",
     categoryTag: "restore",
     attributeTags: ["family-friendly"],
+    themes: ["cultivation", "restoration", "social"],
   },
   {
     id: "permaculture-design-course",
@@ -273,6 +291,7 @@ const events = [
     image: "/mock_images/19.png",
     categoryTag: "learn",
     attributeTags: ["local-expert"],
+    themes: ["cultivation", "skills"],
   },
   {
     id: "wilderness-skills-weekend",
@@ -281,6 +300,7 @@ const events = [
     image: "/mock_images/20.png",
     categoryTag: "learn",
     attributeTags: ["local-expert"],
+    themes: ["skills", "adventure"],
   },
   {
     id: "founding-cta",
@@ -288,6 +308,7 @@ const events = [
     headline: "Join now to become a founding member or host.",
     buttonText: "Join for Free",
     image: "/mock_images/21.png",
+    themes: [],
   },
 ];
 

@@ -19,6 +19,7 @@ const EventsSection = async () => {
             image: event.image,
             categoryTag: event.categoryTag || "",
             attributeTags: event.attributeTags || [],
+            themes: event.themes || [],
             type: event.type || "experience",
             headline: event.headline || "",
             buttonText: event.buttonText || "",
