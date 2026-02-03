@@ -10,7 +10,7 @@ const ScrollToCarouselButton = () => {
 
   return (
     <div className="flex w-full flex-col items-start">
-      <button type="button" className="btn btn-primary" onClick={handleScroll}>
+      <button type="button" className="btn btn-primary ml-5" onClick={handleScroll}>
         Get Started
       </button>
     </div>
