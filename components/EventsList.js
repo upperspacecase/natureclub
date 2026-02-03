@@ -290,8 +290,9 @@ const EventsList = ({ events }) => {
           const isCta = event.type === "cta";
           const isLiked = likedSet.has(event.id);
           const isBusy = activeEventId === event.id;
-          const categoryStyle = CATEGORY_STYLES[event.categoryTag] ||
-            "bg-white/85 text-slate-900";
+        const categoryStyle = CATEGORY_STYLES[event.categoryTag] ||
+          "bg-white/15 text-white";
+        const eventImage = event.image || "/logo-light.svg";
           return (
             <div
               key={event.id}
@@ -299,7 +300,7 @@ const EventsList = ({ events }) => {
               className="flex w-[70vw] min-w-[70vw] snap-center flex-col items-center sm:w-[360px] sm:min-w-[360px] lg:w-[380px] lg:min-w-[380px]"
             >
               {isCta ? (
-                <article className="group relative w-full overflow-hidden rounded-[6px] border border-base-content/10 bg-base-200/40 shadow-xl aspect-[3/4]">
+                <article className="group relative w-full overflow-hidden rounded-[6px] bg-base-200/40 shadow-xl aspect-[3/4]">
                   {event.image && (
                     <Image
                       src={event.image}
@@ -326,9 +327,9 @@ const EventsList = ({ events }) => {
                   </div>
                 </article>
               ) : (
-                <article className="group relative w-full overflow-hidden rounded-[6px] border border-base-content/10 bg-base-200/40 shadow-xl aspect-[3/4]">
+                <article className="group relative w-full overflow-hidden rounded-[6px] bg-base-200/40 shadow-xl aspect-[3/4]">
                   <Image
-                    src={event.image}
+                    src={eventImage}
                     alt={event.title}
                     fill
                     className="object-cover"
