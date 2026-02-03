@@ -36,16 +36,16 @@ const Modal = ({ isModalOpen, setIsModalOpen }) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="relative w-full max-w-3xl h-full overflow-visible transform text-left align-middle shadow-xl transition-all rounded-xl bg-base-100 p-6 md:p-8">
+              <Dialog.Panel className="relative w-full max-w-3xl h-full overflow-visible transform text-left align-middle shadow-xl transition-all rounded-xl bg-base-100 p-6 text-white md:p-8">
                 <div className="flex justify-between items-center mb-4">
-                  <Dialog.Title as="h2" className="font-semibold">
+                  <Dialog.Title as="h2" className="font-semibold text-white">
                     I&apos;m a modal
                   </Dialog.Title>
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
                     aria-label="Close"
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-base-content/40 text-sm text-base-content/80 transition hover:border-base-content hover:text-base-content"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/40 text-sm text-white/80 transition hover:border-white hover:text-white"
                   >
                     x
                   </button>

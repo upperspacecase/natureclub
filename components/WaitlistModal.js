@@ -75,7 +75,7 @@ const WaitlistModal = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="relative h-[calc(100vh-2rem)] w-full max-w-md transform overflow-hidden rounded-[36px] text-left shadow-xl transition-all">
+              <Dialog.Panel className="relative h-[calc(100vh-2rem)] w-full max-w-md transform overflow-hidden rounded-[36px] text-left text-white shadow-xl transition-all">
                 <div className="pointer-events-none absolute inset-0">
                   <div
                     className="h-full w-full bg-cover bg-center"
@@ -89,31 +89,31 @@ const WaitlistModal = ({
                 </div>
                 <div className="relative flex h-full flex-col px-8 py-10 md:px-10 md:py-12">
                   <div className="flex items-start justify-between gap-4">
-                    <Dialog.Title as="h2" className="text-lg font-semibold text-base-content">
+                    <Dialog.Title as="h2" className="text-lg font-semibold text-white">
                       {title}
                     </Dialog.Title>
                     <button
                       type="button"
                       onClick={onClose}
                       aria-label="Close"
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-base-content/40 text-sm text-base-content/80 transition hover:border-base-content hover:text-base-content"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/40 text-sm text-white/80 transition hover:border-white hover:text-white"
                     >
                       x
                     </button>
                   </div>
 
-                  <div className="mt-3 text-sm text-base-content/80">
+                  <div className="mt-3 text-sm text-white/80">
                     {activeStep + 1}/{totalSteps}
                   </div>
 
                   <div className="flex flex-1 flex-col justify-center space-y-4 overflow-hidden">
                     {introCopy && activeStep === 0 && (
-                      <p className="text-sm text-base-content/80">
+                      <p className="text-sm text-white/80">
                         {introCopy}
                       </p>
                     )}
-                    <div className="rounded-3xl border border-white/15 bg-white/10 p-5 text-base-content/90 backdrop-blur-sm">
-                      <div className="text-2xl font-semibold text-base-content">
+                    <div className="rounded-3xl border border-white/15 bg-white/10 p-5 text-white/90 backdrop-blur-sm">
+                      <div className="text-2xl font-semibold text-white">
                         {steps[activeStep].title}
                       </div>
                       <div className="mt-4 max-h-[45vh] overflow-y-auto pr-1">

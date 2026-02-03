@@ -8,7 +8,7 @@ export default function Page() {
   const heroVideoSrc = "/Nature%20Club%20%20Landing%20%28Video%29.mp4";
 
   return (
-    <div className="bg-base-100 text-base-content">
+    <div className="bg-base-100 text-white">
       <RecordVisit />
       <section
         className="relative min-h-screen overflow-hidden"
@@ -16,10 +16,11 @@ export default function Page() {
       >
         {/* Background Video with black fallback */}
         <HeroVideo src={heroVideoSrc} />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-b from-transparent to-black md:h-32" />
 
         {/* Content Container */}
-        <div className="relative z-10 min-h-screen">
-          <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 pb-16 md:px-10">
+        <div className="relative z-20 min-h-screen">
+          <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 md:px-10">
             {/* Header/Logo */}
             <header className="my-8 md:my-10">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -35,7 +36,7 @@ export default function Page() {
             <main className="flex flex-1 items-start">
               <div className="w-full pt-6 md:pt-10">
                 {/* Main Headline */}
-                <h1 className="mb-6 font-serif text-[clamp(26px,8vw,46px)] leading-[1.05] text-base-content tracking-tight md:text-[clamp(36px,6.5vw,50px)]">
+                <h1 className="mb-6 font-serif text-[clamp(26px,8vw,46px)] leading-[1.05] tracking-tight md:text-[clamp(36px,6.5vw,50px)]">
                   <span className="block max-w-[80vw] whitespace-nowrap md:max-w-none">
                     Spend more time
                   </span>
@@ -44,11 +45,11 @@ export default function Page() {
 
                 {/* Subtext */}
                 <div className="flex w-full flex-col gap-6">
-                  <p className="max-w-md text-base leading-relaxed text-base-content/90 md:text-lg">
+                  <p className="max-w-md text-base leading-relaxed text-white/90 md:text-lg">
                     Access local Nature events, experiences, and classes with one
                     membership.
                   </p>
-                  <div className="flex items-center gap-3 text-sm leading-tight text-base-content/70">
+                  <div className="flex items-center gap-3 text-sm leading-tight text-white/70">
                     <span className="flex flex-col leading-tight">
                       <span>Every membership supports</span>
                       <span>local ecosystem restoration +</span>
@@ -67,7 +68,7 @@ export default function Page() {
           </div>
         </div>
       </section>
-      <div className="mt-10 md:mt-16">
+      <div>
         <EventsSection />
       </div>
       <Footer />

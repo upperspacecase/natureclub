@@ -10,17 +10,17 @@ const Footer = () => {
   const closeModal = () => setActiveModal(null);
   return (
     <footer
-      className="mt-16 relative overflow-hidden text-base-content md:mt-24"
+      className="relative overflow-hidden text-base-content"
       style={{
         backgroundImage: "url(/pexels-andrejcook-396714.jpg)",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
-      <div className="absolute inset-0 bg-black/45" />
-      <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-base-100 to-transparent" />
+      <div className="absolute inset-0 z-0 bg-black/25" />
+      <div className="absolute inset-x-0 top-0 z-10 h-48 bg-gradient-to-b from-black via-black/80 to-transparent md:h-64" />
 
-      <div className="relative z-10 min-h-[200px] px-6 py-10 md:px-10">
+      <div className="relative z-20 min-h-[200px] px-6 py-10 md:px-10">
         <div className="mx-auto flex min-h-[200px] max-w-6xl items-end justify-between">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -67,9 +67,9 @@ const Footer = () => {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="relative w-full max-w-3xl transform rounded-[36px] border border-white/25 bg-white/20 p-8 text-left text-base-content/90 shadow-xl backdrop-blur-sm transition-all md:p-12">
+                <Dialog.Panel className="relative w-full max-w-3xl transform rounded-[36px] border border-white/25 bg-white/20 p-8 text-left text-white shadow-xl backdrop-blur-sm transition-all md:p-12">
                   <div className="mb-6 flex items-start justify-between gap-4">
-                    <Dialog.Title as="h2" className="text-xl font-semibold">
+                    <Dialog.Title as="h2" className="text-xl font-semibold text-white">
                       {activeModal === "about"
                         ? "About"
                         : activeModal === "vision"
@@ -80,14 +80,14 @@ const Footer = () => {
                       type="button"
                       onClick={closeModal}
                       aria-label="Close"
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-base-content/40 text-sm text-base-content/80 transition hover:border-base-content hover:text-base-content"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/40 text-sm text-white/80 transition hover:border-white hover:text-white"
                     >
                       x
                     </button>
                   </div>
 
                   {activeModal === "about" && (
-                    <div className="space-y-4 text-base-content/80">
+                    <div className="space-y-4 text-white/80">
                       <p>
                         Nature Club started to make the proven “Nature dose” effortless,
                         fostering deeper belonging to earth and each other — one local
@@ -107,7 +107,7 @@ const Footer = () => {
                   )}
 
                   {activeModal === "vision" && (
-                    <div className="space-y-4 text-base-content/80">
+                    <div className="space-y-4 text-white/80">
                       <p>
                         Our vision is to support a million people spending two more hours
                         outside each week. That’s it. Small actions, repeated, create
@@ -125,10 +125,10 @@ const Footer = () => {
                   )}
 
                   {activeModal === "contact" && (
-                    <div className="space-y-4 text-base-content/80">
+                    <div className="space-y-4 text-white/80">
                       <p>
                         Get in touch by emailing us at -{" "}
-                        <a className="link link-hover" href={`mailto:${config.resend.supportEmail}`}>
+                        <a className="link link-hover text-white" href={`mailto:${config.resend.supportEmail}`}>
                           {config.resend.supportEmail}
                         </a>
                       </p>

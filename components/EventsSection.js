@@ -46,19 +46,19 @@ const EventsSection = async () => {
   }));
 
   return (
-    <section className="bg-base-100 px-6 py-16 text-base-content md:px-10">
-      <div className="mx-auto max-w-6xl space-y-8">
+    <section className="bg-base-100 px-6 py-12 text-base-content md:px-10 md:py-16">
+      <div className="mx-auto max-w-6xl space-y-6 md:space-y-8">
         <div
           className="text-center text-sm text-base-content/80 min-h-5"
           aria-hidden="true"
         />
-        <h2 className="text-center font-serif text-[clamp(18px,5vw,30px)] whitespace-nowrap text-base-content">
+        <h2 className="text-center font-serif text-[clamp(14px,4.2vw,30px)] whitespace-nowrap text-base-content">
           Want access to experiences like these?
         </h2>
         <div id="events-carousel">
           <EventsList events={normalizedEvents} />
         </div>
-        <div className="-mt-2 sm:-mt-4">
+        <div className="mt-4 md:mt-6">
           <WaitlistSection />
         </div>
       </div>
