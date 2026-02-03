@@ -5,45 +5,60 @@ import Event from "@/models/Event";
 import EventsList from "./EventsList";
 import WaitlistSection from "./WaitlistSection";
 
-const EventsSection = async () => {
-  noStore();
-  await connectMongo();
-
-  await Event.bulkWrite(
-    eventsSeed.map((event) => ({
-      updateOne: {
-        filter: { eventId: event.id },
-        update: {
-          $set: {
-            title: event.title || event.headline || "Founding member",
-            image: event.image,
-            categoryTag: event.categoryTag || "",
-            attributeTags: event.attributeTags || [],
-            themes: event.themes || [],
-            type: event.type || "experience",
-            headline: event.headline || "",
-            buttonText: event.buttonText || "",
-          },
-        },
-        upsert: true,
-      },
-    }))
-  );
-
-  await Event.deleteMany({ eventId: { $nin: eventsSeed.map((event) => event.id) } });
-
-  const events = await Event.find({}).sort({ createdAt: 1 }).lean();
-
-  const normalizedEvents = events.map((event) => ({
-    id: event.eventId,
-    title: event.title,
+const normalizeEvents = (items) =>
+  items.map((event) => ({
+    id: event.eventId || event.id,
+    title: event.title || event.headline || "Founding member",
     image: event.image,
     categoryTag: event.categoryTag || "",
     attributeTags: event.attributeTags || [],
     type: event.type || "experience",
-    headline: event.headline,
-    buttonText: event.buttonText,
+    headline: event.headline || "",
+    buttonText: event.buttonText || "",
   }));
+
+const EventsSection = async () => {
+  noStore();
+
+  let events = eventsSeed;
+
+  if (process.env.MONGODB_URI) {
+    try {
+      await connectMongo();
+
+      await Event.bulkWrite(
+        eventsSeed.map((event) => ({
+          updateOne: {
+            filter: { eventId: event.id },
+            update: {
+              $set: {
+                title: event.title || event.headline || "Founding member",
+                image: event.image,
+                categoryTag: event.categoryTag || "",
+                attributeTags: event.attributeTags || [],
+                themes: event.themes || [],
+                type: event.type || "experience",
+                headline: event.headline || "",
+                buttonText: event.buttonText || "",
+              },
+            },
+            upsert: true,
+          },
+        }))
+      );
+
+      await Event.deleteMany({
+        eventId: { $nin: eventsSeed.map((event) => event.id) },
+      });
+
+      events = await Event.find({}).sort({ createdAt: 1 }).lean();
+    } catch (error) {
+      console.error("EventsSection fallback to seed data", error);
+      events = eventsSeed;
+    }
+  }
+
+  const normalizedEvents = normalizeEvents(events);
 
   return (
     <section className="bg-base-100 px-6 py-12 text-base-content md:px-10 md:py-16">
