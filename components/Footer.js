@@ -89,19 +89,16 @@ const Footer = () => {
                   {activeModal === "about" && (
                     <div className="space-y-4 text-white/80">
                       <p>
-                        Nature Club started to make the proven “Nature dose” effortless,
-                        fostering deeper belonging to earth and each other — one local
-                        experience at a time. Not to replace spontaneity, but to make
-                        Nature a habit again—for individuals, families, and teams who
-                        forgot how to get started.
+                        Nature Club makes getting your “Nature dose” effortless — one
+                        local experience at a time. Not to replace spontaneity, but to
+                        make Nature a habit again—for individuals, families, and teams
+                        who forgot how to get started.
                       </p>
                       <p>
-                        We’re a community of guides, teachers, and Nature lovers making it
-                        simple to get outside with people who know what they’re doing.
-                        Every listing is hosted by someone local. Every review is from
-                        someone who actually showed up. No middlemen, no mass tourism—just
-                        real people sharing what they love. Join as a guest. Host as an
-                        expert. Or both.
+                        We’re a community of guides, teachers, facilitators and Nature
+                        lovers dedicated to making it simple to get outside. Every
+                        listing is hosted by someone local—just real people sharing
+                        what they love. Join as a guest. Host as an expert. Or both.
                       </p>
                     </div>
                   )}
@@ -109,17 +106,17 @@ const Footer = () => {
                   {activeModal === "vision" && (
                     <div className="space-y-4 text-white/80">
                       <p>
-                        Our vision is to support a million people spending two more hours
-                        outside each week. That’s it. Small actions, repeated, create
-                        change. When you book a foraging class, you learn a skill. When
-                        you join a hike, you meet neighbors. When you volunteer, we
-                        restore land.
+                        Our vision is to support a million people spending two more
+                        hours outside each week. That’s it. Small actions, repeated,
+                        create change. When you book a foraging class, you learn a
+                        skill. When you join a hike, you meet neighbors. When you
+                        volunteer, we restore land.
                       </p>
                       <p>
-                        We want anyone to be able to find an outdoor activity within 20
-                        minutes of wherever they live—and for hosts to earn sustainable
-                        income doing what they love, with each booking also supporting
-                        local ecosystem restoration.
+                        We want anyone to be able to find an outdoor activity within
+                        20 minutes of wherever they live—and for hosts to earn
+                        sustainable income doing what they love, with each booking
+                        also supporting local ecosystem restoration.
                       </p>
                     </div>
                   )}

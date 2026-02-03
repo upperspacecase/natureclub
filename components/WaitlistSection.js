@@ -333,8 +333,8 @@ const WaitlistSection = () => {
                     onClick={() => toggleSelection(option, hostTools, setHostTools)}
                     className={`w-full rounded-full border px-4 py-2 text-left text-sm transition ${
                       isSelected
-                        ? "border-base-content bg-base-content/15 text-base-content"
-                        : "border-base-content/20 text-base-content/80 hover:border-base-content"
+                        ? "border-white bg-white/20 text-white"
+                        : "border-white/30 text-white/70 hover:border-white"
                     }`}
                   >
                     {option}
@@ -371,8 +371,8 @@ const WaitlistSection = () => {
                     onClick={() => toggleSelection(option, hostFeatures, setHostFeatures)}
                     className={`w-full rounded-full border px-4 py-2 text-left text-sm transition ${
                       isSelected
-                        ? "border-base-content bg-base-content/15 text-base-content"
-                        : "border-base-content/20 text-base-content/80 hover:border-base-content"
+                        ? "border-white bg-white/20 text-white"
+                        : "border-white/30 text-white/70 hover:border-white"
                     }`}
                   >
                     {option}
@@ -481,8 +481,8 @@ const WaitlistSection = () => {
                     }
                     className={`w-full rounded-full border px-4 py-2 text-left text-sm transition ${
                       isSelected
-                        ? "border-base-content bg-base-content/15 text-base-content"
-                        : "border-base-content/20 text-base-content/80 hover:border-base-content"
+                        ? "border-white bg-white/20 text-white"
+                        : "border-white/30 text-white/70 hover:border-white"
                     }`}
                   >
                     {option}
@@ -522,8 +522,8 @@ const WaitlistSection = () => {
                     }
                     className={`w-full rounded-full border px-4 py-2 text-left text-sm transition ${
                       isSelected
-                        ? "border-base-content bg-base-content/15 text-base-content"
-                        : "border-base-content/20 text-base-content/80 hover:border-base-content"
+                        ? "border-white bg-white/20 text-white"
+                        : "border-white/30 text-white/70 hover:border-white"
                     }`}
                   >
                     {option}
@@ -556,8 +556,8 @@ const WaitlistSection = () => {
                     key={option}
                     className={`flex items-center gap-3 rounded-full border px-4 py-2 text-left text-sm transition ${
                       isSelected
-                        ? "border-base-content bg-base-content/15 text-base-content"
-                        : "border-base-content/20 text-base-content/80 hover:border-base-content"
+                        ? "border-white bg-white/20 text-white"
+                        : "border-white/30 text-white/70 hover:border-white"
                     }`}
                   >
                     <input
