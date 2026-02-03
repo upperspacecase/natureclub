@@ -633,17 +633,16 @@ const WaitlistSection = () => {
     <div className="space-y-6">
       <div className="text-center text-base-content/90">
         <div className="mx-auto h-px max-w-xl bg-base-content/20" />
-        <p className="my-4 text-base font-medium md:text-lg">
-          Studies show{" "}
+        <p className="my-4 text-base md:text-lg">
           <a
             className="link underline"
             href="https://www.ecehh.org/news/2hr-nature-dose/"
             target="_blank"
             rel="noreferrer"
           >
-            2+ hours in Nature a week
+            Studies show
           </a>{" "}
-          reduces stress, boosts mood & improves immune function.
+          2+ hours in Nature a week reduces stress, boosts mood & improves immune function.
         </p>
         <div className="mx-auto h-px max-w-xl bg-base-content/20" />
       </div>

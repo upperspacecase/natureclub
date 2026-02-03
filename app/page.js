@@ -35,11 +35,10 @@ export default function Page() {
             <main className="flex flex-1 items-start">
               <div className="w-full pt-6 md:pt-10">
                 {/* Main Headline */}
-                <h1
-                  className="mb-6 font-serif leading-[1.05] text-base-content tracking-tight"
-                  style={{ fontSize: "var(--hero-scale)" }}
-                >
-                  <span className="block whitespace-nowrap">Spend more time</span>
+                <h1 className="mb-6 font-serif text-[clamp(26px,8vw,46px)] leading-[1.05] text-base-content tracking-tight md:text-[clamp(36px,6.5vw,50px)]">
+                  <span className="block max-w-[80vw] whitespace-nowrap md:max-w-none">
+                    Spend more time
+                  </span>
                   <span className="block whitespace-nowrap">in Nature.</span>
                 </h1>
 
@@ -61,13 +60,11 @@ export default function Page() {
                       className="h-24 w-auto opacity-80"
                     />
                   </div>
+                  <ScrollToCarouselButton />
                 </div>
               </div>
             </main>
           </div>
-        </div>
-        <div className="absolute inset-x-0 bottom-6 z-20 flex justify-center text-base-content/70">
-          <ScrollToCarouselButton />
         </div>
       </section>
       <div className="mt-10 md:mt-16">

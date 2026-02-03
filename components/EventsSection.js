@@ -52,8 +52,8 @@ const EventsSection = async () => {
           className="text-center text-sm text-base-content/80 min-h-5"
           aria-hidden="true"
         />
-        <h2 className="text-center font-serif text-2xl text-base-content sm:text-3xl">
-          Which experiences excite you?
+        <h2 className="text-center font-serif text-[clamp(18px,5vw,30px)] whitespace-nowrap text-base-content">
+          Want access to experiences like these?
         </h2>
         <div id="events-carousel">
           <EventsList events={normalizedEvents} />

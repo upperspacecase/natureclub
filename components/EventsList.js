@@ -321,7 +321,7 @@ const EventsList = ({ events }) => {
                         window.dispatchEvent(new CustomEvent("nc:open-join"))
                       }
                     >
-                      {event.buttonText || "Join for Free"}
+                      Join now
                     </button>
                   </div>
                 </article>
@@ -340,7 +340,7 @@ const EventsList = ({ events }) => {
                       {event.title}
                     </p>
                   </div>
-                  <div className="absolute bottom-4 left-6 right-4 flex items-center justify-between">
+                  <div className="absolute bottom-2.5 left-6 right-4 flex items-center justify-between">
                     <PillsRow
                       categoryTag={event.categoryTag}
                       attributeTag={event.attributeTags?.[0]}
