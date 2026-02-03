@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/libs/auth";
 import { createCheckout } from "@/libs/stripe";
-import connectMongo from "@/libs/mongoose";
-import User from "@/models/User";
 
 // This function is used to create a Stripe Checkout Session (one-time payment or subscription)
 // It's called by the <ButtonCheckout /> component
@@ -31,12 +28,7 @@ export async function POST(req) {
   }
 
   try {
-    const session = await auth();
-
-    await connectMongo();
-
-    const user = await User.findById(session?.user?.id);
-
+    const user = null;
     const { priceId, mode, successUrl, cancelUrl } = body;
 
     const stripeSessionURL = await createCheckout({
@@ -45,7 +37,7 @@ export async function POST(req) {
       successUrl,
       cancelUrl,
       // If user is logged in, it will pass the user ID to the Stripe Session so it can be retrieved in the webhook later
-      clientReferenceId: user?._id?.toString(),
+      clientReferenceId: undefined,
       // If user is logged in, this will automatically prefill Checkout data like email and/or credit card for faster checkout
       user,
       // If you send coupons from the frontend, you can pass it here
