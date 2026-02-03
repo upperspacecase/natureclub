@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import connectMongo from "@/libs/mongoose";
 import Event from "@/models/Event";
-import { THEMES } from "@/data/events";
+import eventsSeed, { THEMES } from "@/data/events";
 
 const allowedThemeIds = new Set(THEMES.map((theme) => theme.id));
 
@@ -63,6 +63,39 @@ export async function POST(req) {
       }
 
       return NextResponse.json({ event });
+    }
+
+    if (body?.action === "seed") {
+      const operations = eventsSeed.map((event) => ({
+        updateOne: {
+          filter: { eventId: event.id },
+          update: {
+            $set: {
+              title: event.title || event.headline || "Founding member",
+              image: event.image,
+              categoryTag: event.categoryTag || "",
+              attributeTags: event.attributeTags || [],
+              themes: event.themes || [],
+              type: event.type || "experience",
+              headline: event.headline || "",
+              buttonText: event.buttonText || "",
+              eventId: event.id,
+            },
+          },
+          upsert: true,
+        },
+      }));
+
+      const result = await Event.bulkWrite(operations);
+      await Event.deleteMany({
+        eventId: { $nin: eventsSeed.map((event) => event.id) },
+      });
+
+      return NextResponse.json({
+        inserted: result?.upsertedCount || 0,
+        modified: result?.modifiedCount || 0,
+        matched: result?.matchedCount || 0,
+      });
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
