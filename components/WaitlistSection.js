@@ -631,8 +631,8 @@ const WaitlistSection = () => {
 
   return (
     <div className="space-y-6">
-      <div className="text-center text-base-content/90">
-        <div className="mx-auto h-px max-w-xl bg-base-content/20" />
+      <div className="text-center text-white/90">
+        <div className="mx-auto h-px max-w-xl bg-white/20" />
         <p className="my-4 text-base md:text-lg">
           <a
             className="link underline"
@@ -644,7 +644,7 @@ const WaitlistSection = () => {
           </a>{" "}
           2+ hours in Nature a week reduces stress, boosts mood & improves immune function.
         </p>
-        <div className="mx-auto h-px max-w-xl bg-base-content/20" />
+        <div className="mx-auto h-px max-w-xl bg-white/20" />
       </div>
       <div className="flex flex-col items-center justify-center gap-6 sm:flex-row sm:items-start">
         <button className="btn btn-primary" onClick={() => setIsJoinModalOpen(true)}>
@@ -693,35 +693,39 @@ const WaitlistSection = () => {
                     <div className="absolute inset-0 bg-black/60" />
                   </div>
                   <div className="relative flex h-full flex-col px-8 py-10 text-white md:px-10 md:py-12">
-                  <div className="flex items-start justify-between gap-4">
-                    <Dialog.Title as="h3" className="text-lg font-semibold text-base-content">
-                      Join now
-                    </Dialog.Title>
-                    <button
-                      type="button"
-                      onClick={() => setIsJoinModalOpen(false)}
-                      aria-label="Close"
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-base-content/40 text-sm text-base-content/80 transition hover:border-base-content hover:text-base-content"
-                    >
-                      x
-                    </button>
-                  </div>
-                  <div className="flex flex-1 flex-col justify-center">
-                    <div className="rounded-3xl border border-white/15 bg-white/10 p-6 text-base-content/90 backdrop-blur-sm">
-                      <div className="text-2xl font-semibold text-base-content">
-                        Choose your role
-                      </div>
-                      <div className="mt-6 flex flex-col gap-4">
-                        <button className="btn btn-outline" onClick={openHostFlow}>
-                          Become a Host
-                        </button>
-                        <button className="btn btn-primary" onClick={openMemberFlow}>
-                          Become a Member
-                        </button>
+                    <div className="flex items-start justify-end gap-4">
+                      <button
+                        type="button"
+                        onClick={() => setIsJoinModalOpen(false)}
+                        aria-label="Close"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-base-content/40 text-sm text-base-content/80 transition hover:border-base-content hover:text-base-content"
+                      >
+                        x
+                      </button>
+                    </div>
+                    <div className="flex flex-1 flex-col justify-center">
+                      <div className="text-base-content/90">
+                        <p className="font-serif text-2xl text-base-content">
+                          We’re excited to have you join Nature Club.
+                        </p>
+                        <p className="mt-4 text-sm text-base-content/80">
+                          We are in currently in beta testing and would like to offer you free
+                          founding membership as we get launched in your area.
+                        </p>
+                        <p className="mt-4 text-base text-base-content">
+                          What would you like to join as?
+                        </p>
+                        <div className="mt-6 flex flex-col gap-4">
+                          <button className="btn btn-outline" onClick={openHostFlow}>
+                            Become a Host
+                          </button>
+                          <button className="btn btn-primary" onClick={openMemberFlow}>
+                            Become a Member
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
               </Dialog.Panel>
               </Transition.Child>
             </div>
