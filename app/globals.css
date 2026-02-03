@@ -1,8 +1,6 @@
 @import "tailwindcss";
 
-@plugin "daisyui" {
-  themes: light --default;
-}
+@plugin "daisyui";
 
 @theme {
   --font-sans: var(--font-inter);
@@ -111,17 +109,17 @@
 }
 
 html[data-theme="light"] {
-  --color-base-100: oklch(100% 0 0);
-  --color-base-200: oklch(95% 0 0);
-  --color-base-300: oklch(90% 0 0);
-  --color-base-content: oklch(20% 0 0);
-  --color-primary: oklch(20% 0 0);
-  --color-primary-content: oklch(97.26% 0.0338 33.02);
-  --color-secondary: oklch(95% 0 0);
-  --color-secondary-content: oklch(20% 0 0);
-  --color-accent: oklch(95% 0 0);
-  --color-accent-content: oklch(20% 0 0);
-  --color-neutral: oklch(20% 0 0);
+  --color-base-100: oklch(0% 0 0);
+  --color-base-200: oklch(0% 0 0);
+  --color-base-300: oklch(0% 0 0);
+  --color-base-content: oklch(97.26% 0.0338 33.02);
+  --color-primary: oklch(97.26% 0.0338 33.02);
+  --color-primary-content: oklch(19.73% 0.0221 16.89);
+  --color-secondary: oklch(97.26% 0.0338 33.02);
+  --color-secondary-content: oklch(19.73% 0.0221 16.89);
+  --color-accent: oklch(97.26% 0.0338 33.02);
+  --color-accent-content: oklch(19.73% 0.0221 16.89);
+  --color-neutral: oklch(0% 0 0);
   --color-neutral-content: oklch(97.26% 0.0338 33.02);
 }
 
