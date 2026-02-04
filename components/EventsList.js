@@ -228,7 +228,7 @@ const EventsList = ({ events }) => {
   const emblaOptions = useMemo(
     () => ({
       loop: orderedEvents.length > 2,
-      align: "center",
+      align: "start",
       containScroll: "trimSnaps",
     }),
     [orderedEvents.length]
@@ -282,7 +282,7 @@ const EventsList = ({ events }) => {
         </span>
       )}
       <div ref={emblaRef} className="overflow-hidden px-6 pb-6 sm:px-10">
-        <div className="flex gap-6">
+        <div className="flex -ml-6 sm:-ml-10">
           {orderedEvents.map((event, index) => {
           const isCta = event.type === "cta";
           const isLiked = likedSet.has(event.id);
@@ -295,7 +295,7 @@ const EventsList = ({ events }) => {
             <div
               key={`${event.id}-${index}`}
               data-event-card
-              className="flex shrink-0 w-[70vw] min-w-[70vw] flex-col items-center sm:w-[360px] sm:min-w-[360px] lg:w-[380px] lg:min-w-[380px]"
+              className="flex shrink-0 pl-6 sm:pl-10 flex-col items-center flex-[0_0_70vw] sm:flex-[0_0_360px] lg:flex-[0_0_380px]"
             >
               {isCta ? (
                 <article className="group relative w-full overflow-hidden rounded-[6px] bg-base-200/40 shadow-xl aspect-[3/4]">
