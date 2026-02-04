@@ -2,13 +2,11 @@
 
 const ScrollToCarouselButton = () => {
   const handleScroll = () => {
-    const target = document.getElementById("events-carousel");
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
-      window.setTimeout(() => {
-        window.scrollBy({ top: 220, left: 0, behavior: "smooth" });
-      }, 150);
-    }
+    const joinTarget = document.getElementById("join-now-button");
+    const fallbackTarget = document.getElementById("events-carousel");
+    const target = joinTarget || fallbackTarget;
+    if (!target) return;
+    target.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
   return (

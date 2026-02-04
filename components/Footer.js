@@ -67,7 +67,7 @@ const Footer = () => {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="relative w-full max-w-3xl transform rounded-[36px] border border-white/25 bg-white/20 p-8 text-left text-white shadow-xl backdrop-blur-sm transition-all md:p-12">
+                <Dialog.Panel className="relative w-full max-w-3xl transform rounded-[36px] border border-white/25 bg-black/30 p-8 text-left text-white shadow-xl backdrop-blur-sm transition-all md:p-12">
                   <div className="mb-6 flex items-start justify-between gap-4">
                     <Dialog.Title as="h2" className="text-xl font-semibold text-white">
                       {activeModal === "about"

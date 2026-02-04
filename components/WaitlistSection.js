@@ -99,6 +99,14 @@ const WaitlistSection = () => {
     ],
     []
   );
+  const hostSessionOptions = useMemo(
+    () => [...Array.from({ length: 19 }, (_, index) => `${index + 1}`), "20+"],
+    []
+  );
+  const hostBookingOptions = useMemo(
+    () => [...Array.from({ length: 29 }, (_, index) => `${index + 1}`), "30+"],
+    []
+  );
 
   const toggleSelection = (value, list, setter) => {
     if (list.includes(value)) {
@@ -161,7 +169,7 @@ const WaitlistSection = () => {
           featuresOther: hostFeaturesOther,
         },
       });
-      toast.success("Thanks! We’ll be in touch.");
+      toast.success("Welcome to Nature Club! We’re excited to have you here.");
       return true;
     } catch (error) {
       console.error(error);
@@ -186,7 +194,7 @@ const WaitlistSection = () => {
           pricingSelections: memberPricingSelections,
         },
       });
-      toast.success("Thanks! We’ll be in touch.");
+      toast.success("Welcome to Nature Club! We’re excited to have you here.");
       return true;
     } catch (error) {
       console.error(error);
@@ -238,28 +246,36 @@ const WaitlistSection = () => {
           <div className="space-y-3 text-sm text-base-content/80">
             <p>
               In a normal month I host{" "}
-              <input
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                min="0"
-                placeholder="No. of sessions"
-                className="input input-bordered mx-2 w-20 px-2 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              <select
+                className="select select-bordered mx-2 w-28 text-center"
                 value={hostSessionsPerMonth}
                 onChange={(e) => setHostSessionsPerMonth(e.target.value)}
-              />
+              >
+                <option value="" disabled>
+                  sessions
+                </option>
+                {hostSessionOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
               with about{" "}
-              <input
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                min="0"
-                placeholder="Avg. no. of bookings"
-                className="input input-bordered mx-2 w-24 px-2 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              <select
+                className="select select-bordered mx-2 w-28 text-center"
                 value={hostBookingsPerSession}
                 onChange={(e) => setHostBookingsPerSession(e.target.value)}
-              />{" "}
-              bookings per session.
+              >
+                <option value="" disabled>
+                  people
+                </option>
+                {hostBookingOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>{" "}
+              people per session.
             </p>
           </div>
         ),
@@ -418,6 +434,8 @@ const WaitlistSection = () => {
       hostToolsOther,
       hostRate,
       hostSessionsPerMonth,
+      hostSessionOptions,
+      hostBookingOptions,
       hostFeatureOptions,
       hostToolOptions,
     ]
