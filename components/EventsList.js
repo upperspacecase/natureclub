@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+import useEmblaCarousel from "embla-carousel-react";
 import apiClient from "@/libs/api";
 
 const CLIENT_ID_KEY = "nc-client-id";
@@ -81,6 +82,14 @@ const insertCtaEvery = (items, cta, interval) => {
     }
   });
   return output;
+};
+
+const normalizeImagePath = (value) => {
+  if (typeof value !== "string") return "/logo-light.svg";
+  const trimmed = value.trim();
+  if (!trimmed) return "/logo-light.svg";
+  if (trimmed.startsWith("http")) return trimmed;
+  return trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
 };
 
 const HeartIcon = ({ filled, className }) => (
@@ -178,9 +187,6 @@ const EventsList = ({ events }) => {
   const [activeEventId, setActiveEventId] = useState(null);
   const [burstEventId, setBurstEventId] = useState(null);
   const [burstKey, setBurstKey] = useState(0);
-  const scrollerRef = useRef(null);
-  const laneMetricsRef = useRef({ laneWidth: 0, baseOffset: 0 });
-  const hasInitializedLoopRef = useRef(false);
 
   useEffect(() => {
     setClientId(getClientId());
@@ -219,45 +225,15 @@ const EventsList = ({ events }) => {
     return insertCtaEvery(shuffled, ctaTemplate, CTA_INSERT_EVERY);
   }, [events, sessionId]);
 
-  const loopedEvents = useMemo(() => {
-    if (!orderedEvents.length) return [];
-    return [0, 1, 2].flatMap((lane) =>
-      orderedEvents.map((event) => ({ event, lane }))
-    );
-  }, [orderedEvents]);
-
-  useEffect(() => {
-    hasInitializedLoopRef.current = false;
-  }, [orderedEvents.length]);
-
-  useEffect(() => {
-    if (!orderedEvents.length) return;
-    const scroller = scrollerRef.current;
-    if (!scroller) return;
-
-    const updateMetrics = () => {
-      const cards = scroller.querySelectorAll("[data-event-card]");
-      if (cards.length < orderedEvents.length * 2) return;
-      const baseOffset = cards[0].offsetLeft;
-      const laneWidth = cards[orderedEvents.length].offsetLeft - baseOffset;
-      if (laneWidth <= 0) return;
-      laneMetricsRef.current = { laneWidth, baseOffset };
-      if (!hasInitializedLoopRef.current) {
-        scroller.scrollLeft = laneWidth;
-        hasInitializedLoopRef.current = true;
-      }
-    };
-
-    const handleResize = () => {
-      window.requestAnimationFrame(updateMetrics);
-    };
-
-    updateMetrics();
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [orderedEvents]);
+  const emblaOptions = useMemo(
+    () => ({
+      loop: orderedEvents.length > 2,
+      align: "center",
+      containScroll: "trimSnaps",
+    }),
+    [orderedEvents.length]
+  );
+  const [emblaRef, emblaApi] = useEmblaCarousel(emblaOptions);
 
 
   const handleToggleLike = async (eventId) => {
@@ -281,44 +257,13 @@ const EventsList = ({ events }) => {
     }, 1400);
   };
 
-  const normalizeLoopScroll = () => {
-    const scroller = scrollerRef.current;
-    if (!scroller) return;
-    const { laneWidth } = laneMetricsRef.current;
-    if (!laneWidth) return;
-    const left = scroller.scrollLeft;
-    if (left <= laneWidth * 0.5) {
-      scroller.scrollLeft = left + laneWidth;
-    } else if (left >= laneWidth * 1.5) {
-      scroller.scrollLeft = left - laneWidth;
-    }
-  };
-
   const handleScroll = (direction) => {
-    normalizeLoopScroll();
-    const scroller = scrollerRef.current;
-    if (!scroller) return;
-    const cards = Array.from(scroller.querySelectorAll("[data-event-card]"));
-    if (!cards.length) return;
-    const scrollerCenter = scroller.scrollLeft + scroller.clientWidth / 2;
-    const currentIndex = cards.reduce((closestIndex, card, index) => {
-      const cardCenter = card.offsetLeft + card.clientWidth / 2;
-      const closestCard = cards[closestIndex];
-      const closestCenter =
-        closestCard.offsetLeft + closestCard.clientWidth / 2;
-      return Math.abs(cardCenter - scrollerCenter) <
-        Math.abs(closestCenter - scrollerCenter)
-        ? index
-        : closestIndex;
-    }, 0);
-    const delta = direction === "next" ? 1 : -1;
-    const targetIndex =
-      (currentIndex + delta + cards.length) % cards.length;
-    cards[targetIndex].scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-      inline: "center",
-    });
+    if (!emblaApi) return;
+    if (direction === "next") {
+      emblaApi.scrollNext();
+    } else {
+      emblaApi.scrollPrev();
+    }
   };
 
   if (!orderedEvents.length) {
@@ -336,31 +281,30 @@ const EventsList = ({ events }) => {
           Loading likes
         </span>
       )}
-      <div
-        ref={scrollerRef}
-        onScroll={normalizeLoopScroll}
-        className="flex snap-x snap-mandatory snap-always gap-6 overflow-x-auto px-6 pb-6 scrollbar-hide sm:px-10"
-      >
-        {loopedEvents.map(({ event, lane }, index) => {
+      <div ref={emblaRef} className="overflow-hidden px-6 pb-6 sm:px-10">
+        <div className="flex gap-6">
+          {orderedEvents.map((event, index) => {
           const isCta = event.type === "cta";
           const isLiked = likedSet.has(event.id);
           const isBusy = activeEventId === event.id;
           const categoryStyle = CATEGORY_STYLES[event.categoryTag] ||
             "bg-white/15 text-white";
-          const eventImage = event.image || "/logo-light.svg";
+          const eventImage = normalizeImagePath(event.image);
+          const isLocalImage = eventImage.startsWith("/");
           return (
             <div
-              key={`${event.id}-${lane}-${index}`}
+              key={`${event.id}-${index}`}
               data-event-card
               className="flex w-[70vw] min-w-[70vw] snap-center flex-col items-center sm:w-[360px] sm:min-w-[360px] lg:w-[380px] lg:min-w-[380px]"
             >
               {isCta ? (
                 <article className="group relative w-full overflow-hidden rounded-[6px] bg-base-200/40 shadow-xl aspect-[3/4]">
-                  {event.image && (
+                  {eventImage && (
                     <Image
-                      src={event.image}
+                      src={eventImage}
                       alt={event.headline || "Join now"}
                       fill
+                      unoptimized={isLocalImage}
                       className="object-cover"
                       sizes="(max-width: 768px) 80vw, 420px"
                     />
@@ -387,6 +331,7 @@ const EventsList = ({ events }) => {
                     src={eventImage}
                     alt={event.title}
                     fill
+                    unoptimized={isLocalImage}
                     className="object-cover"
                     sizes="(max-width: 768px) 80vw, 420px"
                   />
@@ -446,7 +391,8 @@ const EventsList = ({ events }) => {
               )}
             </div>
           );
-        })}
+          })}
+        </div>
       </div>
       <div className="pointer-events-none absolute inset-y-0 left-0 right-0 z-30 flex items-center justify-between px-6 sm:px-10">
         <button
