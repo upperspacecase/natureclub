@@ -228,7 +228,7 @@ const EventsList = ({ events }) => {
   const emblaOptions = useMemo(
     () => ({
       loop: orderedEvents.length > 2,
-      align: "start",
+      align: "center",
       containScroll: "trimSnaps",
     }),
     [orderedEvents.length]
