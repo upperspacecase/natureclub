@@ -203,6 +203,11 @@ const WaitlistSection = () => {
         isComplete: () => Boolean(hostLocation.city || hostLocation.coords),
         content: (
           <div className="space-y-3">
+            {hostLocation.coords && (
+              <p className="text-xs text-base-content/70">
+                Location shared: {hostLocation.coords}
+              </p>
+            )}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <button
                 type="button"
@@ -221,11 +226,6 @@ const WaitlistSection = () => {
                 }
               />
             </div>
-            {hostLocation.coords && (
-              <p className="text-xs text-base-content/70">
-                Location shared: {hostLocation.coords}
-              </p>
-            )}
           </div>
         ),
       },
@@ -431,6 +431,11 @@ const WaitlistSection = () => {
         isComplete: () => Boolean(memberLocation.city || memberLocation.coords),
         content: (
           <div className="space-y-3">
+            {memberLocation.coords && (
+              <p className="text-xs text-base-content/70">
+                Location shared: {memberLocation.coords}
+              </p>
+            )}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <button
                 type="button"
@@ -452,11 +457,6 @@ const WaitlistSection = () => {
                 }
               />
             </div>
-            {memberLocation.coords && (
-              <p className="text-xs text-base-content/70">
-                Location shared: {memberLocation.coords}
-              </p>
-            )}
           </div>
         ),
       },
@@ -647,7 +647,11 @@ const WaitlistSection = () => {
         <div className="mx-auto h-px max-w-xl bg-white/20" />
       </div>
       <div className="flex flex-col items-center justify-center gap-6 sm:flex-row sm:items-start">
-        <button className="btn btn-primary" onClick={() => setIsJoinModalOpen(true)}>
+        <button
+          id="join-now-button"
+          className="btn btn-primary"
+          onClick={() => setIsJoinModalOpen(true)}
+        >
           Join now
         </button>
       </div>

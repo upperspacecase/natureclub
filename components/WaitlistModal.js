@@ -120,22 +120,21 @@ const WaitlistModal = ({
                         {steps[activeStep].content}
                       </div>
                     </div>
-                  </div>
-
-                  <div className="mt-6">
-                    <button
-                      className="btn btn-primary btn-block"
-                      onClick={() => handleContinue(activeStep)}
-                      disabled={!stepStatus[activeStep] || isSubmitting}
-                    >
-                      {isSubmitting ? (
-                        <span className="loading loading-spinner loading-xs"></span>
-                      ) : activeStep === totalSteps - 1 ? (
-                        "Submit"
-                      ) : (
-                        "Continue"
-                      )}
-                    </button>
+                    <div className="mt-2">
+                      <button
+                        className="btn btn-primary btn-block"
+                        onClick={() => handleContinue(activeStep)}
+                        disabled={!stepStatus[activeStep] || isSubmitting}
+                      >
+                        {isSubmitting ? (
+                          <span className="loading loading-spinner loading-xs"></span>
+                        ) : activeStep === totalSteps - 1 ? (
+                          "Submit"
+                        ) : (
+                          "Continue"
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </Dialog.Panel>
