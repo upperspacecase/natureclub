@@ -208,6 +208,7 @@ const AdminDashboard = () => {
     { key: "interestThemes", label: "Themes" },
     { key: "motivations", label: "Motivations" },
     { key: "motivationsOther", label: "Motivations Other" },
+    { key: "experiencesPerMonth", label: "Experiences / Month" },
     { key: "pricingSelections", label: "Pricing" },
   ];
 
@@ -215,6 +216,7 @@ const AdminDashboard = () => {
     { key: "date", label: "Date" },
     { key: "email", label: "Email" },
     { key: "location", label: "Location" },
+    { key: "experience", label: "Experience" },
     { key: "sessionsPerMonth", label: "Sessions / Month" },
     { key: "bookingsPerSession", label: "Bookings / Session" },
     { key: "rate", label: "Rate" },
@@ -763,7 +765,9 @@ const AdminDashboard = () => {
                         interestThemes: formatAnswer(responses.interestThemes),
                         motivations: formatAnswer(responses.motivations),
                         motivationsOther: formatAnswer(responses.motivationsOther),
+                        experiencesPerMonth: formatAnswer(responses.experiencesPerMonth),
                         pricingSelections: formatAnswer(responses.pricingSelections),
+                        experience: formatAnswer(responses.experience),
                         sessionsPerMonth: formatAnswer(responses.sessionsPerMonth),
                         bookingsPerSession: formatAnswer(responses.bookingsPerSession),
                         rate: formatAnswer(responses.rate),

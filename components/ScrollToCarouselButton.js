@@ -6,7 +6,10 @@ const ScrollToCarouselButton = () => {
     const fallbackTarget = document.getElementById("events-carousel");
     const target = joinTarget || fallbackTarget;
     if (!target) return;
-    target.scrollIntoView({ behavior: "smooth", block: "center" });
+    const rect = target.getBoundingClientRect();
+    const desiredBottom = window.innerHeight - 5;
+    const nextTop = window.scrollY + (rect.bottom - desiredBottom);
+    window.scrollTo({ top: Math.max(nextTop, 0), behavior: "smooth" });
   };
 
   return (

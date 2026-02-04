@@ -295,7 +295,7 @@ const EventsList = ({ events }) => {
             <div
               key={`${event.id}-${index}`}
               data-event-card
-              className="flex w-[70vw] min-w-[70vw] snap-center flex-col items-center sm:w-[360px] sm:min-w-[360px] lg:w-[380px] lg:min-w-[380px]"
+              className="flex shrink-0 w-[70vw] min-w-[70vw] flex-col items-center sm:w-[360px] sm:min-w-[360px] lg:w-[380px] lg:min-w-[380px]"
             >
               {isCta ? (
                 <article className="group relative w-full overflow-hidden rounded-[6px] bg-base-200/40 shadow-xl aspect-[3/4]">

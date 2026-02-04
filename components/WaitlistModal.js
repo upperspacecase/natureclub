@@ -122,7 +122,7 @@ const WaitlistModal = ({
                     </div>
                     <div className="mt-2">
                       <button
-                        className="btn btn-primary btn-block"
+                        className="btn btn-primary btn-block w-full"
                         onClick={() => handleContinue(activeStep)}
                         disabled={!stepStatus[activeStep] || isSubmitting}
                       >

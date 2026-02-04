@@ -16,6 +16,7 @@ const WaitlistSection = () => {
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
 
   const [hostLocation, setHostLocation] = useState({ city: "", coords: "" });
+  const [hostExperience, setHostExperience] = useState("");
   const [hostSessionsPerMonth, setHostSessionsPerMonth] = useState("");
   const [hostBookingsPerSession, setHostBookingsPerSession] = useState("");
   const [hostRate, setHostRate] = useState("");
@@ -33,6 +34,7 @@ const WaitlistSection = () => {
   const [memberInterestsOther, setMemberInterestsOther] = useState("");
   const [memberMotivations, setMemberMotivations] = useState([]);
   const [memberMotivationsOther, setMemberMotivationsOther] = useState("");
+  const [memberExperiencesPerMonth, setMemberExperiencesPerMonth] = useState("");
   const [memberPricingSelections, setMemberPricingSelections] = useState([]);
   const [memberEmail, setMemberEmail] = useState("");
   const [modalBackgroundImage, setModalBackgroundImage] = useState("");
@@ -65,13 +67,23 @@ const WaitlistSection = () => {
 
   const memberMotivationOptions = useMemo(
     () => [
-      "Transparent reviews from real members",
-      "Values/values alignment (sustainability, community-focused, etc.)",
-      "Bundled membership (book multiple activities across facilitators)",
-      "Better price/value",
-      "Time savings in booking process",
-      "Community connection with other members",
-      "Visible local impact/regeneration component",
+      "Curated nature events, experiences & classes in one place",
+      "Trusted reviews from fellow members",
+      "Easy booking & scheduling",
+      "Member-only pricing",
+      "Connection with like-minded people",
+      "Giving back through hands on activities",
+      "Finding hidden gems I wouldn't discover on my own",
+      "Flexible cancellation & rescheduling",
+      "Mobile-first, on-the-go access",
+      "Learning skills I can use myself (wilderness cooking, navigation)",
+      "Supporting local guides & small businesses",
+      "Knowing my membership regenerates local environment",
+      "Transparency on where money goes",
+      "Regular nature immersion for my wellbeing",
+      "Challenging myself with new outdoor skills",
+      "Escaping screen time & city stress",
+      "Other:",
     ],
     []
   );
@@ -86,6 +98,10 @@ const WaitlistSection = () => {
       "$80/per year + discounted price per booking",
       "Prefer pay full price per booking (no membership)",
     ],
+    []
+  );
+  const memberExperienceOptions = useMemo(
+    () => ["1-4", "5-8", "9-15", "16-30", "30+"],
     []
   );
 
@@ -157,6 +173,7 @@ const WaitlistSection = () => {
         source: "modal",
         responses: {
           location: hostLocation,
+          experience: hostExperience,
           sessionsPerMonth: hostSessionsPerMonth,
           bookingsPerSession: hostBookingsPerSession,
           rate: hostRate,
@@ -191,6 +208,7 @@ const WaitlistSection = () => {
           interestThemes: mapInterestThemes(memberInterests),
           motivations: memberMotivations,
           motivationsOther: memberMotivationsOther,
+          experiencesPerMonth: memberExperiencesPerMonth,
           pricingSelections: memberPricingSelections,
         },
       });
@@ -216,14 +234,7 @@ const WaitlistSection = () => {
                 Location shared: {hostLocation.coords}
               </p>
             )}
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <button
-                type="button"
-                className="btn btn-outline btn-sm"
-                onClick={() => handleUseLocation(setHostLocation)}
-              >
-                Use my location
-              </button>
+            <div className="flex flex-col gap-3">
               <input
                 type="text"
                 placeholder="City or town"
@@ -233,8 +244,29 @@ const WaitlistSection = () => {
                   setHostLocation((prev) => ({ ...prev, city: e.target.value }))
                 }
               />
+              <button
+                type="button"
+                className="btn btn-outline btn-sm text-[0.7rem]"
+                onClick={() => handleUseLocation(setHostLocation)}
+              >
+                Use My Current Location
+              </button>
             </div>
           </div>
+        ),
+      },
+      {
+        key: "host-experience",
+        title: "What experience do you host?",
+        isComplete: () => hostExperience.trim().length > 0,
+        content: (
+          <input
+            type="text"
+            placeholder="Experience(s)"
+            className="input input-bordered w-full"
+            value={hostExperience}
+            onChange={(e) => setHostExperience(e.target.value)}
+          />
         ),
       },
       {
@@ -433,6 +465,7 @@ const WaitlistSection = () => {
       hostTools,
       hostToolsOther,
       hostRate,
+      hostExperience,
       hostSessionsPerMonth,
       hostSessionOptions,
       hostBookingOptions,
@@ -454,14 +487,7 @@ const WaitlistSection = () => {
                 Location shared: {memberLocation.coords}
               </p>
             )}
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <button
-                type="button"
-                className="btn btn-outline btn-sm"
-                onClick={() => handleUseLocation(setMemberLocation)}
-              >
-                Use my location
-              </button>
+            <div className="flex flex-col gap-3">
               <input
                 type="text"
                 placeholder="City or town"
@@ -474,17 +500,24 @@ const WaitlistSection = () => {
                   }))
                 }
               />
+              <button
+                type="button"
+                className="btn btn-outline btn-sm text-[0.7rem]"
+                onClick={() => handleUseLocation(setMemberLocation)}
+              >
+                Use My Current Location
+              </button>
             </div>
           </div>
         ),
       },
       {
         key: "member-interests",
-        title:
-          "What types of events, experiences and classes are you interested in?",
+        title: "What types of experiences are you most interested in?",
         isComplete: () =>
           memberInterests.length > 0 &&
-          (!memberInterests.includes("Other -") || memberInterestsOther.trim()),
+          (!memberInterests.includes("Other / Make a Suggestion -") ||
+            memberInterestsOther.trim()),
         content: (
           <div className="space-y-3">
             <div className="grid gap-2">
@@ -507,7 +540,7 @@ const WaitlistSection = () => {
                   </button>
                 );
               })}
-              {memberInterests.includes("Other -") && (
+              {memberInterests.includes("Other / Make a Suggestion -") && (
                 <input
                   type="text"
                   placeholder="Other..."
@@ -522,10 +555,11 @@ const WaitlistSection = () => {
       },
       {
         key: "member-motivation",
-        title: "What would make you MORE likely to join Nature Club?",
+        title: "What would make Nature Club a must-have for you? (Select up to 5)",
         isComplete: () =>
-          memberMotivations.length > 0 ||
-          memberMotivationsOther.trim().length > 0,
+          memberMotivations.length > 0 &&
+          (!memberMotivations.includes("Other:") ||
+            memberMotivationsOther.trim().length > 0),
         content: (
           <div className="space-y-3">
             <div className="grid gap-2">
@@ -535,9 +569,19 @@ const WaitlistSection = () => {
                   <button
                     key={option}
                     type="button"
-                    onClick={() =>
-                      toggleSelection(option, memberMotivations, setMemberMotivations)
-                    }
+                    onClick={() => {
+                      if (isSelected) {
+                        setMemberMotivations(
+                          memberMotivations.filter((item) => item !== option)
+                        );
+                        return;
+                      }
+                      if (memberMotivations.length >= 5) {
+                        toast.error("Select up to 5 options.");
+                        return;
+                      }
+                      setMemberMotivations([...memberMotivations, option]);
+                    }}
                     className={`w-full rounded-full border px-4 py-2 text-left text-sm transition ${
                       isSelected
                         ? "border-white bg-white/20 text-white"
@@ -548,15 +592,39 @@ const WaitlistSection = () => {
                   </button>
                 );
               })}
-              <input
-                type="text"
-                placeholder="Other..."
-                className="input input-bordered w-full"
-                value={memberMotivationsOther}
-                onChange={(e) => setMemberMotivationsOther(e.target.value)}
-              />
+              {memberMotivations.includes("Other:") && (
+                <input
+                  type="text"
+                  placeholder="Other..."
+                  className="input input-bordered w-full"
+                  value={memberMotivationsOther}
+                  onChange={(e) => setMemberMotivationsOther(e.target.value)}
+                />
+              )}
             </div>
           </div>
+        ),
+      },
+      {
+        key: "member-frequency",
+        title:
+          "How many Nature Club experiences would you ideally like attend each month?",
+        isComplete: () => Boolean(memberExperiencesPerMonth),
+        content: (
+          <select
+            className="select select-bordered w-full"
+            value={memberExperiencesPerMonth}
+            onChange={(e) => setMemberExperiencesPerMonth(e.target.value)}
+          >
+            <option value="" disabled>
+              Select...
+            </option>
+            {memberExperienceOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
         ),
       },
       {
@@ -570,28 +638,22 @@ const WaitlistSection = () => {
               {memberPricingOptions.map((option) => {
                 const isSelected = memberPricingSelections.includes(option);
                 return (
-                  <label
+                  <button
                     key={option}
-                    className={`flex items-center gap-3 rounded-full border px-4 py-2 text-left text-sm transition ${
+                    type="button"
+                    onClick={() =>
+                      setMemberPricingSelections(
+                        isSelected ? [] : [option]
+                      )
+                    }
+                    className={`w-full rounded-full border px-4 py-2 text-left text-sm transition ${
                       isSelected
                         ? "border-white bg-white/20 text-white"
                         : "border-white/30 text-white/70 hover:border-white"
                     }`}
                   >
-                    <input
-                      type="checkbox"
-                      className="checkbox checkbox-sm"
-                      checked={isSelected}
-                      onChange={() =>
-                        toggleSelection(
-                          option,
-                          memberPricingSelections,
-                          setMemberPricingSelections
-                        )
-                      }
-                    />
-                    <span>{option}</span>
-                  </label>
+                    {option}
+                  </button>
                 );
               })}
             </div>
@@ -620,8 +682,10 @@ const WaitlistSection = () => {
       memberEmail,
       memberMotivations,
       memberMotivationsOther,
+      memberExperiencesPerMonth,
       memberInterestOptions,
       memberMotivationOptions,
+      memberExperienceOptions,
       memberPricingOptions,
       memberPricingSelections,
     ]
@@ -761,9 +825,6 @@ const WaitlistSection = () => {
         steps={hostSteps}
         onComplete={submitHostLead}
         backgroundImage={modalBackgroundImage}
-        introCopy={
-          "We are in currently in beta testing and would like to offer you a founding host membership as we get launched in your area. Please fill out answer a few questions below to secure your founding membership."
-        }
       />
       <WaitlistModal
         title="Become a member"
@@ -772,9 +833,6 @@ const WaitlistSection = () => {
         steps={memberSteps}
         onComplete={submitMemberLead}
         backgroundImage={modalBackgroundImage}
-        introCopy={
-          "We are in currently in beta testing and would like to offer you free founding membership as we get launched in your area. Please fill out answer a few questions below to secure your founding membership."
-        }
       />
     </div>
   );
