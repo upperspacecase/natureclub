@@ -179,6 +179,8 @@ const EventsList = ({ events }) => {
   const [burstEventId, setBurstEventId] = useState(null);
   const [burstKey, setBurstKey] = useState(0);
   const scrollerRef = useRef(null);
+  const laneMetricsRef = useRef({ laneWidth: 0, baseOffset: 0 });
+  const hasInitializedLoopRef = useRef(false);
 
   useEffect(() => {
     setClientId(getClientId());
@@ -217,6 +219,46 @@ const EventsList = ({ events }) => {
     return insertCtaEvery(shuffled, ctaTemplate, CTA_INSERT_EVERY);
   }, [events, sessionId]);
 
+  const loopedEvents = useMemo(() => {
+    if (!orderedEvents.length) return [];
+    return [0, 1, 2].flatMap((lane) =>
+      orderedEvents.map((event) => ({ event, lane }))
+    );
+  }, [orderedEvents]);
+
+  useEffect(() => {
+    hasInitializedLoopRef.current = false;
+  }, [orderedEvents.length]);
+
+  useEffect(() => {
+    if (!orderedEvents.length) return;
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+
+    const updateMetrics = () => {
+      const cards = scroller.querySelectorAll("[data-event-card]");
+      if (cards.length < orderedEvents.length * 2) return;
+      const baseOffset = cards[0].offsetLeft;
+      const laneWidth = cards[orderedEvents.length].offsetLeft - baseOffset;
+      if (laneWidth <= 0) return;
+      laneMetricsRef.current = { laneWidth, baseOffset };
+      if (!hasInitializedLoopRef.current) {
+        scroller.scrollLeft = laneWidth;
+        hasInitializedLoopRef.current = true;
+      }
+    };
+
+    const handleResize = () => {
+      window.requestAnimationFrame(updateMetrics);
+    };
+
+    updateMetrics();
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [orderedEvents]);
+
 
   const handleToggleLike = async (eventId) => {
     if (!clientId) return;
@@ -239,7 +281,21 @@ const EventsList = ({ events }) => {
     }, 1400);
   };
 
+  const normalizeLoopScroll = () => {
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    const { laneWidth } = laneMetricsRef.current;
+    if (!laneWidth) return;
+    const left = scroller.scrollLeft;
+    if (left <= laneWidth * 0.5) {
+      scroller.scrollLeft = left + laneWidth;
+    } else if (left >= laneWidth * 1.5) {
+      scroller.scrollLeft = left - laneWidth;
+    }
+  };
+
   const handleScroll = (direction) => {
+    normalizeLoopScroll();
     const scroller = scrollerRef.current;
     if (!scroller) return;
     const cards = Array.from(scroller.querySelectorAll("[data-event-card]"));
@@ -256,10 +312,8 @@ const EventsList = ({ events }) => {
         : closestIndex;
     }, 0);
     const delta = direction === "next" ? 1 : -1;
-    const targetIndex = Math.min(
-      Math.max(currentIndex + delta, 0),
-      cards.length - 1
-    );
+    const targetIndex =
+      (currentIndex + delta + cards.length) % cards.length;
     cards[targetIndex].scrollIntoView({
       behavior: "smooth",
       block: "nearest",
@@ -284,18 +338,19 @@ const EventsList = ({ events }) => {
       )}
       <div
         ref={scrollerRef}
+        onScroll={normalizeLoopScroll}
         className="flex snap-x snap-mandatory snap-always gap-6 overflow-x-auto px-6 pb-6 scrollbar-hide sm:px-10"
       >
-        {orderedEvents.map((event) => {
+        {loopedEvents.map(({ event, lane }, index) => {
           const isCta = event.type === "cta";
           const isLiked = likedSet.has(event.id);
           const isBusy = activeEventId === event.id;
-        const categoryStyle = CATEGORY_STYLES[event.categoryTag] ||
-          "bg-white/15 text-white";
-        const eventImage = event.image || "/logo-light.svg";
+          const categoryStyle = CATEGORY_STYLES[event.categoryTag] ||
+            "bg-white/15 text-white";
+          const eventImage = event.image || "/logo-light.svg";
           return (
             <div
-              key={event.id}
+              key={`${event.id}-${lane}-${index}`}
               data-event-card
               className="flex w-[70vw] min-w-[70vw] snap-center flex-col items-center sm:w-[360px] sm:min-w-[360px] lg:w-[380px] lg:min-w-[380px]"
             >
