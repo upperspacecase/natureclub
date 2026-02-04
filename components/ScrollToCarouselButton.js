@@ -4,7 +4,10 @@ const ScrollToCarouselButton = () => {
   const handleScroll = () => {
     const target = document.getElementById("events-carousel");
     if (target) {
-      target.scrollIntoView({ behavior: "smooth", block: "center" });
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.setTimeout(() => {
+        window.scrollBy({ top: 220, left: 0, behavior: "smooth" });
+      }, 150);
     }
   };
 
