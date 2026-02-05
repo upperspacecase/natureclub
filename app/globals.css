@@ -156,6 +156,30 @@ select:focus-visible,
   box-shadow: none !important;
 }
 
+.waitlist-modal .input {
+  border-radius: 5px !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  padding-left: 1rem !important;
+}
+
+.waitlist-modal .select {
+  border-radius: 5px !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  padding-left: 1rem !important;
+}
+
+.waitlist-modal .select:focus,
+.waitlist-modal .select:focus-visible {
+  border-color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.waitlist-modal .input:focus,
+.waitlist-modal .input:focus-visible {
+  border-color: rgba(255, 255, 255, 0.7) !important;
+}
+
 progress::-webkit-progress-value {
   transition: 0.6s width ease-out;
 }

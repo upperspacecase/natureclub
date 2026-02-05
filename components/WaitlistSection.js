@@ -238,7 +238,7 @@ const WaitlistSection = () => {
               <input
                 type="text"
                 placeholder="City or town"
-                className="input input-bordered w-full border-black/40 focus:border-black/60"
+                className="input input-bordered w-full"
                 value={hostLocation.city}
                 onChange={(e) =>
                   setHostLocation((prev) => ({ ...prev, city: e.target.value }))
@@ -263,7 +263,7 @@ const WaitlistSection = () => {
           <input
             type="text"
             placeholder="Experience(s)"
-            className="input input-bordered w-full border-black/40 focus:border-black/60"
+            className="input input-bordered w-full"
             value={hostExperience}
             onChange={(e) => setHostExperience(e.target.value)}
           />
@@ -336,7 +336,7 @@ const WaitlistSection = () => {
                   type="text"
                   inputMode="decimal"
                   placeholder="Min price"
-                  className="input input-bordered w-full border-black/40 focus:border-black/60"
+                  className="input input-bordered w-full"
                   value={hostRateMin}
                   onChange={(e) => setHostRateMin(e.target.value)}
                 />
@@ -344,7 +344,7 @@ const WaitlistSection = () => {
                   type="text"
                   inputMode="decimal"
                   placeholder="Max price"
-                  className="input input-bordered w-full border-black/40 focus:border-black/60"
+                  className="input input-bordered w-full"
                   value={hostRateMax}
                   onChange={(e) => setHostRateMax(e.target.value)}
                 />
@@ -354,7 +354,7 @@ const WaitlistSection = () => {
                 type="text"
                 inputMode="decimal"
                 placeholder="$ / booking"
-                className="input input-bordered w-full border-black/40 focus:border-black/60"
+                className="input input-bordered w-full"
                 value={hostRate}
                 onChange={(e) => setHostRate(e.target.value)}
               />
@@ -366,6 +366,7 @@ const WaitlistSection = () => {
         key: "host-messaging",
         title:
           "Which tools do you currently use for finding clients and organizing sessions?",
+        showScrollHint: true,
         isComplete: () =>
           hostTools.length > 0 &&
           (!hostTools.includes("Other") || hostToolsOther.trim().length > 0),
@@ -379,7 +380,7 @@ const WaitlistSection = () => {
                     key={option}
                     type="button"
                     onClick={() => toggleSelection(option, hostTools, setHostTools)}
-                    className={`w-full rounded-full border px-4 py-2 text-left text-sm transition ${
+                    className={`w-full rounded-[5px] border px-4 py-2 text-left text-sm transition ${
                       isSelected
                         ? "border-white bg-white/20 text-white"
                         : "border-white/30 text-white/70 hover:border-white"
@@ -393,7 +394,7 @@ const WaitlistSection = () => {
                 <input
                   type="text"
                   placeholder="Other..."
-                  className="input input-bordered w-full border-black/40 focus:border-black/60"
+                  className="input input-bordered w-full"
                   value={hostToolsOther}
                   onChange={(e) => setHostToolsOther(e.target.value)}
                 />
@@ -405,6 +406,7 @@ const WaitlistSection = () => {
       {
         key: "host-features",
         title: "What features would be most valuable to you in a booking platform?",
+        showScrollHint: true,
         isComplete: () =>
           hostFeatures.length > 0 || hostFeaturesOther.trim().length > 0,
         content: (
@@ -417,7 +419,7 @@ const WaitlistSection = () => {
                     key={option}
                     type="button"
                     onClick={() => toggleSelection(option, hostFeatures, setHostFeatures)}
-                    className={`w-full rounded-full border px-4 py-2 text-left text-sm transition ${
+                    className={`w-full rounded-[5px] border px-4 py-2 text-left text-sm transition ${
                       isSelected
                         ? "border-white bg-white/20 text-white"
                         : "border-white/30 text-white/70 hover:border-white"
@@ -430,7 +432,7 @@ const WaitlistSection = () => {
               <input
                 type="text"
                 placeholder="Other..."
-                className="input input-bordered w-full border-black/40 focus:border-black/60"
+                className="input input-bordered w-full"
                 value={hostFeaturesOther}
                 onChange={(e) => setHostFeaturesOther(e.target.value)}
               />
@@ -446,7 +448,7 @@ const WaitlistSection = () => {
           <input
             type="email"
             placeholder="you@example.com"
-            className="input input-bordered w-full border-black/40 focus:border-black/60"
+            className="input input-bordered w-full"
             value={hostEmail}
             onChange={(e) => setHostEmail(e.target.value)}
           />
@@ -491,7 +493,7 @@ const WaitlistSection = () => {
               <input
                 type="text"
                 placeholder="City or town"
-                className="input input-bordered w-full border-black/40 focus:border-black/60"
+                className="input input-bordered w-full"
                 value={memberLocation.city}
                 onChange={(e) =>
                   setMemberLocation((prev) => ({
@@ -514,6 +516,7 @@ const WaitlistSection = () => {
       {
         key: "member-interests",
         title: "What types of experiences are you most interested in?",
+        showScrollHint: true,
         isComplete: () =>
           memberInterests.length > 0 &&
           (!memberInterests.includes("Other / Make a Suggestion -") ||
@@ -530,7 +533,7 @@ const WaitlistSection = () => {
                     onClick={() =>
                       toggleSelection(option, memberInterests, setMemberInterests)
                     }
-                    className={`w-full rounded-full border px-4 py-2 text-left text-sm transition ${
+                    className={`w-full rounded-[5px] border px-4 py-2 text-left text-sm transition ${
                       isSelected
                         ? "border-white bg-white/20 text-white"
                         : "border-white/30 text-white/70 hover:border-white"
@@ -544,7 +547,7 @@ const WaitlistSection = () => {
                 <input
                   type="text"
                   placeholder="Other..."
-                  className="input input-bordered w-full border-black/40 focus:border-black/60"
+                  className="input input-bordered w-full"
                   value={memberInterestsOther}
                   onChange={(e) => setMemberInterestsOther(e.target.value)}
                 />
@@ -556,6 +559,7 @@ const WaitlistSection = () => {
       {
         key: "member-motivation",
         title: "What would make Nature Club a must-have for you? (Select up to 5)",
+        showScrollHint: true,
         isComplete: () =>
           memberMotivations.length > 0 &&
           (!memberMotivations.includes("Other:") ||
@@ -582,7 +586,7 @@ const WaitlistSection = () => {
                       }
                       setMemberMotivations([...memberMotivations, option]);
                     }}
-                    className={`w-full rounded-full border px-4 py-2 text-left text-sm transition ${
+                    className={`w-full rounded-[5px] border px-4 py-2 text-left text-sm transition ${
                       isSelected
                         ? "border-white bg-white/20 text-white"
                         : "border-white/30 text-white/70 hover:border-white"
@@ -596,7 +600,7 @@ const WaitlistSection = () => {
                 <input
                   type="text"
                   placeholder="Other..."
-                  className="input input-bordered w-full border-black/40 focus:border-black/60"
+                  className="input input-bordered w-full"
                   value={memberMotivationsOther}
                   onChange={(e) => setMemberMotivationsOther(e.target.value)}
                 />
@@ -631,6 +635,7 @@ const WaitlistSection = () => {
         key: "member-price",
         title:
           "What would you be willing to pay for a monthly membership to Nature Club?",
+        showScrollHint: true,
         isComplete: () => memberPricingSelections.length > 0,
         content: (
           <div className="space-y-3">
@@ -646,7 +651,7 @@ const WaitlistSection = () => {
                         isSelected ? [] : [option]
                       )
                     }
-                    className={`w-full rounded-full border px-4 py-2 text-left text-sm transition ${
+                    className={`w-full rounded-[5px] border px-4 py-2 text-left text-sm transition ${
                       isSelected
                         ? "border-white bg-white/20 text-white"
                         : "border-white/30 text-white/70 hover:border-white"
@@ -668,7 +673,7 @@ const WaitlistSection = () => {
           <input
             type="email"
             placeholder="you@example.com"
-            className="input input-bordered w-full border-black/40 focus:border-black/60"
+            className="input input-bordered w-full"
             value={memberEmail}
             onChange={(e) => setMemberEmail(e.target.value)}
           />
@@ -779,16 +784,7 @@ const WaitlistSection = () => {
                     <div className="absolute inset-0 bg-black/60" />
                   </div>
                   <div className="relative flex h-full flex-col px-8 py-10 text-white md:px-10 md:py-12">
-                    <div className="flex items-start justify-end gap-4">
-                      <button
-                        type="button"
-                        onClick={() => setIsJoinModalOpen(false)}
-                        aria-label="Close"
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-base-content/40 text-sm text-base-content/80 transition hover:border-base-content hover:text-base-content"
-                      >
-                        x
-                      </button>
-                    </div>
+                    <div className="flex items-start justify-end gap-4" />
                     <div className="flex flex-1 flex-col justify-center">
                       <div className="text-base-content/90">
                         <p className="font-serif text-2xl text-base-content">

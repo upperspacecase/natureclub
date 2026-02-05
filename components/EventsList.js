@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
 import apiClient from "@/libs/api";
@@ -92,6 +92,21 @@ const normalizeImagePath = (value) => {
   return trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
 };
 
+const emphasizeWord = (text, word) => {
+  if (!text || !word) return text;
+  const matcher = new RegExp(`(${word})`, "i");
+  if (!matcher.test(text)) return text;
+  return text.split(matcher).map((part, index) =>
+    part.toLowerCase() === word.toLowerCase() ? (
+      <span key={`em-${index}`} className="italic text-[1.2em]">
+        {part}
+      </span>
+    ) : (
+      <span key={`tx-${index}`}>{part}</span>
+    )
+  );
+};
+
 const HeartIcon = ({ filled, className }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -109,69 +124,44 @@ const HeartIcon = ({ filled, className }) => (
 );
 
 const PillsRow = ({ categoryTag, attributeTag, categoryStyle }) => {
-  const containerRef = useRef(null);
-  const primaryRef = useRef(null);
-  const secondaryMeasureRef = useRef(null);
   const [showSecondary, setShowSecondary] = useState(Boolean(attributeTag));
 
   useEffect(() => {
-    if (!categoryTag || !attributeTag) {
+    if (!attributeTag) {
       setShowSecondary(false);
       return;
     }
-    const container = containerRef.current;
-    const primary = primaryRef.current;
-    const secondaryMeasure = secondaryMeasureRef.current;
-    if (!container || !primary || !secondaryMeasure) return;
 
     const update = () => {
-      const styles = window.getComputedStyle(container);
-      const gapValue = styles.columnGap || styles.gap || "0px";
-      const gap = Number.parseFloat(gapValue) || 0;
-      const neededWidth =
-        primary.offsetWidth + secondaryMeasure.offsetWidth + gap;
-      setShowSecondary(neededWidth <= container.clientWidth);
+      setShowSecondary(window.innerWidth >= 340);
     };
 
     update();
-    const resizeObserver = new ResizeObserver(update);
-    resizeObserver.observe(container);
-    resizeObserver.observe(primary);
-    resizeObserver.observe(secondaryMeasure);
-    return () => resizeObserver.disconnect();
-  }, [categoryTag, attributeTag]);
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [attributeTag]);
 
   if (!categoryTag && !attributeTag) return null;
 
   if (!categoryTag && attributeTag) {
     return (
-      <div className="flex min-w-0 flex-1 items-center gap-2 pr-3 sm:gap-3">
-        <span className="whitespace-nowrap rounded-full border border-white/60 bg-white/10 px-3 py-1 font-normal text-white backdrop-blur text-[clamp(0.68rem,1.6vw,0.9rem)] sm:px-4 sm:py-1.5">
-          {formatTag(attributeTag)}
-        </span>
-      </div>
+    <div className="flex min-w-0 flex-1 items-center gap-1.5 pr-1.5 sm:gap-2.5 sm:pr-3">
+      <span className="whitespace-nowrap rounded-full border border-white/60 bg-white/10 px-2.5 py-1 font-normal text-[0.68rem] text-white backdrop-blur sm:px-4 sm:py-1.5 sm:text-[0.86rem] md:text-[1.02rem]">
+        {formatTag(attributeTag)}
+      </span>
+    </div>
     );
   }
 
   return (
-    <div ref={containerRef} className="flex min-w-0 flex-1 items-center gap-2 pr-3 sm:gap-3 relative">
+    <div className="flex min-w-0 flex-1 items-center gap-1.5 pr-1.5 sm:gap-2.5 sm:pr-3">
       <span
-        ref={primaryRef}
-        className={`whitespace-nowrap rounded-full px-3 py-1 font-normal tracking-wide text-[clamp(0.68rem,1.6vw,0.9rem)] sm:px-4 sm:py-1.5 ${categoryStyle}`}
+        className={`whitespace-nowrap rounded-full px-2.5 py-1 font-normal tracking-wide text-[0.68rem] sm:px-4 sm:py-1.5 sm:text-[0.86rem] md:text-[1.02rem] ${categoryStyle}`}
       >
         {formatTag(categoryTag)}
       </span>
       {attributeTag && showSecondary && (
-        <span className="whitespace-nowrap rounded-full border border-white/60 bg-white/10 px-3 py-1 font-normal text-white backdrop-blur text-[clamp(0.68rem,1.6vw,0.9rem)] sm:px-4 sm:py-1.5">
-          {formatTag(attributeTag)}
-        </span>
-      )}
-      {attributeTag && (
-        <span
-          ref={secondaryMeasureRef}
-          aria-hidden="true"
-          className="absolute left-0 top-0 -z-10 whitespace-nowrap rounded-full border border-white/60 bg-white/10 px-3 py-1 font-normal text-white opacity-0 text-[clamp(0.68rem,1.6vw,0.9rem)] sm:px-4 sm:py-1.5"
-        >
+        <span className="whitespace-nowrap rounded-full border border-white/60 bg-white/10 px-2.5 py-1 font-normal text-[0.68rem] text-white backdrop-blur sm:px-4 sm:py-1.5 sm:text-[0.86rem] md:text-[1.02rem]">
           {formatTag(attributeTag)}
         </span>
       )}
@@ -312,7 +302,11 @@ const EventsList = ({ events }) => {
                   
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 px-8 text-center">
                     <p className="max-w-[18ch] text-3xl font-serif text-white drop-shadow sm:text-4xl">
-                      {event.headline || "Join now to become a founding member or host."}
+                      {emphasizeWord(
+                        event.headline ||
+                          "Join now to become a founding member or host.",
+                        "founding"
+                      )}
                     </p>
                     <button
                       type="button"
@@ -347,7 +341,7 @@ const EventsList = ({ events }) => {
                       attributeTag={event.attributeTags?.[0]}
                       categoryStyle={categoryStyle}
                     />
-                    <div className="relative h-16 w-16">
+                    <div className="relative h-10 w-10 sm:h-16 sm:w-16">
                       {burstEventId === event.id && (
                         <div
                           key={burstKey}
@@ -356,7 +350,7 @@ const EventsList = ({ events }) => {
                           {BURST_HEARTS.map((heart, index) => (
                             <span
                               key={index}
-                              className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 animate-heartBurst text-base-content"
+                              className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 animate-heartBurst text-base-content sm:h-4 sm:w-4"
                               style={{
                                 "--heart-x": `${heart.x}px`,
                                 "--heart-y": `${heart.y}px`,
@@ -364,7 +358,7 @@ const EventsList = ({ events }) => {
                                 animationDelay: `${heart.delay}ms`,
                               }}
                             >
-                              <HeartIcon filled className="h-4 w-4" />
+                              <HeartIcon filled className="h-3 w-3 sm:h-4 sm:w-4" />
                             </span>
                           ))}
                         </div>
@@ -375,14 +369,14 @@ const EventsList = ({ events }) => {
                         aria-pressed={isLiked}
                         disabled={isLoading || isBusy}
                         onClick={() => handleToggleLike(event.id)}
-                        className={`flex h-16 w-16 items-center justify-center bg-transparent disabled:opacity-50 ${
+                        className={`flex h-10 w-10 items-center justify-center bg-transparent disabled:opacity-50 sm:h-16 sm:w-16 ${
                           isLiked ? "text-white" : "text-white"
                         }`}
                       >
                         {isLiked ? (
-                          <HeartIcon filled className="h-6 w-6" />
+                          <HeartIcon filled className="h-4 w-4 sm:h-6 sm:w-6" />
                         ) : (
-                          <HeartIcon className="h-6 w-6" />
+                          <HeartIcon className="h-4 w-4 sm:h-6 sm:w-6" />
                         )}
                       </button>
                     </div>

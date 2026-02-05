@@ -67,7 +67,10 @@ const EventsSection = async () => {
           className="text-center text-sm text-base-content/80 min-h-5"
           aria-hidden="true"
         />
-        <h2 className="text-center font-serif text-[clamp(14px,4.2vw,30px)] whitespace-nowrap text-base-content">
+        <h2
+          id="events-heading"
+          className="text-center font-serif text-2xl leading-tight text-base-content sm:text-3xl"
+        >
           Want access to experiences like these?
         </h2>
         <div id="events-carousel">

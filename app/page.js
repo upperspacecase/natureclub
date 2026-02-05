@@ -10,33 +10,29 @@ export default function Page() {
   return (
     <div className="bg-base-100 text-white">
       <RecordVisit />
-      <section
-        className="relative min-h-screen overflow-hidden"
-        style={{ "--hero-scale": "clamp(27px, 6.5vw, 50px)" }}
-      >
+      <section className="relative min-h-screen overflow-hidden">
         {/* Background Video with black fallback */}
         <HeroVideo src={heroVideoSrc} />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-b from-transparent to-black md:h-32" />
 
         {/* Content Container */}
         <div className="relative z-20 min-h-screen">
-          <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 md:px-10">
+          <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-8 px-6 py-10 md:gap-10 md:px-10 md:py-14">
             {/* Header/Logo */}
-            <header className="my-8 md:my-10">
+            <header>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/logo-light.svg"
                 alt="Nature Club"
-                className="w-auto"
-                style={{ height: "calc(var(--hero-scale) * 2)" }}
+                className="h-14 w-auto sm:h-16 md:h-20 lg:h-24"
               />
             </header>
 
             {/* Hero Content — aligned with carousel edges */}
             <main className="flex flex-1 items-start">
-              <div className="w-full pt-6 md:pt-10">
+              <div className="w-full">
                 {/* Main Headline */}
-                <h1 className="mb-6 font-serif text-[clamp(26px,8vw,46px)] leading-[1.05] tracking-tight md:text-[clamp(36px,6.5vw,50px)]">
+                <h1 className="mb-6 font-serif text-[clamp(31px,9.6vw,46px)] leading-[1.05] tracking-tight md:text-[clamp(36px,6.5vw,50px)]">
                   <span className="block max-w-[80vw] whitespace-nowrap md:max-w-none">
                     Spend more time
                   </span>
@@ -45,7 +41,7 @@ export default function Page() {
 
                 {/* Subtext */}
                 <div className="flex w-full flex-col gap-6">
-                  <p className="max-w-md text-base leading-relaxed text-white/90 md:text-lg">
+                  <p className="max-w-md text-lg leading-relaxed text-white/90 md:text-lg">
                     Access local Nature events, experiences, and classes with one
                     membership.
                   </p>
