@@ -238,7 +238,7 @@ const WaitlistSection = () => {
               <input
                 type="text"
                 placeholder="City or town"
-                className="input input-bordered w-full"
+                className="input input-bordered w-full border-black/40 focus:border-black/60"
                 value={hostLocation.city}
                 onChange={(e) =>
                   setHostLocation((prev) => ({ ...prev, city: e.target.value }))
@@ -263,7 +263,7 @@ const WaitlistSection = () => {
           <input
             type="text"
             placeholder="Experience(s)"
-            className="input input-bordered w-full"
+            className="input input-bordered w-full border-black/40 focus:border-black/60"
             value={hostExperience}
             onChange={(e) => setHostExperience(e.target.value)}
           />
@@ -336,7 +336,7 @@ const WaitlistSection = () => {
                   type="text"
                   inputMode="decimal"
                   placeholder="Min price"
-                  className="input input-bordered w-full"
+                  className="input input-bordered w-full border-black/40 focus:border-black/60"
                   value={hostRateMin}
                   onChange={(e) => setHostRateMin(e.target.value)}
                 />
@@ -344,7 +344,7 @@ const WaitlistSection = () => {
                   type="text"
                   inputMode="decimal"
                   placeholder="Max price"
-                  className="input input-bordered w-full"
+                  className="input input-bordered w-full border-black/40 focus:border-black/60"
                   value={hostRateMax}
                   onChange={(e) => setHostRateMax(e.target.value)}
                 />
@@ -354,7 +354,7 @@ const WaitlistSection = () => {
                 type="text"
                 inputMode="decimal"
                 placeholder="$ / booking"
-                className="input input-bordered w-full"
+                className="input input-bordered w-full border-black/40 focus:border-black/60"
                 value={hostRate}
                 onChange={(e) => setHostRate(e.target.value)}
               />
@@ -393,7 +393,7 @@ const WaitlistSection = () => {
                 <input
                   type="text"
                   placeholder="Other..."
-                  className="input input-bordered w-full"
+                  className="input input-bordered w-full border-black/40 focus:border-black/60"
                   value={hostToolsOther}
                   onChange={(e) => setHostToolsOther(e.target.value)}
                 />
@@ -430,7 +430,7 @@ const WaitlistSection = () => {
               <input
                 type="text"
                 placeholder="Other..."
-                className="input input-bordered w-full"
+                className="input input-bordered w-full border-black/40 focus:border-black/60"
                 value={hostFeaturesOther}
                 onChange={(e) => setHostFeaturesOther(e.target.value)}
               />
@@ -446,7 +446,7 @@ const WaitlistSection = () => {
           <input
             type="email"
             placeholder="you@example.com"
-            className="input input-bordered w-full"
+            className="input input-bordered w-full border-black/40 focus:border-black/60"
             value={hostEmail}
             onChange={(e) => setHostEmail(e.target.value)}
           />
@@ -491,7 +491,7 @@ const WaitlistSection = () => {
               <input
                 type="text"
                 placeholder="City or town"
-                className="input input-bordered w-full"
+                className="input input-bordered w-full border-black/40 focus:border-black/60"
                 value={memberLocation.city}
                 onChange={(e) =>
                   setMemberLocation((prev) => ({
@@ -544,7 +544,7 @@ const WaitlistSection = () => {
                 <input
                   type="text"
                   placeholder="Other..."
-                  className="input input-bordered w-full"
+                  className="input input-bordered w-full border-black/40 focus:border-black/60"
                   value={memberInterestsOther}
                   onChange={(e) => setMemberInterestsOther(e.target.value)}
                 />
@@ -596,7 +596,7 @@ const WaitlistSection = () => {
                 <input
                   type="text"
                   placeholder="Other..."
-                  className="input input-bordered w-full"
+                  className="input input-bordered w-full border-black/40 focus:border-black/60"
                   value={memberMotivationsOther}
                   onChange={(e) => setMemberMotivationsOther(e.target.value)}
                 />
@@ -668,7 +668,7 @@ const WaitlistSection = () => {
           <input
             type="email"
             placeholder="you@example.com"
-            className="input input-bordered w-full"
+            className="input input-bordered w-full border-black/40 focus:border-black/60"
             value={memberEmail}
             onChange={(e) => setMemberEmail(e.target.value)}
           />
@@ -713,6 +713,15 @@ const WaitlistSection = () => {
 
   return (
     <div className="space-y-6">
+      <div className="flex flex-col items-center justify-center gap-6 sm:flex-row sm:items-start">
+        <button
+          id="join-now-button"
+          className="btn btn-primary"
+          onClick={() => setIsJoinModalOpen(true)}
+        >
+          Join now
+        </button>
+      </div>
       <div className="text-center text-white/90">
         <div className="mx-auto h-px max-w-xl bg-white/20" />
         <p className="my-4 text-base md:text-lg">
@@ -727,15 +736,6 @@ const WaitlistSection = () => {
           2+ hours in Nature a week reduces stress, boosts mood & improves immune function.
         </p>
         <div className="mx-auto h-px max-w-xl bg-white/20" />
-      </div>
-      <div className="flex flex-col items-center justify-center gap-6 sm:flex-row sm:items-start">
-        <button
-          id="join-now-button"
-          className="btn btn-primary"
-          onClick={() => setIsJoinModalOpen(true)}
-        >
-          Join now
-        </button>
       </div>
       <Transition appear show={isJoinModalOpen} as={Fragment}>
         <Dialog
@@ -802,11 +802,11 @@ const WaitlistSection = () => {
                           What would you like to join as?
                         </p>
                         <div className="mt-6 flex flex-col gap-4">
-                          <button className="btn btn-outline" onClick={openHostFlow}>
-                            Become a Host
-                          </button>
                           <button className="btn btn-primary" onClick={openMemberFlow}>
                             Become a Member
+                          </button>
+                          <button className="btn btn-outline" onClick={openHostFlow}>
+                            Become a Host
                           </button>
                         </div>
                       </div>
