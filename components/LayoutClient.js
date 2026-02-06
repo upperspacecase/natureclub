@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Crisp } from "crisp-sdk-web";
@@ -72,10 +72,22 @@ const AuthCrispChat = () => {
   return <CrispChat session={data} />;
 };
 
-const ClientLayout = ({ children }) => {
-  const authEnabled = process.env.NEXT_PUBLIC_AUTH_ENABLED === "true";
+const PostHogPageviewTracker = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (!posthogInitialized) return;
+    const query = searchParams?.toString();
+    const currentUrl = query ? `${pathname}?${query}` : pathname;
+    posthog.capture("$pageview", { $current_url: currentUrl });
+  }, [pathname, searchParams]);
+
+  return null;
+};
+
+const ClientLayout = ({ children }) => {
+  const authEnabled = process.env.NEXT_PUBLIC_AUTH_ENABLED === "true";
 
   useEffect(() => {
     const apiKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
@@ -89,13 +101,6 @@ const ClientLayout = ({ children }) => {
 
     posthogInitialized = true;
   }, []);
-
-  useEffect(() => {
-    if (!posthogInitialized) return;
-    const query = searchParams?.toString();
-    const currentUrl = query ? `${pathname}?${query}` : pathname;
-    posthog.capture("$pageview", { $current_url: currentUrl });
-  }, [pathname, searchParams]);
 
   const content = (
     <>
@@ -117,6 +122,11 @@ const ClientLayout = ({ children }) => {
         id="tooltip"
         className="z-[60] !opacity-100 max-w-sm shadow-lg"
       />
+
+      {/* useSearchParams requires a Suspense boundary in static routes (e.g. /_not-found) */}
+      <Suspense fallback={null}>
+        <PostHogPageviewTracker />
+      </Suspense>
     </>
   );
 
