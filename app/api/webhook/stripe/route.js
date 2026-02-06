@@ -5,6 +5,7 @@ import connectMongo from "@/libs/mongoose";
 import configFile from "@/config";
 import User from "@/models/User";
 import { findCheckoutSession } from "@/libs/stripe";
+import { getPostHogClient } from "@/libs/posthog-server";
 
 // Initialize Stripe only if the secret key is available
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
@@ -86,6 +87,33 @@ export async function POST(req) {
         user.hasAccess = true;
         await user.save();
 
+        // Track payment completed with PostHog (server-side)
+        const posthog = getPostHogClient();
+        posthog.capture({
+          distinctId: user._id.toString(),
+          event: "payment_completed",
+          properties: {
+            price_id: priceId,
+            plan_name: plan?.name || "",
+            customer_id: customerId,
+            email: customer.email,
+            is_new_user: !userId,
+            source: "stripe_webhook",
+          },
+        });
+
+        // Identify user in PostHog with purchase data
+        posthog.identify({
+          distinctId: user._id.toString(),
+          properties: {
+            email: customer.email,
+            name: customer.name,
+            has_access: true,
+            price_id: priceId,
+            customer_id: customerId,
+          },
+        });
+
         // Extra: send email with user link, product page, etc...
         // try {
         //   await sendEmail({to: ...});
@@ -121,6 +149,20 @@ export async function POST(req) {
         // Revoke access to your product
         user.hasAccess = false;
         await user.save();
+
+        // Track subscription cancelled with PostHog (server-side)
+        const posthogCancelled = getPostHogClient();
+        posthogCancelled.capture({
+          distinctId: user._id.toString(),
+          event: "subscription_cancelled",
+          properties: {
+            customer_id: subscription.customer,
+            subscription_id: subscription.id,
+            price_id: user.priceId,
+            cancellation_reason: subscription.cancellation_details?.reason || "unknown",
+            source: "stripe_webhook",
+          },
+        });
 
         break;
       }

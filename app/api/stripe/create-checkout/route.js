@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createCheckout } from "@/libs/stripe";
+import { getPostHogClient } from "@/libs/posthog-server";
 
 // This function is used to create a Stripe Checkout Session (one-time payment or subscription)
 // It's called by the <ButtonCheckout /> component
@@ -42,6 +43,19 @@ export async function POST(req) {
       user,
       // If you send coupons from the frontend, you can pass it here
       // couponId: body.couponId,
+    });
+
+    // Track checkout session created with PostHog (server-side)
+    const posthog = getPostHogClient();
+    posthog.capture({
+      distinctId: user?.id || "anonymous",
+      event: "checkout_session_created",
+      properties: {
+        price_id: priceId,
+        mode: mode,
+        success_url: successUrl,
+        source: "api",
+      },
     });
 
     return NextResponse.json({ url: stripeSessionURL });

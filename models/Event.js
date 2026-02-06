@@ -55,6 +55,32 @@ const eventSchema = mongoose.Schema(
       trim: true,
       default: "",
     },
+    region: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    regionKey: {
+      type: String,
+      trim: true,
+      default: "",
+      index: true,
+    },
+    facilitatorName: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    facilitatorEmail: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      default: "",
+    },
+    startsAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,

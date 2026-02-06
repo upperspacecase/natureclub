@@ -4,6 +4,7 @@
 import { useSession, signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import posthog from "posthog-js";
 import config from "@/config";
 
 // A simple button to sign in with our providers (Google & Magic Links).
@@ -17,6 +18,12 @@ const ButtonSignin = ({ text = "Get started", extraStyle }) => {
     if (status === "authenticated") {
       router.push(config.auth.callbackUrl);
     } else {
+      // Track signin click with PostHog
+      posthog.capture("signin_clicked", {
+        button_text: text,
+        page_url: typeof window !== "undefined" ? window.location.href : "",
+        is_already_authenticated: false,
+      });
       signIn(undefined, { callbackUrl: config.auth.callbackUrl });
     }
   };

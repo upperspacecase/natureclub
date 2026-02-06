@@ -2,7 +2,6 @@
 
 import { useState, useRef } from "react";
 import { toast } from "react-hot-toast";
-import apiClient from "@/libs/api";
 
 // This component is used to collect the emails from the landing page
 // You'd use this if your product isn't ready yet or you want to collect leads
@@ -10,7 +9,6 @@ import apiClient from "@/libs/api";
 // It calls the /api/lead/route.js route and store a Lead document in the database
 const ButtonLead = ({
   extraStyle,
-  role = "member",
   buttonLabel = "Join waitlist",
   placeholder = "tom@cruise.com",
 }) => {
@@ -24,14 +22,15 @@ const ButtonLead = ({
 
     setIsLoading(true);
     try {
-      await apiClient.post("/lead", { email, role });
-
-      toast.success("Thanks for joining the waitlist!");
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("nc:open-join"));
+      }
+      toast.success("Please complete the full signup form to submit.");
 
       // just remove the focus on the input
       inputRef.current.blur();
       setEmail("");
-      setIsDisabled(true);
+      setIsDisabled(false);
     } catch (error) {
       console.log(error);
     } finally {

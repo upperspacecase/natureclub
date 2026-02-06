@@ -9,17 +9,21 @@ const WaitlistModal = ({
   onClose,
   steps,
   onComplete,
+  onStepContinue,
   backgroundImage,
   introCopy,
 }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAdvancing, setIsAdvancing] = useState(false);
   const [attemptedStep, setAttemptedStep] = useState(null);
 
   useEffect(() => {
     if (isOpen) {
       setActiveStep(0);
       setAttemptedStep(null);
+      setIsAdvancing(false);
+      setIsSubmitting(false);
     }
   }, [isOpen]);
 
@@ -34,6 +38,19 @@ const WaitlistModal = ({
       setAttemptedStep(index);
       return;
     }
+
+    if (index < totalSteps - 1 && onStepContinue) {
+      setIsAdvancing(true);
+      try {
+        const canAdvance = await onStepContinue(index);
+        if (canAdvance === false) {
+          return;
+        }
+      } finally {
+        setIsAdvancing(false);
+      }
+    }
+
     if (index < totalSteps - 1) {
       setActiveStep(index + 1);
       return;
@@ -82,6 +99,7 @@ const WaitlistModal = ({
               leaveTo="opacity-0 scale-95"
             >
               <Dialog.Panel className="waitlist-modal relative h-[calc(100vh-2rem)] w-full max-w-md transform overflow-hidden rounded-[36px] text-left text-white shadow-xl transition-all">
+                <Dialog.Title className="sr-only">{title}</Dialog.Title>
                 <div className="pointer-events-none absolute inset-0">
                   <div
                     className="h-full w-full bg-cover bg-center"
@@ -157,10 +175,10 @@ const WaitlistModal = ({
                       <button
                         className="btn btn-primary btn-block w-full"
                         onClick={() => handleContinue(activeStep)}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isAdvancing}
                         aria-disabled={!stepStatus[activeStep]}
                       >
-                        {isSubmitting ? (
+                        {isSubmitting || isAdvancing ? (
                           <span className="loading loading-spinner loading-xs"></span>
                         ) : activeStep === totalSteps - 1 ? (
                           "Submit"

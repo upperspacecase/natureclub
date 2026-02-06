@@ -1,11 +1,20 @@
 import { Resend } from "resend";
 import config from "@/config";
 
-if (!process.env.RESEND_API_KEY) {
-  throw new Error("RESEND_API_KEY is not set");
-}
+const getResendClient = () => {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error("RESEND_API_KEY is not set");
+  }
+  return new Resend(process.env.RESEND_API_KEY);
+};
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const getFromAddress = () => {
+  const configuredFrom = process.env.RESEND_FROM_EMAIL || config.resend.fromAdmin;
+  if (process.env.NODE_ENV === "development" && !process.env.RESEND_FROM_EMAIL) {
+    return "Nature Club <onboarding@resend.dev>";
+  }
+  return configuredFrom;
+};
 
 /**
  * Sends an email using the provided parameters.
@@ -20,8 +29,9 @@ const resend = new Resend(process.env.RESEND_API_KEY);
  * @returns {Promise<Object>} A Promise that resolves with the email sending result data.
  */
 export const sendEmail = async ({ to, subject, text, html, replyTo }) => {
+  const resend = getResendClient();
   const { data, error } = await resend.emails.send({
-    from: config.resend.fromAdmin,
+    from: getFromAddress(),
     to,
     subject,
     text,
@@ -30,8 +40,12 @@ export const sendEmail = async ({ to, subject, text, html, replyTo }) => {
   });
 
   if (error) {
-    console.error("Error sending email:", error.message);
-    throw error;
+    const errorMessage =
+      typeof error?.message === "string" && error.message
+        ? error.message
+        : "Resend send failed";
+    console.error("Error sending email:", errorMessage, error);
+    throw new Error(errorMessage);
   }
 
   return data;

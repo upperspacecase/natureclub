@@ -9,7 +9,7 @@ const nextConfig = {
         hostname: "lh3.googleusercontent.com",
       },
       {
-        protocol: "https", 
+        protocol: "https",
         hostname: "pbs.twimg.com",
       },
       {
@@ -31,7 +31,7 @@ const nextConfig = {
         })
       );
     }
-    
+
     return config;
   },
 };

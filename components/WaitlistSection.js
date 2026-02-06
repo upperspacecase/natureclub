@@ -3,12 +3,17 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
+import posthog from "posthog-js";
 import apiClient from "@/libs/api";
 import {
   MEMBER_INTEREST_OPTIONS,
   MEMBER_INTEREST_THEME_MAP,
 } from "@/data/events";
+import { SIGNUP_QUESTION_VERSION } from "@/libs/signup";
+import { QUESTION_LABELS } from "@/libs/signupQuestionCatalog";
 import WaitlistModal from "./WaitlistModal";
+
+const SESSION_ID_KEY = "nc:signup-session-id";
 
 const WaitlistSection = () => {
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
@@ -38,6 +43,7 @@ const WaitlistSection = () => {
   const [memberPricingSelections, setMemberPricingSelections] = useState([]);
   const [memberEmail, setMemberEmail] = useState("");
   const [modalBackgroundImage, setModalBackgroundImage] = useState("");
+  const [signupSessionId, setSignupSessionId] = useState("");
 
   const hostFeatureOptions = useMemo(
     () => [
@@ -150,6 +156,20 @@ const WaitlistSection = () => {
     return () => window.removeEventListener("nc:open-join", handleOpenJoin);
   }, []);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const existingSessionId = window.localStorage.getItem(SESSION_ID_KEY) || "";
+    const nextSessionId =
+      existingSessionId ||
+      (typeof crypto !== "undefined" && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(16).slice(2)}`);
+
+    setSignupSessionId(nextSessionId);
+    window.localStorage.setItem(SESSION_ID_KEY, nextSessionId);
+  }, []);
+
   const handleUseLocation = (setter) => {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
@@ -165,31 +185,79 @@ const WaitlistSection = () => {
     );
   };
 
+  const buildHostResponses = () => ({
+    host: {
+      locationCity: hostLocation.city.trim(),
+      locationCoords: hostLocation.coords.trim(),
+      experience: hostExperience.trim(),
+      sessionsPerMonth: hostSessionsPerMonth,
+      bookingsPerSession: hostBookingsPerSession,
+      rateAmount: hostRateIsRange ? "" : hostRate.trim(),
+      rateMin: hostRateIsRange ? hostRateMin.trim() : "",
+      rateMax: hostRateIsRange ? hostRateMax.trim() : "",
+      tools: hostTools,
+      toolsOther: hostToolsOther.trim(),
+      features: hostFeatures,
+      featuresOther: hostFeaturesOther.trim(),
+    },
+  });
+
+  const buildMemberResponses = () => ({
+    member: {
+      locationCity: memberLocation.city.trim(),
+      locationCoords: memberLocation.coords.trim(),
+      interests: memberInterests,
+      interestsOther: memberInterestsOther.trim(),
+      interestThemes: mapInterestThemes(memberInterests),
+      motivations: memberMotivations,
+      motivationsOther: memberMotivationsOther.trim(),
+      experiencesPerMonth: memberExperiencesPerMonth,
+      pricingSelection: memberPricingSelections[0] || "",
+    },
+  });
+
   const submitHostLead = async () => {
     try {
-      await apiClient.post("/lead", {
+      const hostResponses = buildHostResponses();
+      const data = await apiClient.post("/lead", {
         role: "host",
         email: hostEmail,
         source: "modal",
-        responses: {
-          location: hostLocation,
-          experience: hostExperience,
-          sessionsPerMonth: hostSessionsPerMonth,
-          bookingsPerSession: hostBookingsPerSession,
-          rate: hostRate,
-          rateRange: hostRateIsRange
-            ? { min: hostRateMin, max: hostRateMax }
-            : null,
-          tools: hostTools,
-          toolsOther: hostToolsOther,
-          features: hostFeatures,
-          featuresOther: hostFeaturesOther,
-        },
+        responses: hostResponses,
+        sessionId: signupSessionId || undefined,
+        questionVersion: SIGNUP_QUESTION_VERSION,
       });
-      toast.success("Welcome to Nature Club! We’re excited to have you here.");
+
+      // Track waitlist signup completion with PostHog
+      posthog.capture("waitlist_signup_completed", {
+        role: "host",
+        location_city: hostResponses.host.locationCity,
+        has_location_coords: Boolean(hostResponses.host.locationCoords),
+        experience_type: hostResponses.host.experience,
+        sessions_per_month: hostResponses.host.sessionsPerMonth,
+        bookings_per_session: hostResponses.host.bookingsPerSession,
+        tools_count: hostResponses.host.tools.length,
+        features_count: hostResponses.host.features.length,
+        source: "modal",
+      });
+
+      // Identify user by email for future event correlation
+      posthog.identify(hostEmail, {
+        email: hostEmail,
+        role: "host",
+        signup_source: "modal",
+        location_city: hostResponses.host.locationCity,
+      });
+
+      if (data?.emailStatus === "failed") {
+        toast.success("Signup saved. Welcome email failed, we will retry.");
+      } else {
+        toast.success("Welcome to Nature Club! We're excited to have you here.");
+      }
       return true;
     } catch (error) {
       console.error(error);
+      posthog.captureException(error);
       toast.error("Something went wrong. Please try again.");
       return false;
     }
@@ -197,25 +265,47 @@ const WaitlistSection = () => {
 
   const submitMemberLead = async () => {
     try {
-      await apiClient.post("/lead", {
+      const memberResponses = buildMemberResponses();
+      const data = await apiClient.post("/lead", {
         role: "member",
         email: memberEmail,
         source: "modal",
-        responses: {
-          location: memberLocation,
-          interests: memberInterests,
-          interestsOther: memberInterestsOther,
-          interestThemes: mapInterestThemes(memberInterests),
-          motivations: memberMotivations,
-          motivationsOther: memberMotivationsOther,
-          experiencesPerMonth: memberExperiencesPerMonth,
-          pricingSelections: memberPricingSelections,
-        },
+        responses: memberResponses,
+        sessionId: signupSessionId || undefined,
+        questionVersion: SIGNUP_QUESTION_VERSION,
       });
-      toast.success("Welcome to Nature Club! We’re excited to have you here.");
+
+      // Track waitlist signup completion with PostHog
+      posthog.capture("waitlist_signup_completed", {
+        role: "member",
+        location_city: memberResponses.member.locationCity,
+        has_location_coords: Boolean(memberResponses.member.locationCoords),
+        interests_count: memberResponses.member.interests.length,
+        interest_themes: memberResponses.member.interestThemes,
+        motivations_count: memberResponses.member.motivations.length,
+        experiences_per_month: memberResponses.member.experiencesPerMonth,
+        pricing_selection: memberResponses.member.pricingSelection,
+        source: "modal",
+      });
+
+      // Identify user by email for future event correlation
+      posthog.identify(memberEmail, {
+        email: memberEmail,
+        role: "member",
+        signup_source: "modal",
+        location_city: memberResponses.member.locationCity,
+        interest_themes: memberResponses.member.interestThemes,
+      });
+
+      if (data?.emailStatus === "failed") {
+        toast.success("Signup saved. Welcome email failed, we will retry.");
+      } else {
+        toast.success("Welcome to Nature Club! We're excited to have you here.");
+      }
       return true;
     } catch (error) {
       console.error(error);
+      posthog.captureException(error);
       toast.error("Something went wrong. Please try again.");
       return false;
     }
@@ -257,7 +347,7 @@ const WaitlistSection = () => {
       },
       {
         key: "host-experience",
-        title: "What experience do you host?",
+        title: QUESTION_LABELS.host_experience,
         isComplete: () => hostExperience.trim().length > 0,
         content: (
           <input
@@ -314,7 +404,7 @@ const WaitlistSection = () => {
       },
       {
         key: "host-price",
-        title: "What are your rates?",
+        title: QUESTION_LABELS.host_rate,
         isComplete: () =>
           (hostRateIsRange
             ? Boolean(hostRateMin && hostRateMax)
@@ -364,8 +454,7 @@ const WaitlistSection = () => {
       },
       {
         key: "host-messaging",
-        title:
-          "Which tools do you currently use for finding clients and organizing sessions?",
+        title: QUESTION_LABELS.host_tools,
         showScrollHint: true,
         isComplete: () =>
           hostTools.length > 0 &&
@@ -405,7 +494,7 @@ const WaitlistSection = () => {
       },
       {
         key: "host-features",
-        title: "What features would be most valuable to you in a booking platform?",
+        title: QUESTION_LABELS.host_features,
         showScrollHint: true,
         isComplete: () =>
           hostFeatures.length > 0 || hostFeaturesOther.trim().length > 0,
@@ -515,7 +604,7 @@ const WaitlistSection = () => {
       },
       {
         key: "member-interests",
-        title: "What types of experiences are you most interested in?",
+        title: QUESTION_LABELS.member_interests,
         showScrollHint: true,
         isComplete: () =>
           memberInterests.length > 0 &&
@@ -558,7 +647,7 @@ const WaitlistSection = () => {
       },
       {
         key: "member-motivation",
-        title: "What would make Nature Club a must-have for you? (Select up to 5)",
+        title: QUESTION_LABELS.member_motivations,
         showScrollHint: true,
         isComplete: () =>
           memberMotivations.length > 0 &&
@@ -611,8 +700,7 @@ const WaitlistSection = () => {
       },
       {
         key: "member-frequency",
-        title:
-          "How many Nature Club experiences would you ideally like attend each month?",
+        title: QUESTION_LABELS.member_experiences,
         isComplete: () => Boolean(memberExperiencesPerMonth),
         content: (
           <select
@@ -633,8 +721,7 @@ const WaitlistSection = () => {
       },
       {
         key: "member-price",
-        title:
-          "What would you be willing to pay for a monthly membership to Nature Club?",
+        title: QUESTION_LABELS.member_pricing,
         showScrollHint: true,
         isComplete: () => memberPricingSelections.length > 0,
         content: (
@@ -706,14 +793,27 @@ const WaitlistSection = () => {
 
   const openMemberFlow = () => {
     trackClick("member_click");
+    posthog.capture("member_flow_started", {
+      source: "join_modal",
+    });
     setIsJoinModalOpen(false);
     setIsMemberModalOpen(true);
   };
 
   const openHostFlow = () => {
     trackClick("host_click");
+    posthog.capture("host_flow_started", {
+      source: "join_modal",
+    });
     setIsJoinModalOpen(false);
     setIsHostModalOpen(true);
+  };
+
+  const handleJoinModalOpen = () => {
+    posthog.capture("waitlist_modal_opened", {
+      source: "join_now_button",
+    });
+    setIsJoinModalOpen(true);
   };
 
   return (
@@ -722,7 +822,7 @@ const WaitlistSection = () => {
         <button
           id="join-now-button"
           className="btn btn-primary"
-          onClick={() => setIsJoinModalOpen(true)}
+          onClick={handleJoinModalOpen}
         >
           Join now
         </button>

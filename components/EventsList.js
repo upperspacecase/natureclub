@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
+import posthog from "posthog-js";
 import apiClient from "@/libs/api";
 
 const CLIENT_ID_KEY = "nc-client-id";
@@ -226,7 +227,7 @@ const EventsList = ({ events }) => {
   const [emblaRef, emblaApi] = useEmblaCarousel(emblaOptions);
 
 
-  const handleToggleLike = async (eventId) => {
+  const handleToggleLike = async (eventId, eventData) => {
     if (!clientId) return;
     setActiveEventId(eventId);
     setBurstEventId(eventId);
@@ -237,8 +238,27 @@ const EventsList = ({ events }) => {
         if (data?.liked) return [...new Set([...prev, eventId])];
         return prev.filter((id) => id !== eventId);
       });
+
+      // Track event like/unlike with PostHog
+      if (data?.liked) {
+        posthog.capture("event_liked", {
+          event_id: eventId,
+          event_title: eventData?.title || "",
+          event_category: eventData?.categoryTag || "",
+          event_attributes: eventData?.attributeTags || [],
+          total_likes: likedIds.length + 1,
+        });
+      } else {
+        posthog.capture("event_unliked", {
+          event_id: eventId,
+          event_title: eventData?.title || "",
+          event_category: eventData?.categoryTag || "",
+          was_liked_duration_session: true,
+        });
+      }
     } catch (error) {
       console.error(error);
+      posthog.captureException(error);
     } finally {
       setActiveEventId(null);
     }
@@ -368,7 +388,7 @@ const EventsList = ({ events }) => {
                         aria-label={isLiked ? "Unlike event" : "Like event"}
                         aria-pressed={isLiked}
                         disabled={isLoading || isBusy}
-                        onClick={() => handleToggleLike(event.id)}
+                        onClick={() => handleToggleLike(event.id, event)}
                         className={`flex h-10 w-10 items-center justify-center bg-transparent disabled:opacity-50 sm:h-16 sm:w-16 ${
                           isLiked ? "text-white" : "text-white"
                         }`}
