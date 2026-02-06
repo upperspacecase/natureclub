@@ -1,6 +1,6 @@
 "use client";
 
-const ScrollToCarouselButton = () => {
+const ScrollToCarouselButton = ({ variant = "default" }) => {
   const handleScroll = () => {
     const headingTarget = document.getElementById("events-heading");
     const joinTarget = document.getElementById("join-now-button");
@@ -13,9 +13,15 @@ const ScrollToCarouselButton = () => {
     window.scrollTo({ top: Math.max(nextTop, 0), behavior: "smooth" });
   };
 
+  const wrapperClass =
+    variant === "hero"
+      ? "flex w-full flex-col items-start"
+      : "mt-6 flex w-full flex-col items-start md:mt-8";
+  const buttonClass = variant === "hero" ? "hero-cta" : "btn btn-primary";
+
   return (
-    <div className="mt-6 flex w-full flex-col items-start md:mt-8">
-      <button type="button" className="btn btn-primary" onClick={handleScroll}>
+    <div className={wrapperClass}>
+      <button type="button" className={buttonClass} onClick={handleScroll}>
         Get Started
       </button>
     </div>
