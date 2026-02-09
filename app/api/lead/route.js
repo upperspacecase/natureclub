@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import connectMongo from "@/libs/mongoose";
 import Lead from "@/models/Lead";
-import { sendEmail } from "@/libs/resend";
+import { sendEmailWithRetry } from "@/libs/resend";
 import {
   LEAD_STATUS,
   SIGNUP_QUESTION_VERSION,
@@ -92,35 +92,52 @@ export async function POST(req) {
       try {
         const emailContent =
           body.role === "host"
-            ? getHostWelcomeEmail({ email: body.email })
-            : getMemberWelcomeEmail({ email: body.email });
+            ? getHostWelcomeEmail({ responses })
+            : getMemberWelcomeEmail({ responses });
 
-        await sendEmail({
-          to: body.email,
-          subject: emailContent.subject,
-          text: emailContent.text,
-          html: emailContent.html,
-        });
-
-        await Lead.updateOne(
-          { _id: lead._id },
-          { $set: { welcomeEmailSentAt: new Date() } }
+        await sendEmailWithRetry(
+          {
+            to: body.email,
+            subject: emailContent.subject,
+            text: emailContent.text,
+            html: emailContent.html,
+          },
+          { retries: 1, retryDelayMs: 600 }
         );
+
         emailStatus = "sent";
 
-        // Track welcome email sent with PostHog (server-side)
-        const posthogEmail = getPostHogClient();
-        posthogEmail.capture({
-          distinctId: body.email,
-          event: "welcome_email_sent",
-          properties: {
-            role: body.role,
-            lead_id: lead._id.toString(),
-            region: leadRegion,
-            country: country,
-            source: "api",
-          },
-        });
+        try {
+          await Lead.updateOne(
+            { _id: lead._id },
+            { $set: { welcomeEmailSentAt: new Date() } }
+          );
+        } catch (updateError) {
+          console.error(
+            "Welcome email sent but failed to persist welcomeEmailSentAt:",
+            updateError?.message || "Unknown update error"
+          );
+        }
+
+        try {
+          const posthogEmail = getPostHogClient();
+          posthogEmail.capture({
+            distinctId: body.email,
+            event: "welcome_email_sent",
+            properties: {
+              role: body.role,
+              lead_id: lead._id.toString(),
+              region: leadRegion,
+              country: country,
+              source: "api",
+            },
+          });
+        } catch (trackingError) {
+          console.error(
+            "Welcome email sent but PostHog tracking failed:",
+            trackingError?.message || "Unknown tracking error"
+          );
+        }
       } catch (emailError) {
         emailStatus = "failed";
         emailErrorMessage = emailError?.message || "Welcome email failed";

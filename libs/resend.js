@@ -16,6 +16,8 @@ const getFromAddress = () => {
   return configuredFrom;
 };
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 /**
  * Sends an email using the provided parameters.
  *
@@ -49,4 +51,27 @@ export const sendEmail = async ({ to, subject, text, html, replyTo }) => {
   }
 
   return data;
+};
+
+export const sendEmailWithRetry = async (
+  params,
+  { retries = 1, retryDelayMs = 500 } = {}
+) => {
+  let attempt = 0;
+  let lastError = null;
+
+  while (attempt <= retries) {
+    try {
+      return await sendEmail(params);
+    } catch (error) {
+      lastError = error;
+      if (attempt === retries) {
+        break;
+      }
+      await sleep(retryDelayMs);
+    }
+    attempt += 1;
+  }
+
+  throw lastError || new Error("Email send failed");
 };

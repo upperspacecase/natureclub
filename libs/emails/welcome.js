@@ -1,17 +1,17 @@
-import config from "@/config";
+const CONTACT_EMAIL = "hi@nature-club.co";
+const INSTAGRAM_HANDLE = "@nature.clb";
 
 const brandColors = {
   primary: "#1a1a1a",
   secondary: "#4a4a4a",
-  accent: "#22c55e",
   background: "#fafafa",
   white: "#ffffff",
 };
 
 const baseStyles = `
-  body { 
-    margin: 0; 
-    padding: 0; 
+  body {
+    margin: 0;
+    padding: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background-color: ${brandColors.background};
     color: ${brandColors.primary};
@@ -21,102 +21,71 @@ const baseStyles = `
     margin: 0 auto;
     background: ${brandColors.white};
   }
-  .header {
-    background: ${brandColors.primary};
-    padding: 48px 40px;
-    text-align: center;
-  }
-  .header h1 {
-    color: ${brandColors.white};
-    font-size: 28px;
-    font-weight: 400;
-    margin: 0;
-    letter-spacing: -0.02em;
-  }
   .content {
-    padding: 48px 40px;
+    padding: 40px 32px;
   }
-  .intro {
-    font-size: 20px;
-    line-height: 1.6;
-    margin-bottom: 32px;
-    color: ${brandColors.primary};
-  }
-  .section {
-    margin-bottom: 32px;
-  }
-  .section-title {
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: ${brandColors.secondary};
-    margin-bottom: 12px;
-  }
-  .section-content {
+  p {
     font-size: 16px;
-    line-height: 1.6;
+    line-height: 1.65;
     color: ${brandColors.primary};
+    margin: 0 0 16px;
   }
-  .cta-button {
-    display: inline-block;
-    background: ${brandColors.primary};
-    color: ${brandColors.white};
-    text-decoration: none;
-    padding: 16px 32px;
-    border-radius: 9999px;
-    font-size: 16px;
-    font-weight: 500;
-    margin: 24px 0;
+  .signoff {
+    margin-top: 28px;
   }
-  .divider {
-    border: none;
-    border-top: 1px solid #e5e5e5;
-    margin: 32px 0;
-  }
-  .footer {
-    background: ${brandColors.background};
-    padding: 32px 40px;
-    text-align: center;
-  }
-  .footer p {
-    font-size: 14px;
+  .footer-link {
     color: ${brandColors.secondary};
-    margin: 8px 0;
-  }
-  .social-links {
-    margin-top: 16px;
-  }
-  .social-links a {
-    color: ${brandColors.primary};
     text-decoration: none;
-    margin: 0 12px;
   }
 `;
 
-export const getMemberWelcomeEmail = ({ email }) => {
-  const subject = `Welcome to Nature Club — Your outdoor journey begins`;
+const escapeHtml = (value) =>
+  String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 
-  const text = `Welcome to Nature Club
+const withQuotes = (value) => `"${String(value || "").trim()}"`;
 
-Hi there,
+const getMemberHighlight = (responses) => {
+  const member = responses?.member || {};
+  return (
+    member.interestsOther ||
+    member.interests?.[0] ||
+    member.motivationsOther ||
+    member.motivations?.[0] ||
+    "your outdoor interests"
+  );
+};
 
-Thank you for joining Nature Club. You're now part of a growing community of people who believe the best experiences happen outdoors.
+const getHostHighlight = (responses) => {
+  const host = responses?.host || {};
+  return (
+    host.experience ||
+    host.featuresOther ||
+    host.features?.[0] ||
+    "your outdoor experiences"
+  );
+};
 
-What happens next:
-• We're curating nature-based classes and experiences in your area
-• You'll be the first to know when we launch in your region
-• We'll share stories, inspiration, and early access to unique outdoor experiences
+export const getMemberWelcomeEmail = ({ responses } = {}) => {
+  const subject = "Welcome to Nature Club 🌿";
+  const highlight = withQuotes(getMemberHighlight(responses));
+  const safeHighlight = escapeHtml(highlight);
 
-In the meantime, explore what we're building at ${config.domainName}
+  const text = `Hey,
 
-With appreciation,
+Thrilled you're joining us as a Founding Member of Nature Club! We saw you mentioned ${highlight} - love that energy.
+
+You're in the founding crew helping us grow like the first sprouts of spring: slowly but surely. We'll ping you soon when we're ready to launch our first experiences near you.
+
+Until then, follow ${INSTAGRAM_HANDLE} for field notes.
+
+See you outside,
 The Nature Club Team
-
-Questions? Reply to this email or reach out to us at ${config.resend.supportEmail}
-
-—
-Nature Club | Discover and book outdoor experiences
-${config.domainName}`;
+${CONTACT_EMAIL}`;
 
   const html = `<!DOCTYPE html>
 <html>
@@ -128,38 +97,12 @@ ${config.domainName}`;
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <h1>Welcome to Nature Club</h1>
-    </div>
-    
     <div class="content">
-      <p class="intro">Hi there,</p>
-      
-      <p class="intro">Thank you for joining Nature Club. You're now part of a growing community of people who believe the best experiences happen outdoors.</p>
-      
-      <div class="section">
-        <p class="section-title">What happens next</p>
-        <div class="section-content">
-          <p>• We're curating nature-based classes and experiences in your area</p>
-          <p>• You'll be the first to know when we launch in your region</p>
-          <p>• We'll share stories, inspiration, and early access to unique outdoor experiences</p>
-        </div>
-      </div>
-      
-      <hr class="divider">
-      
-      <p class="section-content">In the meantime, explore what we're building.</p>
-      
-      <a href="https://${config.domainName}" class="cta-button">Visit Nature Club</a>
-    </div>
-    
-    <div class="footer">
-      <p>With appreciation,<br>The Nature Club Team</p>
-      <hr class="divider" style="margin: 24px 0;">
-      <p>Questions? Reply to this email or reach out to us at <a href="mailto:${config.resend.supportEmail}">${config.resend.supportEmail}</a></p>
-      <div class="social-links">
-        <a href="https://${config.domainName}">${config.domainName}</a>
-      </div>
+      <p>Hey,</p>
+      <p>Thrilled you're joining us as a Founding Member of Nature Club! We saw you mentioned ${safeHighlight} - love that energy.</p>
+      <p>You're in the founding crew helping us grow like the first sprouts of spring: slowly but surely. We'll ping you soon when we're ready to launch our first experiences near you.</p>
+      <p>Until then, follow <a class="footer-link" href="https://instagram.com/nature.clb">${INSTAGRAM_HANDLE}</a> for field notes.</p>
+      <p class="signoff">See you outside,<br>The Nature Club Team<br><a class="footer-link" href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a></p>
     </div>
   </div>
 </body>
@@ -168,35 +111,22 @@ ${config.domainName}`;
   return { subject, text, html };
 };
 
-export const getHostWelcomeEmail = ({ email }) => {
-  const subject = `Welcome to Nature Club — Let's share your outdoor experiences`;
+export const getHostWelcomeEmail = ({ responses } = {}) => {
+  const subject = "Welcome to Nature Club 🌿";
+  const highlight = withQuotes(getHostHighlight(responses));
+  const safeHighlight = escapeHtml(highlight);
 
-  const text = `Welcome to Nature Club
+  const text = `Hey,
 
-Hi there,
+As a Founding Host of Nature Club, you're key to our roots. We'd love to find out more about ${highlight}.
 
-Thank you for expressing interest in becoming a Nature Club Host. We're excited about the possibility of working together to bring more people into the outdoors.
+We'll reach out shortly to ask a few more questions to better understand your offering once we're set to launch in your area, with your experiences prioritized.
 
-What happens next:
-• We'll review your application and be in touch within 48 hours
-• If it's a fit, we'll schedule a brief call to learn more about your experiences
-• We'll share resources to help you create memorable outdoor moments
+Until then, feel free to follow ${INSTAGRAM_HANDLE} for field notes.
 
-Why host with us:
-• Reach nature-seeking participants looking for authentic experiences
-• Set your own schedule, pricing, and group sizes
-• Join a community of passionate outdoor guides and instructors
-
-We'd love to learn more about what you'd like to offer. If you have any questions before we connect, just reply to this email.
-
-With appreciation,
+Cheers,
 The Nature Club Team
-
-Questions? Reply to this email or reach out to us at ${config.resend.supportEmail}
-
-—
-Nature Club | Discover and book outdoor experiences
-${config.domainName}`;
+${CONTACT_EMAIL}`;
 
   const html = `<!DOCTYPE html>
 <html>
@@ -208,45 +138,12 @@ ${config.domainName}`;
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <h1>Welcome to Nature Club</h1>
-    </div>
-    
     <div class="content">
-      <p class="intro">Hi there,</p>
-      
-      <p class="intro">Thank you for expressing interest in becoming a Nature Club Host. We're excited about the possibility of working together to bring more people into the outdoors.</p>
-      
-      <div class="section">
-        <p class="section-title">What happens next</p>
-        <div class="section-content">
-          <p>• We'll review your application and be in touch within 48 hours</p>
-          <p>• If it's a fit, we'll schedule a brief call to learn more about your experiences</p>
-          <p>• We'll share resources to help you create memorable outdoor moments</p>
-        </div>
-      </div>
-      
-      <div class="section">
-        <p class="section-title">Why host with us</p>
-        <div class="section-content">
-          <p>• Reach nature-seeking participants looking for authentic experiences</p>
-          <p>• Set your own schedule, pricing, and group sizes</p>
-          <p>• Join a community of passionate outdoor guides and instructors</p>
-        </div>
-      </div>
-      
-      <hr class="divider">
-      
-      <p class="section-content">We'd love to learn more about what you'd like to offer. If you have any questions before we connect, just reply to this email.</p>
-    </div>
-    
-    <div class="footer">
-      <p>With appreciation,<br>The Nature Club Team</p>
-      <hr class="divider" style="margin: 24px 0;">
-      <p>Questions? Reply to this email or reach out to us at <a href="mailto:${config.resend.supportEmail}">${config.resend.supportEmail}</a></p>
-      <div class="social-links">
-        <a href="https://${config.domainName}">${config.domainName}</a>
-      </div>
+      <p>Hey,</p>
+      <p>As a Founding Host of Nature Club, you're key to our roots. We'd love to find out more about ${safeHighlight}.</p>
+      <p>We'll reach out shortly to ask a few more questions to better understand your offering once we're set to launch in your area, with your experiences prioritized.</p>
+      <p>Until then, feel free to follow <a class="footer-link" href="https://instagram.com/nature.clb">${INSTAGRAM_HANDLE}</a> for field notes.</p>
+      <p class="signoff">Cheers,<br>The Nature Club Team<br><a class="footer-link" href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a></p>
     </div>
   </div>
 </body>

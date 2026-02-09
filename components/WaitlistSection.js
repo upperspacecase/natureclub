@@ -250,7 +250,7 @@ const WaitlistSection = () => {
       });
 
       if (data?.emailStatus === "failed") {
-        toast.success("Signup saved. Welcome email failed, we will retry.");
+        toast.error("Signup saved, but the welcome email could not be sent.");
       } else {
         toast.success("Welcome to Nature Club! We're excited to have you here.");
       }
@@ -298,7 +298,7 @@ const WaitlistSection = () => {
       });
 
       if (data?.emailStatus === "failed") {
-        toast.success("Signup saved. Welcome email failed, we will retry.");
+        toast.error("Signup saved, but the welcome email could not be sent.");
       } else {
         toast.success("Welcome to Nature Club! We're excited to have you here.");
       }
