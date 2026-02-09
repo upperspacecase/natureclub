@@ -1,0 +1,72 @@
+[
+  {
+    "eventName": "waitlist_signup_completed",
+    "description": "User successfully submits the waitlist signup form (member or host)",
+    "filePath": "components/WaitlistSection.js"
+  },
+  {
+    "eventName": "waitlist_modal_opened",
+    "description": "User opens the join modal to view signup options",
+    "filePath": "components/WaitlistSection.js"
+  },
+  {
+    "eventName": "member_flow_started",
+    "description": "User clicks 'Become a Member' button to start member signup flow",
+    "filePath": "components/WaitlistSection.js"
+  },
+  {
+    "eventName": "host_flow_started",
+    "description": "User clicks 'Become a Host' button to start host signup flow",
+    "filePath": "components/WaitlistSection.js"
+  },
+  {
+    "eventName": "event_liked",
+    "description": "User likes an event in the carousel",
+    "filePath": "components/EventsList.js"
+  },
+  {
+    "eventName": "event_unliked",
+    "description": "User unlikes a previously liked event",
+    "filePath": "components/EventsList.js"
+  },
+  {
+    "eventName": "checkout_initiated",
+    "description": "User clicks to initiate Stripe checkout",
+    "filePath": "components/ButtonCheckout.js"
+  },
+  {
+    "eventName": "signin_clicked",
+    "description": "User clicks sign in button to authenticate",
+    "filePath": "components/ButtonSignin.js"
+  },
+  {
+    "eventName": "checkout_session_created",
+    "description": "Server-side: Stripe checkout session successfully created",
+    "filePath": "app/api/stripe/create-checkout/route.js"
+  },
+  {
+    "eventName": "payment_completed",
+    "description": "Server-side: Stripe webhook confirms successful payment/subscription",
+    "filePath": "app/api/webhook/stripe/route.js"
+  },
+  {
+    "eventName": "subscription_cancelled",
+    "description": "Server-side: User subscription has been cancelled",
+    "filePath": "app/api/webhook/stripe/route.js"
+  },
+  {
+    "eventName": "lead_submitted",
+    "description": "Server-side: New lead (member or host) successfully saved to database",
+    "filePath": "app/api/lead/route.js"
+  },
+  {
+    "eventName": "welcome_email_sent",
+    "description": "Server-side: Welcome email successfully sent to new lead",
+    "filePath": "app/api/lead/route.js"
+  },
+  {
+    "eventName": "error_boundary_triggered",
+    "description": "Application error occurred and error boundary was shown to user",
+    "filePath": "app/error.js"
+  }
+]
