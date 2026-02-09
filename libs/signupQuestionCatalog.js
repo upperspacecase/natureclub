@@ -37,7 +37,7 @@ export const SIGNUP_QUESTION_CATALOG = [
   {
     id: "host_rate",
     role: "host",
-    label: "What are your rates?",
+    label: "What are your rates? (Include currency)",
   },
   {
     id: "host_tools",
@@ -91,7 +91,7 @@ export const QUESTION_LABELS = {
   host_experience: "What experience do you host?",
   host_sessions: "In a normal month, how many sessions do you host?",
   host_bookings: "How many people per session?",
-  host_rate: "What are your rates?",
+  host_rate: "What are your rates? (Include currency)",
   host_tools:
     "Which tools do you currently use for finding clients and organizing sessions?",
   host_features: "What features would be most valuable to you in a booking platform?",
@@ -101,4 +101,3 @@ export const QUESTION_LABELS = {
     "How many Nature Club experiences would you ideally like attend each month?",
   member_pricing: "What would you be willing to pay for a monthly membership to Nature Club?",
 };
-

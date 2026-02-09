@@ -14,6 +14,10 @@ import { QUESTION_LABELS } from "@/libs/signupQuestionCatalog";
 import WaitlistModal from "./WaitlistModal";
 
 const SESSION_ID_KEY = "nc:signup-session-id";
+const FORM_INPUT_CLASS = "input input-bordered h-[3.6rem] w-full px-4";
+const FORM_SELECT_CLASS = "select select-bordered h-[3.6rem] w-full px-4";
+const FORM_INLINE_SELECT_CLASS =
+  "select select-bordered mx-2 h-[3.6rem] w-28 px-3 text-center";
 
 const WaitlistSection = () => {
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
@@ -96,11 +100,11 @@ const WaitlistSection = () => {
 
   const memberPricingOptions = useMemo(
     () => [
-      "$20/month - 1 booking",
-      "$50/month - 3 bookings",
-      "$100/month - 8 bookings",
-      "$200/month - 20 bookings",
-      "$500+/month - family bookings",
+      "$20/month",
+      "$50/month",
+      "$100/month",
+      "$200/month",
+      "$500+/month",
       "$80/per year + discounted price per booking",
       "Prefer pay full price per booking (no membership)",
     ],
@@ -122,11 +126,11 @@ const WaitlistSection = () => {
     []
   );
   const hostSessionOptions = useMemo(
-    () => [...Array.from({ length: 19 }, (_, index) => `${index + 1}`), "20+"],
+    () => ["0", ...Array.from({ length: 19 }, (_, index) => `${index + 1}`), "20+"],
     []
   );
   const hostBookingOptions = useMemo(
-    () => [...Array.from({ length: 29 }, (_, index) => `${index + 1}`), "30+"],
+    () => ["0", ...Array.from({ length: 29 }, (_, index) => `${index + 1}`), "30+"],
     []
   );
 
@@ -328,7 +332,7 @@ const WaitlistSection = () => {
               <input
                 type="text"
                 placeholder="City or town"
-                className="input input-bordered w-full"
+                className={FORM_INPUT_CLASS}
                 value={hostLocation.city}
                 onChange={(e) =>
                   setHostLocation((prev) => ({ ...prev, city: e.target.value }))
@@ -353,7 +357,7 @@ const WaitlistSection = () => {
           <input
             type="text"
             placeholder="Experience(s)"
-            className="input input-bordered w-full"
+            className={FORM_INPUT_CLASS}
             value={hostExperience}
             onChange={(e) => setHostExperience(e.target.value)}
           />
@@ -369,7 +373,7 @@ const WaitlistSection = () => {
             <p>
               In a normal month I host{" "}
               <select
-                className="select select-bordered mx-2 w-28 text-center"
+                className={FORM_INLINE_SELECT_CLASS}
                 value={hostSessionsPerMonth}
                 onChange={(e) => setHostSessionsPerMonth(e.target.value)}
               >
@@ -384,7 +388,7 @@ const WaitlistSection = () => {
               </select>
               with about{" "}
               <select
-                className="select select-bordered mx-2 w-28 text-center"
+                className={FORM_INLINE_SELECT_CLASS}
                 value={hostBookingsPerSession}
                 onChange={(e) => setHostBookingsPerSession(e.target.value)}
               >
@@ -411,6 +415,9 @@ const WaitlistSection = () => {
             : Boolean(hostRate)),
         content: (
           <div className="space-y-3">
+            <p className="text-xs text-base-content/70">
+              Include currency (for example: USD, EUR, GBP).
+            </p>
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
@@ -425,16 +432,16 @@ const WaitlistSection = () => {
                 <input
                   type="text"
                   inputMode="decimal"
-                  placeholder="Min price"
-                  className="input input-bordered w-full"
+                  placeholder="Min price (e.g. USD 45)"
+                  className={FORM_INPUT_CLASS}
                   value={hostRateMin}
                   onChange={(e) => setHostRateMin(e.target.value)}
                 />
                 <input
                   type="text"
                   inputMode="decimal"
-                  placeholder="Max price"
-                  className="input input-bordered w-full"
+                  placeholder="Max price (e.g. USD 85)"
+                  className={FORM_INPUT_CLASS}
                   value={hostRateMax}
                   onChange={(e) => setHostRateMax(e.target.value)}
                 />
@@ -443,8 +450,8 @@ const WaitlistSection = () => {
               <input
                 type="text"
                 inputMode="decimal"
-                placeholder="$ / booking"
-                className="input input-bordered w-full"
+                placeholder="e.g. USD 45 / booking"
+                className={FORM_INPUT_CLASS}
                 value={hostRate}
                 onChange={(e) => setHostRate(e.target.value)}
               />
@@ -483,7 +490,7 @@ const WaitlistSection = () => {
                 <input
                   type="text"
                   placeholder="Other..."
-                  className="input input-bordered w-full"
+                  className={FORM_INPUT_CLASS}
                   value={hostToolsOther}
                   onChange={(e) => setHostToolsOther(e.target.value)}
                 />
@@ -521,7 +528,7 @@ const WaitlistSection = () => {
               <input
                 type="text"
                 placeholder="Other..."
-                className="input input-bordered w-full"
+                className={FORM_INPUT_CLASS}
                 value={hostFeaturesOther}
                 onChange={(e) => setHostFeaturesOther(e.target.value)}
               />
@@ -537,7 +544,7 @@ const WaitlistSection = () => {
           <input
             type="email"
             placeholder="you@example.com"
-            className="input input-bordered w-full"
+            className={FORM_INPUT_CLASS}
             value={hostEmail}
             onChange={(e) => setHostEmail(e.target.value)}
           />
@@ -582,7 +589,7 @@ const WaitlistSection = () => {
               <input
                 type="text"
                 placeholder="City or town"
-                className="input input-bordered w-full"
+                className={FORM_INPUT_CLASS}
                 value={memberLocation.city}
                 onChange={(e) =>
                   setMemberLocation((prev) => ({
@@ -636,7 +643,7 @@ const WaitlistSection = () => {
                 <input
                   type="text"
                   placeholder="Other..."
-                  className="input input-bordered w-full"
+                  className={FORM_INPUT_CLASS}
                   value={memberInterestsOther}
                   onChange={(e) => setMemberInterestsOther(e.target.value)}
                 />
@@ -689,7 +696,7 @@ const WaitlistSection = () => {
                 <input
                   type="text"
                   placeholder="Other..."
-                  className="input input-bordered w-full"
+                  className={FORM_INPUT_CLASS}
                   value={memberMotivationsOther}
                   onChange={(e) => setMemberMotivationsOther(e.target.value)}
                 />
@@ -704,7 +711,7 @@ const WaitlistSection = () => {
         isComplete: () => Boolean(memberExperiencesPerMonth),
         content: (
           <select
-            className="select select-bordered w-full"
+            className={FORM_SELECT_CLASS}
             value={memberExperiencesPerMonth}
             onChange={(e) => setMemberExperiencesPerMonth(e.target.value)}
           >
@@ -760,7 +767,7 @@ const WaitlistSection = () => {
           <input
             type="email"
             placeholder="you@example.com"
-            className="input input-bordered w-full"
+            className={FORM_INPUT_CLASS}
             value={memberEmail}
             onChange={(e) => setMemberEmail(e.target.value)}
           />
