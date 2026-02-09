@@ -7,7 +7,7 @@ import Click from "@/models/Click";
 import EventLike from "@/models/EventLike";
 import User from "@/models/User";
 
-const BYPASS_ADMIN_AUTH = true;
+const BYPASS_ADMIN_AUTH = false;
 
 export async function POST(req) {
   await connectMongo();
@@ -23,7 +23,7 @@ export async function POST(req) {
     }
 
     if (!body?.password || body.password !== adminPassword) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
   }
 

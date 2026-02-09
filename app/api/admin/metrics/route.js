@@ -10,7 +10,7 @@ import VisitSession from "@/models/VisitSession";
 import { THEMES } from "@/data/events";
 import { LEAD_STATUS } from "@/libs/signup";
 
-const BYPASS_ADMIN_AUTH = true;
+const BYPASS_ADMIN_AUTH = false;
 const leadRoles = ["host", "member"];
 
 const submittedLeadFilter = {
@@ -129,7 +129,7 @@ export async function POST(req) {
     }
 
     if (!body?.password || body.password !== adminPassword) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
   }
 

@@ -5,7 +5,7 @@ import RecordVisit from "@/components/RecordVisit";
 import ScrollToCarouselButton from "@/components/ScrollToCarouselButton";
 
 export default function Page() {
-  const heroVideoSrc = "/Nature%20Club%20%20Landing%20%28Video%29.mp4";
+  const heroVideoSrc = "/children_hero_vid.mp4";
 
   return (
     <div className="bg-base-100 text-white">

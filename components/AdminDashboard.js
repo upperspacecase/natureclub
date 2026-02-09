@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import apiClient from "@/libs/api";
 import {
   SIGNUP_QUESTION_CATALOG,
@@ -280,6 +280,8 @@ const AdminDashboard = () => {
   const [usersMode, setUsersMode] = useState("table");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [isUnlocked, setIsUnlocked] = useState(false);
   const [lastUpdated, setLastUpdated] = useState("");
 
   const [leads, setLeads] = useState([]);
@@ -305,10 +307,17 @@ const AdminDashboard = () => {
   const [participantThreshold, setParticipantThreshold] = useState(50);
 
   const loadDashboard = async () => {
+    const password = `${adminPassword || ""}`.trim();
+    if (!password) {
+      setError("Enter the admin password to access the admin panel.");
+      setIsUnlocked(false);
+      return;
+    }
+
     setLoading(true);
     setError("");
     try {
-      const data = await apiClient.post("/admin/dashboard", {});
+      const data = await apiClient.post("/admin/dashboard", { password });
       setLeads(
         (data?.leads || []).map((lead) => {
           const region = getLeadRegion(lead);
@@ -332,17 +341,27 @@ const AdminDashboard = () => {
       setVisitsTotal(data?.visits?.total || 0);
       setClicks(data?.clicks || { total: 0, participant: 0, facilitator: 0 });
       setLastUpdated(data?.generatedAt || new Date().toISOString());
+      setIsUnlocked(true);
     } catch (loadError) {
       console.error(loadError);
-      setError("Could not load dashboard data.");
+      const status = loadError?.response?.status;
+      if (status === 403) {
+        setError("Incorrect admin password.");
+      } else if (
+        status === 500 &&
+        /admin password not configured/i.test(loadError?.message || "")
+      ) {
+        setError("Admin password is not configured on the server.");
+      } else {
+        setError("Could not load dashboard data.");
+      }
+      setIsUnlocked(false);
+      setLeads([]);
+      setEvents([]);
     } finally {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    loadDashboard();
-  }, []);
 
   const regions = useMemo(() => {
     const set = new Set(DEFAULT_LAUNCH_REGIONS);
@@ -707,10 +726,18 @@ const AdminDashboard = () => {
   };
 
   const saveEvent = async (event) => {
+    const password = `${adminPassword || ""}`.trim();
+    if (!password) {
+      setError("Enter the admin password before saving changes.");
+      setIsUnlocked(false);
+      return;
+    }
+
     setSavingEventId(event.eventId);
     try {
       const payload = {
         action: "update",
+        password,
         eventId: event.eventId,
         tags: asArray(event.tags),
         themes: asArray(event.themes),
@@ -726,7 +753,12 @@ const AdminDashboard = () => {
       }
     } catch (saveError) {
       console.error(saveError);
-      setError("Failed to save event changes.");
+      if (saveError?.response?.status === 403) {
+        setIsUnlocked(false);
+        setError("Admin session expired. Re-enter the admin password.");
+      } else {
+        setError("Failed to save event changes.");
+      }
     } finally {
       setSavingEventId("");
     }
@@ -738,6 +770,59 @@ const AdminDashboard = () => {
     if (count <= 20) return "!text-black !bg-white";
     return "!text-black !bg-white";
   };
+
+  if (!isUnlocked) {
+    return (
+      <div className="min-h-screen bg-black px-5 py-10 text-white md:px-10">
+        <div className="mx-auto max-w-[1400px] space-y-6">
+          <header className={sectionClass}>
+            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-white">
+                  Nature Club Admin
+                </p>
+                <h1 className="mt-2 text-3xl font-semibold text-white md:text-4xl">
+                  Enter Password
+                </h1>
+                <p className="mt-2 text-sm text-white">
+                  Access to admin data and controls requires the server admin password.
+                </p>
+              </div>
+              <div className="flex w-full max-w-md flex-col gap-3 sm:flex-row">
+                <input
+                  type="password"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  placeholder="Admin password"
+                  className="w-full rounded-lg border border-white bg-black px-3 py-2 text-sm text-white"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      loadDashboard();
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={loadDashboard}
+                  className="rounded-full border border-white !bg-white px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] !text-black disabled:opacity-50"
+                  disabled={loading || !adminPassword.trim()}
+                >
+                  {loading ? "Unlocking..." : "Unlock"}
+                </button>
+              </div>
+            </div>
+          </header>
+
+          {error ? (
+            <div className="rounded-xl border border-white bg-black px-4 py-3 text-sm text-white">
+              {error}
+            </div>
+          ) : null}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black px-5 py-10 text-white md:px-10">

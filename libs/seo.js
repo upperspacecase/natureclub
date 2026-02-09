@@ -13,6 +13,14 @@ export const getSEOTags = ({
   canonicalUrlRelative,
   extraTags,
 } = {}) => {
+  const defaultOgImage = {
+    url: "/Nature_Club_Message_Image.png",
+    width: 1200,
+    height: 630,
+  };
+  const ogImages = openGraph?.images
+    || (openGraph?.image ? [{ url: openGraph.image, width: 1200, height: 630 }] : [defaultOgImage]);
+
   return {
     // up to 50 characters (what does your app do for the user?) > your main should be here
     title: title || config.appName,
@@ -33,6 +41,7 @@ export const getSEOTags = ({
       description: openGraph?.description || config.appDescription,
       url: openGraph?.url || `https://${config.domainName}/`,
       siteName: openGraph?.title || config.appName,
+      images: ogImages,
       // If you add an opengraph-image.(jpg|jpeg|png|gif) image to the /app folder, you don't need the code below
       // images: [
       //   {
@@ -48,8 +57,7 @@ export const getSEOTags = ({
     twitter: {
       title: openGraph?.title || config.appName,
       description: openGraph?.description || config.appDescription,
-      // If you add an twitter-image.(jpg|jpeg|png|gif) image to the /app folder, you don't need the code below
-      // images: [openGraph?.image || defaults.og.image],
+      images: ogImages,
       card: "summary_large_image",
       creator: config.social?.twitter || "",
     },

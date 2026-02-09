@@ -11,7 +11,7 @@ import {
 } from "@/libs/signup";
 import { normalizeRegionDisplay, toRegionKey } from "@/libs/regions";
 
-const BYPASS_ADMIN_AUTH = true;
+const BYPASS_ADMIN_AUTH = false;
 const SIGNUP_ROLES = ["member", "host"];
 
 const submittedLeadFilter = {
@@ -45,7 +45,7 @@ export async function POST(req) {
     }
 
     if (!body?.password || body.password !== adminPassword) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
   }
 
