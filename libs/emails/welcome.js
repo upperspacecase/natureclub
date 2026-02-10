@@ -1,9 +1,10 @@
-import config from "@/config";
+import { getSiteUrl } from "@/libs/site-url";
 
 const CONTACT_EMAIL = "hi@nature-club.co";
 const INSTAGRAM_HANDLE = "@nature.clb";
-const SITE_URL = `https://${config.domainName}`;
-const LOGO_URL = `${SITE_URL}/logo-light.svg`;
+const SITE_URL = getSiteUrl();
+const SITE_HOSTNAME = new URL(`${SITE_URL}/`).hostname;
+const LOGO_URL = `${SITE_URL}/logo-light.png`;
 
 const brandColors = {
   page: "#040404",
@@ -139,14 +140,14 @@ const emailShell = ({ bodyHtml }) => `<!DOCTYPE html>
   <div class="shell">
     <div class="container">
       <div class="hero">
-        <img class="logo" src="${LOGO_URL}" alt="Nature Club" />
+        <img class="logo" src="${LOGO_URL}" alt="Nature Club" width="93" height="42" />
         <h1 class="headline">Spend more time<br>in Nature.</h1>
       </div>
       <div class="content">
         ${bodyHtml}
         <div class="footer">
           Nature Club<br>
-          <a href="${SITE_URL}">${config.domainName}</a>
+          <a href="${SITE_URL}">${SITE_HOSTNAME}</a>
         </div>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import config from "@/config";
+import { getSiteUrl } from "@/libs/site-url";
 
 // These are all the SEO tags you can add to your pages.
 // It prefills data with default title/description/OG, etc.. and you can cusotmize it for each page.
@@ -13,8 +14,9 @@ export const getSEOTags = ({
   canonicalUrlRelative,
   extraTags,
 } = {}) => {
+  const siteUrl = getSiteUrl();
   const defaultOgImage = {
-    url: "/Nature_Club_Message_Image.png",
+    url: "/opengraph-image.png",
     width: 1200,
     height: 630,
   };
@@ -30,16 +32,12 @@ export const getSEOTags = ({
     keywords: keywords || [config.appName],
     applicationName: config.appName,
     // set a base URL prefix for other fields that require a fully qualified URL (.e.g og:image: og:image: 'https://yourdomain.com/share.png' => '/share.png')
-    metadataBase: new URL(
-      process.env.NODE_ENV === "development"
-        ? "http://localhost:3000/"
-        : `https://${config.domainName}/`
-    ),
+    metadataBase: new URL(`${siteUrl}/`),
 
     openGraph: {
       title: openGraph?.title || config.appName,
       description: openGraph?.description || config.appDescription,
-      url: openGraph?.url || `https://${config.domainName}/`,
+      url: openGraph?.url || `${siteUrl}/`,
       siteName: openGraph?.title || config.appName,
       images: ogImages,
       // If you add an opengraph-image.(jpg|jpeg|png|gif) image to the /app folder, you don't need the code below
@@ -80,6 +78,8 @@ export const getSEOTags = ({
 // Fill the fields with your own data
 // See https://shipfa.st/docs/features/seo
 export const renderSchemaTags = () => {
+  const siteUrl = getSiteUrl();
+
   return (
     <script
       type="application/ld+json"
@@ -89,8 +89,8 @@ export const renderSchemaTags = () => {
           "@type": "SoftwareApplication",
           name: config.appName,
           description: config.appDescription,
-          image: `https://${config.domainName}/icon.png`,
-          url: `https://${config.domainName}/`,
+          image: `${siteUrl}/icon.png`,
+          url: `${siteUrl}/`,
           author: {
             "@type": "Person",
             name: "Marc Lou",
