@@ -1,5 +1,7 @@
 import { Inter, Libre_Baskerville } from "next/font/google";
+import { headers } from "next/headers";
 import { getSEOTags } from "@/libs/seo";
+import { getSiteUrl } from "@/libs/site-url";
 import ClientLayout from "@/components/LayoutClient";
 import config from "@/config";
 import "./globals.css";
@@ -20,8 +22,41 @@ export const viewport = {
 };
 
 // This adds default SEO tags to all pages in our app.
-// You can override them in each page passing params to getSOTags() function.
-export const metadata = getSEOTags();
+// The metadata base is resolved from the incoming request host so OG URLs match the actual domain.
+export async function generateMetadata() {
+  const defaultMetadata = getSEOTags();
+  const fallbackBase = new URL(`${getSiteUrl()}/`);
+
+  try {
+    const requestHeaders = await headers();
+    const forwardedHost = requestHeaders.get("x-forwarded-host");
+    const host = forwardedHost || requestHeaders.get("host");
+
+    if (!host) {
+      return {
+        ...defaultMetadata,
+        metadataBase: fallbackBase,
+      };
+    }
+
+    const forwardedProto = requestHeaders.get("x-forwarded-proto");
+    const protocol =
+      forwardedProto ||
+      (host.includes("localhost") || host.includes("127.0.0.1")
+        ? "http"
+        : "https");
+
+    return {
+      ...defaultMetadata,
+      metadataBase: new URL(`${protocol}://${host}/`),
+    };
+  } catch {
+    return {
+      ...defaultMetadata,
+      metadataBase: fallbackBase,
+    };
+  }
+}
 
 export default function RootLayout({ children }) {
 	return (

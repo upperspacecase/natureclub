@@ -14,7 +14,6 @@ export const getSEOTags = ({
   canonicalUrlRelative,
   extraTags,
 } = {}) => {
-  const siteUrl = getSiteUrl();
   const defaultOgImage = {
     url: "/opengraph-image.png",
     width: 1200,
@@ -31,13 +30,11 @@ export const getSEOTags = ({
     // some keywords separated by commas. by default it will be your app name
     keywords: keywords || [config.appName],
     applicationName: config.appName,
-    // set a base URL prefix for other fields that require a fully qualified URL (.e.g og:image: og:image: 'https://yourdomain.com/share.png' => '/share.png')
-    metadataBase: new URL(`${siteUrl}/`),
 
     openGraph: {
       title: openGraph?.title || config.appName,
       description: openGraph?.description || config.appDescription,
-      url: openGraph?.url || `${siteUrl}/`,
+      url: openGraph?.url || canonicalUrlRelative || "/",
       siteName: openGraph?.title || config.appName,
       images: ogImages,
       // If you add an opengraph-image.(jpg|jpeg|png|gif) image to the /app folder, you don't need the code below
