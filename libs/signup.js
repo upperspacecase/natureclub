@@ -189,15 +189,15 @@ export const validateSubmittedLead = (role, responses) => {
   }
 
   if (!host.tools.length) {
-    return "At least one host tool is required";
+    return "At least one facilitator tool is required";
   }
 
   if (host.tools.includes(OTHER_HOST_TOOL) && !asText(host.toolsOther)) {
-    return "Please fill the host tools 'Other' field";
+    return "Please fill the facilitator tools 'Other' field";
   }
 
   if (!host.features.length && !asText(host.featuresOther)) {
-    return "At least one host feature is required";
+    return "At least one facilitator feature is required";
   }
 
   return "";

@@ -2,7 +2,6 @@
 
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
-import config from "@/config";
 
 const Footer = () => {
   const [activeModal, setActiveModal] = useState(null);
@@ -96,9 +95,9 @@ const Footer = () => {
                       </p>
                       <p>
                         We’re a community of guides, teachers, facilitators and Nature
-                        lovers dedicated to making it simple to get outside. Every
-                        listing is hosted by someone local—just real people sharing
-                        what they love. Join as a guest. Host as an expert. Or both.
+                        lovers dedicated to making it simple to get outside. Every listing
+                        is facilitated by someone local—just real people sharing what they
+                        love. Join as a guest. Facilitate as an expert. Or both.
                       </p>
                     </div>
                   )}
@@ -114,7 +113,7 @@ const Footer = () => {
                       </p>
                       <p>
                         We want anyone to be able to find an outdoor activity within
-                        20 minutes of wherever they live—and for hosts to earn
+                        20 minutes of wherever they live—and for facilitators to earn
                         sustainable income doing what they love, with each booking
                         also supporting local ecosystem restoration.
                       </p>
@@ -124,10 +123,26 @@ const Footer = () => {
                   {activeModal === "contact" && (
                     <div className="space-y-4 text-white/80">
                       <p>
-                        Get in touch by emailing us at -{" "}
-                        <a className="link link-hover text-white" href={`mailto:${config.resend.supportEmail}`}>
-                          {config.resend.supportEmail}
+                        We’re growing and always open to connection.
+                      </p>
+                      <p>
+                        Follow our journey on Instagram{" "}
+                        <a
+                          className="link link-hover text-white"
+                          href="https://instagram.com/nature.clb"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          @nature.clb
                         </a>
+                        .
+                      </p>
+                      <p>
+                        For general, partnership, or press inquiries, reach us at{" "}
+                        <a className="link link-hover text-white" href="mailto:hi@nature-club.co">
+                          hi@nature-club.co
+                        </a>
+                        .
                       </p>
                     </div>
                   )}

@@ -22,12 +22,12 @@ export const SIGNUP_QUESTION_CATALOG = [
   {
     id: "host_experience",
     role: "host",
-    label: "What experience do you host?",
+    label: "What experience do you facilitate?",
   },
   {
     id: "host_sessions",
     role: "host",
-    label: "In a normal month, how many sessions do you host?",
+    label: "In a normal month, how many sessions do you facilitate?",
   },
   {
     id: "host_bookings",
@@ -88,8 +88,8 @@ export const getLeadAnswerByQuestionId = (lead, questionId) => {
 };
 
 export const QUESTION_LABELS = {
-  host_experience: "What experience do you host?",
-  host_sessions: "In a normal month, how many sessions do you host?",
+  host_experience: "What experience do you facilitate?",
+  host_sessions: "In a normal month, how many sessions do you facilitate?",
   host_bookings: "How many people per session?",
   host_rate: "What are your rates? (Include currency)",
   host_tools:

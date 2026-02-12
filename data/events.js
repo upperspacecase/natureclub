@@ -305,7 +305,7 @@ const events = [
   {
     id: "founding-cta",
     type: "cta",
-    headline: "Join now to become a founding member or host.",
+    headline: "Join now to become a founding member or facilitator.",
     buttonText: "Join for Free",
     image: "/mock_images/21.png",
     themes: [],

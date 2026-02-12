@@ -324,7 +324,7 @@ const EventsList = ({ events }) => {
                     <p className="max-w-[18ch] text-3xl font-serif text-white drop-shadow sm:text-4xl">
                       {emphasizeWord(
                         event.headline ||
-                          "Join now to become a founding member or host.",
+                          "Join now to become a founding member or facilitator.",
                         "founding"
                       )}
                     </p>

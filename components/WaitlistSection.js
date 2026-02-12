@@ -371,7 +371,7 @@ const WaitlistSection = () => {
         content: (
           <div className="space-y-3 text-sm text-base-content/80">
             <p>
-              In a normal month I host{" "}
+              In a normal month I facilitate{" "}
               <select
                 className={FORM_INLINE_SELECT_CLASS}
                 value={hostSessionsPerMonth}
@@ -909,7 +909,7 @@ const WaitlistSection = () => {
                             Become a Member
                           </button>
                           <button className="btn btn-outline" onClick={openHostFlow}>
-                            Become a Host
+                            Become a Facilitator
                           </button>
                         </div>
                       </div>
@@ -922,7 +922,7 @@ const WaitlistSection = () => {
         </Dialog>
       </Transition>
       <WaitlistModal
-        title="Become a host"
+        title="Become a facilitator"
         isOpen={isHostModalOpen}
         onClose={() => setIsHostModalOpen(false)}
         steps={hostSteps}
