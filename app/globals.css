@@ -79,6 +79,7 @@
   }
 
   @keyframes scrollHint {
+
     0%,
     100% {
       transform: translateY(-4px);
@@ -94,13 +95,13 @@
       transform: translate(0, 0) scale(0.5) rotate(0deg);
       opacity: 0;
     }
+
     30% {
       opacity: 1;
     }
+
     100% {
-      transform: translate(var(--heart-x, 0px), var(--heart-y, -20px))
-        scale(1.05)
-        rotate(var(--heart-rotate, 0deg));
+      transform: translate(var(--heart-x, 0px), var(--heart-y, -20px)) scale(1.05) rotate(var(--heart-rotate, 0deg));
       opacity: 0;
     }
   }
@@ -293,28 +294,43 @@ section {
   background-color: var(--color-base-100);
 }
 
-input,
-textarea,
-select,
-.input {
+/* Landing page dark-background context */
+.hero-shell input,
+.hero-shell textarea,
+.hero-shell select,
+.hero-shell .input,
+.waitlist-modal input,
+.waitlist-modal textarea,
+.waitlist-modal select,
+.waitlist-modal .input {
   color: #fff !important;
   outline: none !important;
   box-shadow: none !important;
 }
 
-input::placeholder,
-textarea::placeholder {
+.hero-shell input::placeholder,
+.hero-shell textarea::placeholder,
+.waitlist-modal input::placeholder,
+.waitlist-modal textarea::placeholder {
   color: rgba(255, 255, 255, 0.6) !important;
 }
 
-input:focus,
-textarea:focus,
-select:focus,
-.input:focus,
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible,
-.input:focus-visible {
+.hero-shell input:focus,
+.hero-shell textarea:focus,
+.hero-shell select:focus,
+.hero-shell .input:focus,
+.hero-shell input:focus-visible,
+.hero-shell textarea:focus-visible,
+.hero-shell select:focus-visible,
+.hero-shell .input:focus-visible,
+.waitlist-modal input:focus,
+.waitlist-modal textarea:focus,
+.waitlist-modal select:focus,
+.waitlist-modal .input:focus,
+.waitlist-modal input:focus-visible,
+.waitlist-modal textarea:focus-visible,
+.waitlist-modal select:focus-visible,
+.waitlist-modal .input:focus-visible {
   outline: none !important;
   box-shadow: none !important;
 }

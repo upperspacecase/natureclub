@@ -1,0 +1,119 @@
+import { auth } from "@clerk/nextjs/server";
+import connectMongo from "@/libs/mongoose";
+import BookingEvent from "@/models/BookingEvent";
+import Facilitator from "@/models/Facilitator";
+import { slugify } from "@/libs/slugify";
+
+// GET — Fetch a single event (facilitator only, their own)
+export async function GET(req, { params }) {
+    try {
+        const { userId } = await auth();
+        if (!userId) {
+            return Response.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const { id } = await params;
+        await connectMongo();
+
+        const facilitator = await Facilitator.findOne({ clerkUserId: userId });
+        if (!facilitator) {
+            return Response.json({ error: "Facilitator not found" }, { status: 404 });
+        }
+
+        const event = await BookingEvent.findOne({
+            _id: id,
+            facilitatorId: facilitator._id,
+        });
+
+        if (!event) {
+            return Response.json({ error: "Event not found" }, { status: 404 });
+        }
+
+        return Response.json(event.toJSON());
+    } catch (error) {
+        console.error("GET /api/events/[id] error:", error);
+        return Response.json({ error: "Failed to fetch event" }, { status: 500 });
+    }
+}
+
+// PATCH — Update event fields (auto-save)
+export async function PATCH(req, { params }) {
+    try {
+        const { userId } = await auth();
+        if (!userId) {
+            return Response.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const { id } = await params;
+        const body = await req.json();
+        await connectMongo();
+
+        const facilitator = await Facilitator.findOne({ clerkUserId: userId });
+        if (!facilitator) {
+            return Response.json({ error: "Facilitator not found" }, { status: 404 });
+        }
+
+        const event = await BookingEvent.findOne({
+            _id: id,
+            facilitatorId: facilitator._id,
+        });
+
+        if (!event) {
+            return Response.json({ error: "Event not found" }, { status: 404 });
+        }
+
+        // Whitelist of updatable fields
+        const allowedFields = [
+            "title",
+            "dateTime",
+            "durationMinutes",
+            "meetingPoint",
+            "activityType",
+            "activityTypeOther",
+            "groupSize",
+            "description",
+            "difficulty",
+            "whatToBring",
+            "weatherPolicy",
+            "price",
+            "priceLink",
+            "coverPhotoUrl",
+            "accessibilityNotes",
+        ];
+
+        for (const field of allowedFields) {
+            if (body[field] !== undefined) {
+                event[field] = body[field];
+            }
+        }
+
+        // Handle publish: generate slug if transitioning to published
+        if (body.status === "published" && event.status !== "published") {
+            if (!event.title || event.title.trim().length === 0) {
+                return Response.json(
+                    { error: "Title is required to publish" },
+                    { status: 400 }
+                );
+            }
+            event.status = "published";
+            if (!event.slug) {
+                event.slug = slugify(event.title);
+            }
+        }
+
+        // Handle cancel
+        if (body.status === "cancelled") {
+            event.status = "cancelled";
+            if (body.cancelledReason) {
+                event.cancelledReason = body.cancelledReason;
+            }
+        }
+
+        await event.save();
+
+        return Response.json(event.toJSON());
+    } catch (error) {
+        console.error("PATCH /api/events/[id] error:", error);
+        return Response.json({ error: "Failed to update event" }, { status: 500 });
+    }
+}

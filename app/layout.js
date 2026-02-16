@@ -1,4 +1,5 @@
 import { Inter, Libre_Baskerville } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import { headers } from "next/headers";
 import { getSEOTags } from "@/libs/seo";
 import { getSiteUrl } from "@/libs/site-url";
@@ -8,17 +9,17 @@ import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const libre = Libre_Baskerville({
-	subsets: ["latin"],
-	weight: ["400", "700"],
-	style: ["normal", "italic"],
-	variable: "--font-libre",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-libre",
 });
 
 export const viewport = {
-	// Will use the primary color of your theme to show a nice theme color in the URL bar of supported browsers
-	themeColor: config.colors.main,
-	width: "device-width",
-	initialScale: 1,
+  // Will use the primary color of your theme to show a nice theme color in the URL bar of supported browsers
+  themeColor: config.colors.main,
+  width: "device-width",
+  initialScale: 1,
 };
 
 // This adds default SEO tags to all pages in our app.
@@ -59,16 +60,25 @@ export async function generateMetadata() {
 }
 
 export default function RootLayout({ children }) {
-	return (
-		<html
-			lang="en"
-			data-theme={config.colors.theme}
-			className={`${inter.className} ${inter.variable} ${libre.variable}`}
-		>
-			<body>
-				{/* ClientLayout contains all the client wrappers (Crisp chat support, toast messages, tooltips, etc.) */}
-				<ClientLayout>{children}</ClientLayout>
-			</body>
-		</html>
-	);
+  const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+  const inner = (
+    <html
+      lang="en"
+      data-theme={config.colors.theme}
+      className={`${inter.className} ${inter.variable} ${libre.variable}`}
+    >
+      <body>
+        {/* ClientLayout contains all the client wrappers (Crisp chat support, toast messages, tooltips, etc.) */}
+        <ClientLayout>{children}</ClientLayout>
+      </body>
+    </html>
+  );
+
+  // Clerk needs a valid publishable key — skip during builds without keys
+  if (!clerkKey || !clerkKey.startsWith("pk_")) {
+    return inner;
+  }
+
+  return <ClerkProvider>{inner}</ClerkProvider>;
 }
