@@ -30,6 +30,9 @@ const DIFFICULTY_OPTIONS = [
     { value: "strenuous", label: "Strenuous" },
 ];
 
+const inputClass =
+    "w-full rounded-[5px] border border-white/35 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder-white/60 outline-none focus:border-white/70";
+
 export default function EventCreatePage() {
     const router = useRouter();
     const [eventId, setEventId] = useState(null);
@@ -189,26 +192,26 @@ export default function EventCreatePage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#f8f6f3]">
+        <div className="min-h-screen bg-base-100 text-white">
             <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
                 {/* Header */}
                 <div className="mb-8 flex items-center justify-between">
                     <button
                         onClick={() => router.push("/events")}
-                        className="text-sm text-stone-500 hover:text-stone-700"
+                        className="text-sm text-white/60 hover:text-white"
                     >
                         ← Back
                     </button>
                     <div className="flex items-center gap-3">
                         {saving && (
-                            <span className="text-xs text-stone-400">Saving...</span>
+                            <span className="text-xs text-white/40">Saving...</span>
                         )}
                         {published && slug && (
                             <a
                                 href={`/e/${slug}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-sm text-emerald-600 hover:underline"
+                                className="text-sm text-white/70 hover:text-white hover:underline"
                             >
                                 View event →
                             </a>
@@ -216,7 +219,7 @@ export default function EventCreatePage() {
                         <button
                             onClick={handlePublish}
                             disabled={!title.trim() || publishing || published}
-                            className="rounded-full bg-stone-800 px-5 py-2 text-sm font-medium text-white transition-all hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-40"
+                            className="btn disabled:cursor-not-allowed disabled:opacity-40"
                         >
                             {published ? "Published ✓" : publishing ? "Publishing..." : "Publish"}
                         </button>
@@ -224,7 +227,7 @@ export default function EventCreatePage() {
                 </div>
 
                 {/* Cover Photo */}
-                <div className="relative mb-6 aspect-[16/9] overflow-hidden rounded-2xl bg-stone-200">
+                <div className="relative mb-6 aspect-[16/9] overflow-hidden rounded-[6px] border border-white/15 bg-white/10">
                     {coverPhotoUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -233,7 +236,7 @@ export default function EventCreatePage() {
                             className="h-full w-full object-cover"
                         />
                     ) : (
-                        <div className="flex h-full items-center justify-center text-stone-400">
+                        <div className="flex h-full items-center justify-center text-white/40">
                             <label className="cursor-pointer text-center">
                                 <span className="text-3xl">📷</span>
                                 <p className="mt-2 text-sm">Add a cover photo</p>
@@ -247,7 +250,7 @@ export default function EventCreatePage() {
                         </div>
                     )}
                     {coverPhotoUrl && (
-                        <label className="absolute bottom-3 right-3 cursor-pointer rounded-full bg-white/80 px-3 py-1.5 text-xs font-medium text-stone-700 backdrop-blur-sm">
+                        <label className="absolute bottom-3 right-3 cursor-pointer rounded-full border border-white/30 bg-black/50 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm hover:bg-black/70">
                             Change photo
                             <input
                                 type="file"
@@ -258,7 +261,7 @@ export default function EventCreatePage() {
                         </label>
                     )}
                     {uploadingPhoto && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/50">
                             <span className="text-white">Uploading...</span>
                         </div>
                     )}
@@ -271,13 +274,13 @@ export default function EventCreatePage() {
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder={placeholder}
                     maxLength={80}
-                    className="mb-6 w-full border-0 bg-transparent font-serif text-3xl font-bold text-stone-800 placeholder-stone-300 outline-none focus:ring-0 sm:text-4xl"
+                    className="mb-6 w-full border-0 bg-transparent font-serif text-3xl italic text-white placeholder-white/30 outline-none focus:ring-0 sm:text-4xl"
                 />
 
                 {/* Add details toggle */}
                 <button
                     onClick={() => setDetailsOpen(!detailsOpen)}
-                    className="mb-6 flex items-center gap-2 text-sm font-medium text-stone-500 hover:text-stone-700"
+                    className="mb-6 flex items-center gap-2 text-sm font-medium text-white/60 hover:text-white"
                 >
                     <span
                         className="inline-block transition-transform"
@@ -290,23 +293,23 @@ export default function EventCreatePage() {
 
                 {/* Details section */}
                 {detailsOpen && (
-                    <div className="space-y-6 rounded-2xl bg-white p-6 shadow-sm">
+                    <div className="space-y-6 rounded-3xl border border-white/15 bg-white/10 p-6 backdrop-blur-sm">
                         {/* Date & Time */}
                         <div>
-                            <label className="mb-1 block text-sm font-medium text-stone-600">
+                            <label className="mb-1 block text-sm font-medium text-white/60">
                                 Date & Time
                             </label>
                             <input
                                 type="datetime-local"
                                 value={dateTime}
                                 onChange={(e) => setDateTime(e.target.value)}
-                                className="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-800"
+                                className={inputClass}
                             />
                         </div>
 
                         {/* Duration */}
                         <div>
-                            <label className="mb-1 block text-sm font-medium text-stone-600">
+                            <label className="mb-1 block text-sm font-medium text-white/60">
                                 Duration
                             </label>
                             <div className="flex items-center gap-2">
@@ -317,21 +320,21 @@ export default function EventCreatePage() {
                                     min={15}
                                     max={480}
                                     step={15}
-                                    className="w-24 rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-800"
+                                    className={`w-24 ${inputClass}`}
                                 />
-                                <span className="text-sm text-stone-500">minutes</span>
+                                <span className="text-sm text-white/60">minutes</span>
                             </div>
                         </div>
 
                         {/* Activity Type */}
                         <div>
-                            <label className="mb-1 block text-sm font-medium text-stone-600">
+                            <label className="mb-1 block text-sm font-medium text-white/60">
                                 Activity Type
                             </label>
                             <select
                                 value={activityType}
                                 onChange={(e) => setActivityType(e.target.value)}
-                                className="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-800"
+                                className={inputClass}
                             >
                                 <option value="">Select activity...</option>
                                 {getActivityTypeOptions().map((opt) => (
@@ -346,14 +349,14 @@ export default function EventCreatePage() {
                                     value={activityTypeOther}
                                     onChange={(e) => setActivityTypeOther(e.target.value)}
                                     placeholder="What kind of activity?"
-                                    className="mt-2 w-full rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-800"
+                                    className={`mt-2 ${inputClass}`}
                                 />
                             )}
                         </div>
 
                         {/* Difficulty */}
                         <div>
-                            <label className="mb-1 block text-sm font-medium text-stone-600">
+                            <label className="mb-1 block text-sm font-medium text-white/60">
                                 Difficulty
                             </label>
                             <div className="flex flex-wrap gap-2">
@@ -362,8 +365,8 @@ export default function EventCreatePage() {
                                         key={opt.value}
                                         onClick={() => setDifficulty(opt.value)}
                                         className={`rounded-full px-4 py-1.5 text-sm transition-colors ${difficulty === opt.value
-                                            ? "bg-stone-800 text-white"
-                                            : "bg-stone-100 text-stone-600 hover:bg-stone-200"
+                                            ? "border border-white bg-white/20 text-white"
+                                            : "border border-white/30 text-white/70 hover:border-white"
                                             }`}
                                     >
                                         {opt.label}
@@ -374,32 +377,32 @@ export default function EventCreatePage() {
 
                         {/* Group Size */}
                         <div>
-                            <label className="mb-1 block text-sm font-medium text-stone-600">
+                            <label className="mb-1 block text-sm font-medium text-white/60">
                                 Group Size
                             </label>
                             <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => setGroupSize(Math.max(2, groupSize - 1))}
-                                    className="flex h-8 w-8 items-center justify-center rounded-full bg-stone-100 text-stone-600 hover:bg-stone-200"
+                                    className="flex h-8 w-8 items-center justify-center rounded-full border border-white/30 text-white/70 hover:border-white hover:text-white"
                                 >
                                     −
                                 </button>
-                                <span className="w-10 text-center text-lg font-medium text-stone-800">
+                                <span className="w-10 text-center text-lg font-medium text-white">
                                     {groupSize}
                                 </span>
                                 <button
                                     onClick={() => setGroupSize(Math.min(100, groupSize + 1))}
-                                    className="flex h-8 w-8 items-center justify-center rounded-full bg-stone-100 text-stone-600 hover:bg-stone-200"
+                                    className="flex h-8 w-8 items-center justify-center rounded-full border border-white/30 text-white/70 hover:border-white hover:text-white"
                                 >
                                     +
                                 </button>
-                                <span className="text-sm text-stone-500">people</span>
+                                <span className="text-sm text-white/60">people</span>
                             </div>
                         </div>
 
                         {/* Description */}
                         <div>
-                            <label className="mb-1 block text-sm font-medium text-stone-600">
+                            <label className="mb-1 block text-sm font-medium text-white/60">
                                 Description
                             </label>
                             <textarea
@@ -408,28 +411,28 @@ export default function EventCreatePage() {
                                 maxLength={2000}
                                 rows={4}
                                 placeholder="Tell people what to expect..."
-                                className="w-full resize-none rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-800"
+                                className={`resize-none ${inputClass}`}
                             />
-                            <p className="mt-1 text-right text-xs text-stone-400">
+                            <p className="mt-1 text-right text-xs text-white/40">
                                 {description.length}/2000
                             </p>
                         </div>
 
                         {/* What to Bring */}
                         <div>
-                            <label className="mb-1 block text-sm font-medium text-stone-600">
+                            <label className="mb-1 block text-sm font-medium text-white/60">
                                 What to Bring
                             </label>
                             <ul className="mb-2 space-y-1">
                                 {whatToBring.map((item, i) => (
                                     <li
                                         key={i}
-                                        className="flex items-center justify-between rounded-lg bg-stone-50 px-3 py-1.5 text-sm text-stone-700"
+                                        className="flex items-center justify-between rounded-[5px] border border-white/15 bg-white/[0.06] px-3 py-1.5 text-sm text-white/80"
                                     >
                                         <span>☑ {item}</span>
                                         <button
                                             onClick={() => removeBringItem(i)}
-                                            className="text-stone-400 hover:text-stone-600"
+                                            className="text-white/40 hover:text-white"
                                         >
                                             ✕
                                         </button>
@@ -443,11 +446,11 @@ export default function EventCreatePage() {
                                     onChange={(e) => setNewBringItem(e.target.value)}
                                     onKeyDown={(e) => e.key === "Enter" && addBringItem()}
                                     placeholder="Add item..."
-                                    className="flex-1 rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-800"
+                                    className={`flex-1 ${inputClass}`}
                                 />
                                 <button
                                     onClick={addBringItem}
-                                    className="rounded-lg bg-stone-100 px-3 py-2 text-sm text-stone-600 hover:bg-stone-200"
+                                    className="rounded-[5px] border border-white/30 px-3 py-2 text-sm text-white/70 hover:border-white hover:text-white"
                                 >
                                     Add
                                 </button>
@@ -456,7 +459,7 @@ export default function EventCreatePage() {
 
                         {/* Weather Policy */}
                         <div>
-                            <label className="mb-1 block text-sm font-medium text-stone-600">
+                            <label className="mb-1 block text-sm font-medium text-white/60">
                                 Weather Policy
                             </label>
                             <div className="space-y-2">
@@ -464,9 +467,9 @@ export default function EventCreatePage() {
                                     <button
                                         key={preset}
                                         onClick={() => { setWeatherPolicy(preset); setCustomWeather(""); }}
-                                        className={`block w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${weatherPolicy === preset
-                                            ? "bg-stone-800 text-white"
-                                            : "bg-stone-50 text-stone-600 hover:bg-stone-100"
+                                        className={`block w-full rounded-[5px] border px-4 py-2 text-left text-sm transition ${weatherPolicy === preset
+                                            ? "border-white bg-white/20 text-white"
+                                            : "border-white/30 text-white/70 hover:border-white"
                                             }`}
                                     >
                                         {preset}
@@ -474,9 +477,9 @@ export default function EventCreatePage() {
                                 ))}
                                 <button
                                     onClick={() => setWeatherPolicy("custom")}
-                                    className={`block w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${weatherPolicy === "custom"
-                                        ? "bg-stone-800 text-white"
-                                        : "bg-stone-50 text-stone-600 hover:bg-stone-100"
+                                    className={`block w-full rounded-[5px] border px-4 py-2 text-left text-sm transition ${weatherPolicy === "custom"
+                                        ? "border-white bg-white/20 text-white"
+                                        : "border-white/30 text-white/70 hover:border-white"
                                         }`}
                                 >
                                     Custom
@@ -487,7 +490,7 @@ export default function EventCreatePage() {
                                         value={customWeather}
                                         onChange={(e) => setCustomWeather(e.target.value)}
                                         placeholder="Describe your weather policy..."
-                                        className="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-800"
+                                        className={inputClass}
                                     />
                                 )}
                             </div>
@@ -495,19 +498,19 @@ export default function EventCreatePage() {
 
                         {/* Price */}
                         <div>
-                            <label className="mb-1 block text-sm font-medium text-stone-600">
+                            <label className="mb-1 block text-sm font-medium text-white/60">
                                 Price
                             </label>
                             <div className="flex items-center gap-2">
-                                <span className="text-stone-500">$</span>
+                                <span className="text-white/60">$</span>
                                 <input
                                     type="number"
                                     value={price}
                                     onChange={(e) => setPrice(Number(e.target.value))}
                                     min={0}
-                                    className="w-24 rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-800"
+                                    className={`w-24 ${inputClass}`}
                                 />
-                                <span className="text-sm text-stone-500">
+                                <span className="text-sm text-white/60">
                                     {price === 0 ? "(Free)" : ""}
                                 </span>
                             </div>
@@ -517,14 +520,14 @@ export default function EventCreatePage() {
                                     value={priceLink}
                                     onChange={(e) => setPriceLink(e.target.value)}
                                     placeholder="Payment link (Venmo, PayPal, etc.)"
-                                    className="mt-2 w-full rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-800"
+                                    className={`mt-2 ${inputClass}`}
                                 />
                             )}
                         </div>
 
                         {/* Accessibility */}
                         <div>
-                            <label className="mb-1 block text-sm font-medium text-stone-600">
+                            <label className="mb-1 block text-sm font-medium text-white/60">
                                 Accessibility Notes
                             </label>
                             <input
@@ -533,7 +536,7 @@ export default function EventCreatePage() {
                                 onChange={(e) => setAccessibilityNotes(e.target.value)}
                                 maxLength={500}
                                 placeholder="Trail is wheelchair accessible for first 0.5 miles"
-                                className="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-800"
+                                className={inputClass}
                             />
                         </div>
                     </div>

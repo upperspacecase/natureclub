@@ -35,7 +35,6 @@ export default function EventPageClient({ event }) {
         if (savedPhone) {
             setPhone(savedPhone);
             if (savedName) setName(savedName);
-            // Check existing RSVP
             checkExistingRsvp(savedPhone);
         }
     }, []);
@@ -75,7 +74,6 @@ export default function EventPageClient({ event }) {
 
             if (!res.ok) {
                 if (res.status === 409) {
-                    // Already RSVP'd
                     setRsvpState(data.status === "waitlisted" ? "waitlisted" : "confirmed");
                     if (data.rsvp?.meetingPoint) setMeetingPoint(data.rsvp.meetingPoint);
                 } else {
@@ -84,7 +82,6 @@ export default function EventPageClient({ event }) {
                 return;
             }
 
-            // Save for returning user recognition
             localStorage.setItem("nc_phone", phone);
             localStorage.setItem("nc_name", name);
 
@@ -161,8 +158,11 @@ export default function EventPageClient({ event }) {
                 ? event.activityType.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
                 : null;
 
+    const inputClass =
+        "w-full rounded-[5px] border border-white/35 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder-white/60 outline-none focus:border-white/70";
+
     return (
-        <div className="min-h-screen bg-[#f8f6f3]">
+        <div className="min-h-screen bg-base-100 text-white">
             {/* Cover Photo */}
             {event.coverPhotoUrl && (
                 <div className="relative h-56 sm:h-72">
@@ -172,23 +172,23 @@ export default function EventPageClient({ event }) {
                         alt={event.title}
                         className="h-full w-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
                 </div>
             )}
 
             <div className="mx-auto max-w-lg px-5 py-8">
                 {/* Cancelled banner */}
                 {isCancelled && (
-                    <div className="mb-6 rounded-xl bg-red-50 p-4 text-center">
-                        <p className="font-medium text-red-700">This event has been cancelled</p>
+                    <div className="mb-6 rounded-3xl border border-red-500/30 bg-red-500/10 p-4 text-center backdrop-blur-sm">
+                        <p className="font-medium text-red-300">This event has been cancelled</p>
                         {event.cancelledReason && (
-                            <p className="mt-1 text-sm text-red-600">{event.cancelledReason}</p>
+                            <p className="mt-1 text-sm text-red-300/80">{event.cancelledReason}</p>
                         )}
                     </div>
                 )}
 
                 {/* Title */}
-                <h1 className="mb-2 font-serif text-3xl font-bold text-stone-800 sm:text-4xl">
+                <h1 className="mb-2 font-serif text-3xl italic text-white sm:text-4xl">
                     {event.title}
                 </h1>
 
@@ -203,18 +203,18 @@ export default function EventPageClient({ event }) {
                                 className="h-10 w-10 rounded-full object-cover"
                             />
                         ) : (
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-200 text-lg">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-lg">
                                 🌿
                             </div>
                         )}
                         <div>
-                            <p className="text-sm font-medium text-stone-700">
+                            <p className="text-sm font-medium text-white/90">
                                 {event.facilitator.name}
                             </p>
                             {event.facilitator.username && (
                                 <a
                                     href={`/@${event.facilitator.username}`}
-                                    className="text-xs text-stone-500 hover:underline"
+                                    className="text-xs text-white/50 hover:text-white hover:underline"
                                 >
                                     @{event.facilitator.username}
                                 </a>
@@ -226,7 +226,7 @@ export default function EventPageClient({ event }) {
                 {/* Key details */}
                 <div className="mb-6 space-y-2">
                     {formattedDate && (
-                        <div className="flex items-center gap-2 text-stone-700">
+                        <div className="flex items-center gap-2 text-white/80">
                             <span className="w-5 text-center">📅</span>
                             <span className="text-sm">
                                 {formattedDate} at {formattedTime}
@@ -234,18 +234,18 @@ export default function EventPageClient({ event }) {
                         </div>
                     )}
                     {activityLabel && (
-                        <div className="flex items-center gap-2 text-stone-700">
+                        <div className="flex items-center gap-2 text-white/80">
                             <span className="w-5 text-center">🥾</span>
                             <span className="text-sm">{activityLabel}</span>
                         </div>
                     )}
                     {event.difficulty && (
-                        <div className="flex items-center gap-2 text-stone-700">
+                        <div className="flex items-center gap-2 text-white/80">
                             <span className="w-5 text-center">📊</span>
                             <span className="text-sm capitalize">{event.difficulty}</span>
                         </div>
                     )}
-                    <div className="flex items-center gap-2 text-stone-700">
+                    <div className="flex items-center gap-2 text-white/80">
                         <span className="w-5 text-center">👥</span>
                         <span className="text-sm">
                             {rsvpCount} going
@@ -253,7 +253,7 @@ export default function EventPageClient({ event }) {
                         </span>
                     </div>
                     {event.durationMinutes && (
-                        <div className="flex items-center gap-2 text-stone-700">
+                        <div className="flex items-center gap-2 text-white/80">
                             <span className="w-5 text-center">⏱</span>
                             <span className="text-sm">
                                 {event.durationMinutes >= 60
@@ -263,7 +263,7 @@ export default function EventPageClient({ event }) {
                         </div>
                     )}
                     {event.hasLocation && !meetingPoint && (
-                        <div className="flex items-center gap-2 text-stone-500">
+                        <div className="flex items-center gap-2 text-white/50">
                             <span className="w-5 text-center">📍</span>
                             <span className="text-sm italic">
                                 Exact meeting point revealed after RSVP
@@ -271,7 +271,7 @@ export default function EventPageClient({ event }) {
                         </div>
                     )}
                     {meetingPoint && (
-                        <div className="flex items-center gap-2 text-stone-700">
+                        <div className="flex items-center gap-2 text-white/80">
                             <span className="w-5 text-center">📍</span>
                             <span className="text-sm">
                                 {meetingPoint.description || `${meetingPoint.lat}, ${meetingPoint.lng}`}
@@ -279,7 +279,7 @@ export default function EventPageClient({ event }) {
                         </div>
                     )}
                     {event.price > 0 && (
-                        <div className="flex items-center gap-2 text-stone-700">
+                        <div className="flex items-center gap-2 text-white/80">
                             <span className="w-5 text-center">💵</span>
                             <span className="text-sm">
                                 ${event.price}
@@ -290,7 +290,7 @@ export default function EventPageClient({ event }) {
                                             href={event.priceLink}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-emerald-600 hover:underline"
+                                            className="text-white hover:underline"
                                         >
                                             Pay here
                                         </a>
@@ -304,7 +304,7 @@ export default function EventPageClient({ event }) {
                 {/* Description */}
                 {event.description && (
                     <div className="mb-6">
-                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-stone-600">
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-white/70">
                             {event.description}
                         </p>
                     </div>
@@ -313,12 +313,12 @@ export default function EventPageClient({ event }) {
                 {/* What to Bring */}
                 {event.whatToBring?.length > 0 && (
                     <div className="mb-6">
-                        <h3 className="mb-2 text-sm font-medium text-stone-700">
+                        <h3 className="mb-2 text-sm font-medium text-white/60">
                             What to bring
                         </h3>
                         <ul className="space-y-1">
                             {event.whatToBring.map((item, i) => (
-                                <li key={i} className="flex items-center gap-2 text-sm text-stone-600">
+                                <li key={i} className="flex items-center gap-2 text-sm text-white/70">
                                     <span>☐</span>
                                     {item}
                                 </li>
@@ -329,9 +329,9 @@ export default function EventPageClient({ event }) {
 
                 {/* Weather Policy */}
                 {event.weatherPolicy && (
-                    <div className="mb-6 rounded-lg bg-sky-50 px-4 py-3">
-                        <p className="text-sm text-sky-700">
-                            <span className="font-medium">Weather: </span>
+                    <div className="mb-6 rounded-3xl border border-white/15 bg-white/10 px-5 py-3 backdrop-blur-sm">
+                        <p className="text-sm text-white/80">
+                            <span className="font-medium text-white/90">Weather: </span>
                             {event.weatherPolicy}
                         </p>
                     </div>
@@ -339,9 +339,9 @@ export default function EventPageClient({ event }) {
 
                 {/* Accessibility */}
                 {event.accessibilityNotes && (
-                    <div className="mb-6 rounded-lg bg-stone-100 px-4 py-3">
-                        <p className="text-sm text-stone-600">
-                            <span className="font-medium">Accessibility: </span>
+                    <div className="mb-6 rounded-3xl border border-white/15 bg-white/10 px-5 py-3 backdrop-blur-sm">
+                        <p className="text-sm text-white/80">
+                            <span className="font-medium text-white/90">Accessibility: </span>
                             {event.accessibilityNotes}
                         </p>
                     </div>
@@ -354,7 +354,7 @@ export default function EventPageClient({ event }) {
                             <button
                                 onClick={() => setRsvpState("form")}
                                 disabled={isFull}
-                                className="w-full rounded-2xl bg-stone-800 py-4 text-lg font-semibold text-white transition-all hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-40"
+                                className="btn w-full py-4 text-lg font-semibold disabled:cursor-not-allowed disabled:opacity-40"
                             >
                                 {isFull ? "Full — Join waitlist" : "I'm in 🌱"}
                             </button>
@@ -369,7 +369,7 @@ export default function EventPageClient({ event }) {
                                     placeholder="Your name"
                                     required
                                     maxLength={50}
-                                    className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-stone-800 placeholder-stone-400"
+                                    className={inputClass}
                                 />
                                 <input
                                     type="tel"
@@ -377,15 +377,15 @@ export default function EventPageClient({ event }) {
                                     onChange={(e) => setPhone(e.target.value)}
                                     placeholder="Phone number"
                                     required
-                                    className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-stone-800 placeholder-stone-400"
+                                    className={inputClass}
                                 />
                                 {error && (
-                                    <p className="text-sm text-red-600">{error}</p>
+                                    <p className="text-sm text-red-400">{error}</p>
                                 )}
                                 <button
                                     type="submit"
                                     disabled={submitting || !name.trim() || !phone.trim()}
-                                    className="w-full rounded-2xl bg-stone-800 py-4 text-lg font-semibold text-white transition-all hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-40"
+                                    className="btn w-full py-4 text-lg font-semibold disabled:cursor-not-allowed disabled:opacity-40"
                                 >
                                     {submitting
                                         ? "Saving..."
@@ -397,12 +397,12 @@ export default function EventPageClient({ event }) {
                         )}
 
                         {rsvpState === "confirmed" && (
-                            <div className="rounded-2xl bg-emerald-50 p-6 text-center">
+                            <div className="rounded-3xl border border-white/15 bg-white/10 p-6 text-center backdrop-blur-sm">
                                 <p className="text-3xl">🌿</p>
-                                <h3 className="mt-2 font-serif text-xl font-bold text-emerald-800">
+                                <h3 className="mt-2 font-serif text-xl italic text-white">
                                     You&apos;re in!
                                 </h3>
-                                <p className="mt-1 text-sm text-emerald-600">
+                                <p className="mt-1 text-sm text-white/70">
                                     See you there. Here&apos;s what you need to know:
                                 </p>
 
@@ -411,13 +411,13 @@ export default function EventPageClient({ event }) {
                                     <div className="mt-4 flex gap-2 justify-center">
                                         <button
                                             onClick={() => handleCalendar("google")}
-                                            className="rounded-lg bg-white px-3 py-2 text-xs font-medium text-stone-700 shadow-sm hover:bg-stone-50"
+                                            className="rounded-[5px] border border-white/30 bg-white/10 px-3 py-2 text-xs font-medium text-white/80 hover:bg-white/20"
                                         >
                                             📅 Google Calendar
                                         </button>
                                         <button
                                             onClick={() => handleCalendar("ics")}
-                                            className="rounded-lg bg-white px-3 py-2 text-xs font-medium text-stone-700 shadow-sm hover:bg-stone-50"
+                                            className="rounded-[5px] border border-white/30 bg-white/10 px-3 py-2 text-xs font-medium text-white/80 hover:bg-white/20"
                                         >
                                             📅 Download .ics
                                         </button>
@@ -427,7 +427,7 @@ export default function EventPageClient({ event }) {
                                 {/* Who's going */}
                                 {attendeeNames.length > 0 && (
                                     <div className="mt-4">
-                                        <p className="text-xs text-stone-500">
+                                        <p className="text-xs text-white/50">
                                             {attendeeNames.slice(0, 5).join(", ")}
                                             {attendeeNames.length > 5
                                                 ? ` + ${attendeeNames.length - 5} more`
@@ -440,7 +440,7 @@ export default function EventPageClient({ event }) {
                                 {/* Share */}
                                 <button
                                     onClick={handleShare}
-                                    className="mt-4 rounded-lg bg-white px-4 py-2 text-sm font-medium text-stone-700 shadow-sm hover:bg-stone-50"
+                                    className="btn mt-4"
                                 >
                                     Bring a friend →
                                 </button>
@@ -448,12 +448,12 @@ export default function EventPageClient({ event }) {
                         )}
 
                         {rsvpState === "waitlisted" && (
-                            <div className="rounded-2xl bg-amber-50 p-6 text-center">
+                            <div className="rounded-3xl border border-white/15 bg-white/10 p-6 text-center backdrop-blur-sm">
                                 <p className="text-3xl">⏳</p>
-                                <h3 className="mt-2 font-serif text-xl font-bold text-amber-800">
+                                <h3 className="mt-2 font-serif text-xl italic text-white">
                                     You&apos;re on the waitlist
                                 </h3>
-                                <p className="mt-1 text-sm text-amber-600">
+                                <p className="mt-1 text-sm text-white/70">
                                     We&apos;ll let you know if a spot opens up.
                                 </p>
                             </div>

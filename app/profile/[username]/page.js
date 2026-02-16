@@ -76,9 +76,9 @@ export default async function ProfilePage({ params }) {
         return (
             <Link
                 href={`/e/${event.slug}`}
-                className="flex items-center gap-4 rounded-xl bg-white p-4 shadow-sm transition-all hover:shadow-md"
+                className="flex items-center gap-4 rounded-[6px] border border-white/15 bg-white/10 p-4 backdrop-blur-sm transition-all hover:bg-white/20"
             >
-                <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg bg-stone-100">
+                <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-[6px] bg-white/10">
                     {event.coverPhotoUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -93,12 +93,12 @@ export default async function ProfilePage({ params }) {
                     )}
                 </div>
                 <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-stone-800 truncate">
+                    <h3 className="font-serif font-medium text-white truncate">
                         {event.title}
                     </h3>
-                    <p className="text-sm text-stone-500">{formatDate(event.dateTime)}</p>
+                    <p className="text-sm text-white/60">{formatDate(event.dateTime)}</p>
                 </div>
-                <span className="flex-shrink-0 text-xs text-stone-400">
+                <span className="flex-shrink-0 text-xs text-white/50">
                     {count} going
                 </span>
             </Link>
@@ -106,7 +106,7 @@ export default async function ProfilePage({ params }) {
     }
 
     return (
-        <div className="min-h-screen bg-[#f8f6f3]">
+        <div className="min-h-screen bg-base-100 text-white">
             <div className="mx-auto max-w-lg px-5 py-10">
                 {/* Profile header */}
                 <div className="mb-8 text-center">
@@ -118,23 +118,23 @@ export default async function ProfilePage({ params }) {
                             className="mx-auto mb-4 h-20 w-20 rounded-full object-cover"
                         />
                     ) : (
-                        <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-stone-200 text-3xl">
+                        <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-white/10 text-3xl">
                             🌿
                         </div>
                     )}
-                    <h1 className="font-serif text-2xl font-bold text-stone-800">
+                    <h1 className="font-serif text-2xl italic text-white">
                         {facilitator.name}
                     </h1>
-                    <p className="mt-1 text-sm text-stone-500">@{facilitator.username}</p>
+                    <p className="mt-1 text-sm text-white/50">@{facilitator.username}</p>
                     {facilitator.bio && (
-                        <p className="mt-3 text-sm text-stone-600">{facilitator.bio}</p>
+                        <p className="mt-3 text-sm text-white/70">{facilitator.bio}</p>
                     )}
                 </div>
 
                 {/* Upcoming Events */}
                 {upcoming.length > 0 && (
                     <div className="mb-8">
-                        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-stone-500">
+                        <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-white/50">
                             Upcoming
                         </h2>
                         <div className="space-y-2">
@@ -148,7 +148,7 @@ export default async function ProfilePage({ params }) {
                 {/* Past Events */}
                 {past.length > 0 && (
                     <div>
-                        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-stone-500">
+                        <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-white/50">
                             Past
                         </h2>
                         <div className="space-y-2">
@@ -161,7 +161,7 @@ export default async function ProfilePage({ params }) {
 
                 {/* Empty */}
                 {upcoming.length === 0 && past.length === 0 && (
-                    <p className="text-center text-sm text-stone-400">
+                    <p className="text-center text-sm text-white/40">
                         No events yet — check back soon.
                     </p>
                 )}
