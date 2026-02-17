@@ -1,25 +1,21 @@
-import { auth } from "@clerk/nextjs/server";
 import connectMongo from "@/libs/mongoose";
 import BookingEvent from "@/models/BookingEvent";
-import Facilitator from "@/models/Facilitator";
+import User from "@/models/User";
 import Rsvp from "@/models/Rsvp";
+import { getAuthUser } from "@/libs/auth";
 
-// GET — List all events for the authenticated facilitator
+// GET — List all events for the authenticated user
 export async function GET(req) {
     try {
-        const { userId } = await auth();
-        if (!userId) {
+        // TWILIO-AUTH: getAuthUser() currently returns a dev stub
+        const user = await getAuthUser();
+        if (!user) {
             return Response.json({ error: "Unauthorized" }, { status: 401 });
         }
 
         await connectMongo();
 
-        const facilitator = await Facilitator.findOne({ clerkUserId: userId });
-        if (!facilitator) {
-            return Response.json({ events: [] });
-        }
-
-        const events = await BookingEvent.find({ facilitatorId: facilitator._id })
+        const events = await BookingEvent.find({ createdBy: user._id })
             .sort({ createdAt: -1 })
             .lean();
 

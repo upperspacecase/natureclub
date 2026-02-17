@@ -1,5 +1,5 @@
 import connectMongo from "@/libs/mongoose";
-import Facilitator from "@/models/Facilitator";
+import User from "@/models/User";
 import BookingEvent from "@/models/BookingEvent";
 import Rsvp from "@/models/Rsvp";
 import { notFound } from "next/navigation";
@@ -9,15 +9,15 @@ import Link from "next/link";
 export async function generateMetadata({ params }) {
     const { username } = await params;
     await connectMongo();
-    const facilitator = await Facilitator.findOne({ username });
+    const user = await User.findOne({ username });
 
-    if (!facilitator) {
+    if (!user) {
         return getSEOTags({ title: "Profile not found" });
     }
 
     return getSEOTags({
-        title: `${facilitator.name} — Nature Club`,
-        description: facilitator.bio || `See what ${facilitator.name} has planned on Nature Club`,
+        title: `${user.name} — Nature Club`,
+        description: user.bio || `See what ${user.name} has planned on Nature Club`,
     });
 }
 
@@ -25,15 +25,15 @@ export default async function ProfilePage({ params }) {
     const { username } = await params;
     await connectMongo();
 
-    const facilitator = await Facilitator.findOne({ username });
-    if (!facilitator) {
+    const user = await User.findOne({ username, hostingOn: true });
+    if (!user) {
         notFound();
     }
 
     const now = new Date();
 
     const upcoming = await BookingEvent.find({
-        facilitatorId: facilitator._id,
+        createdBy: user._id,
         status: "published",
         dateTime: { $gte: now },
     })
@@ -41,7 +41,7 @@ export default async function ProfilePage({ params }) {
         .lean();
 
     const past = await BookingEvent.find({
-        facilitatorId: facilitator._id,
+        createdBy: user._id,
         status: "published",
         dateTime: { $lt: now },
     })
@@ -110,11 +110,11 @@ export default async function ProfilePage({ params }) {
             <div className="mx-auto max-w-lg px-5 py-10">
                 {/* Profile header */}
                 <div className="mb-8 text-center">
-                    {facilitator.photoUrl ? (
+                    {user.photoUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
-                            src={facilitator.photoUrl}
-                            alt={facilitator.name}
+                            src={user.photoUrl}
+                            alt={user.name}
                             className="mx-auto mb-4 h-20 w-20 rounded-full object-cover"
                         />
                     ) : (
@@ -123,11 +123,11 @@ export default async function ProfilePage({ params }) {
                         </div>
                     )}
                     <h1 className="font-serif text-2xl italic text-white">
-                        {facilitator.name}
+                        {user.name}
                     </h1>
-                    <p className="mt-1 text-sm text-white/50">@{facilitator.username}</p>
-                    {facilitator.bio && (
-                        <p className="mt-3 text-sm text-white/70">{facilitator.bio}</p>
+                    <p className="mt-1 text-sm text-white/50">@{user.username}</p>
+                    {user.bio && (
+                        <p className="mt-3 text-sm text-white/70">{user.bio}</p>
                     )}
                 </div>
 

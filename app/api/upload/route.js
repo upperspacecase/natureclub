@@ -1,11 +1,12 @@
-import { auth } from "@clerk/nextjs/server";
 import { put } from "@vercel/blob";
+import { getAuthUser } from "@/libs/auth";
 
 // POST — Upload an image to Vercel Blob
 export async function POST(req) {
     try {
-        const { userId } = await auth();
-        if (!userId) {
+        // TWILIO-AUTH: getAuthUser() currently returns a dev stub
+        const user = await getAuthUser();
+        if (!user) {
             return Response.json({ error: "Unauthorized" }, { status: 401 });
         }
 

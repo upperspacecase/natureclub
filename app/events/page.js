@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { UserButton } from "@clerk/nextjs";
+// TWILIO-AUTH: Was: import { UserButton } from "@clerk/nextjs";
 import apiClient from "@/libs/api";
 import ShareActions from "@/components/ShareActions";
 
@@ -37,7 +37,7 @@ export default function FacilitatorEventsPage() {
 
     async function loadProfile() {
         try {
-            const res = await apiClient.get("/facilitator");
+            const res = await apiClient.get("/user");
             setProfile(res);
         } catch (err) {
             console.error("Failed to load profile:", err);
@@ -48,7 +48,7 @@ export default function FacilitatorEventsPage() {
         if (!profile) return;
         setProfileSaving(true);
         try {
-            const res = await apiClient.patch("/facilitator", {
+            const res = await apiClient.patch("/user", {
                 name: profile.name,
                 username: profile.username,
                 bio: profile.bio,
@@ -135,7 +135,7 @@ export default function FacilitatorEventsPage() {
                         >
                             + New Event
                         </button>
-                        <UserButton afterSignOutUrl="/" />
+                        {/* TWILIO-AUTH: Add sign-out button when auth is wired */}
                     </div>
                 </div>
 

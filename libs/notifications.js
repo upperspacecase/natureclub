@@ -38,15 +38,15 @@ export function rsvpConfirmedParticipant({ email, eventTitle, eventDate, eventUr
     };
 }
 
-export function rsvpConfirmedFacilitator({
-    facilitatorEmail,
+export function rsvpConfirmedHost({
+    hostPhone,
     participantName,
     eventTitle,
     rsvpCount,
     groupSize,
 }) {
     return {
-        to: facilitatorEmail,
+        to: hostPhone,
         subject: `New RSVP for ${eventTitle}`,
         body: `${participantName} just RSVP'd for ${eventTitle} (${rsvpCount}/${groupSize}).`,
     };
@@ -130,7 +130,7 @@ export function rainCheckCancel({ email, eventTitle, eventDate, reason }) {
 
 export function duplicateNotify({
     email,
-    facilitatorName,
+    hostName,
     eventTitle,
     newDate,
     eventUrl,
@@ -142,8 +142,8 @@ export function duplicateNotify({
     });
     return {
         to: email,
-        subject: `${facilitatorName} is running ${eventTitle} again!`,
-        body: `${facilitatorName} is running ${eventTitle} again on ${dateStr}.\n\nRSVP: ${eventUrl}`,
+        subject: `${hostName} is running ${eventTitle} again!`,
+        body: `${hostName} is running ${eventTitle} again on ${dateStr}.\n\nRSVP: ${eventUrl}`,
     };
 }
 

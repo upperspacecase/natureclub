@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import connectMongo from "@/libs/mongoose";
 import BookingEvent from "@/models/BookingEvent";
-import Facilitator from "@/models/Facilitator";
+import User from "@/models/User";
 import { getSEOTags } from "@/libs/seo";
 import EventPageClient from "./EventPageClient";
 
@@ -14,13 +14,13 @@ export async function generateMetadata({ params }) {
         return getSEOTags({ title: "Event not found" });
     }
 
-    const facilitator = await Facilitator.findById(event.facilitatorId);
+    const host = await User.findById(event.createdBy);
 
     return getSEOTags({
         title: event.title,
         description: event.description
             ? event.description.slice(0, 160)
-            : `Join ${facilitator?.name || "us"} for ${event.title}`,
+            : `Join ${host?.name || "us"} for ${event.title}`,
         openGraph: {
             title: event.title,
             description: event.description?.slice(0, 160) || "",
@@ -42,7 +42,7 @@ export default async function EventPage({ params }) {
         notFound();
     }
 
-    const facilitator = await Facilitator.findById(event.facilitatorId);
+    const host = await User.findById(event.createdBy);
 
     // Pass serializable data to client component
     const eventData = {
@@ -71,12 +71,12 @@ export default async function EventPage({ params }) {
                 lng: Math.round(event.meetingPoint.lng * 100) / 100,
             }
             : null,
-        facilitator: facilitator
+        host: host
             ? {
-                name: facilitator.name,
-                photoUrl: facilitator.photoUrl,
-                bio: facilitator.bio,
-                username: facilitator.username,
+                name: host.name,
+                photoUrl: host.photoUrl,
+                bio: host.bio,
+                username: host.username,
             }
             : null,
     };

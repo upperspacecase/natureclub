@@ -1,9 +1,9 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+// TWILIO-AUTH: When Twilio is wired, replace with JWT session middleware
+// that checks the nc_session cookie on protected routes.
+
 import { NextResponse } from "next/server";
 
-const isProtectedRoute = createRouteMatcher(["/dashboard(.*)", "/events(.*)"]);
-
-export default clerkMiddleware(async (auth, req) => {
+export default function middleware(req) {
   // Rewrite /@username → /profile/username
   if (req.nextUrl.pathname.startsWith("/@")) {
     const username = req.nextUrl.pathname.slice(2); // strip /@
@@ -12,10 +12,17 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.rewrite(url);
   }
 
-  if (isProtectedRoute(req)) {
-    await auth.protect();
-  }
-});
+  // TWILIO-AUTH: Uncomment when auth is wired:
+  // const isProtected = req.nextUrl.pathname.startsWith("/events");
+  // if (isProtected) {
+  //     const token = req.cookies.get("nc_session")?.value;
+  //     if (!token) {
+  //         return NextResponse.redirect(new URL("/signin", req.url));
+  //     }
+  // }
+
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: [
@@ -25,4 +32,3 @@ export const config = {
     "/(api|trpc)(.*)",
   ],
 };
-

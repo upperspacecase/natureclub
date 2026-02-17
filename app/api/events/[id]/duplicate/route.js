@@ -1,15 +1,15 @@
-import { auth } from "@clerk/nextjs/server";
 import connectMongo from "@/libs/mongoose";
 import BookingEvent from "@/models/BookingEvent";
-import Facilitator from "@/models/Facilitator";
 import Rsvp from "@/models/Rsvp";
 import { notify } from "@/libs/notifications";
+import { getAuthUser } from "@/libs/auth";
 
 // POST — Duplicate an event ("Run this again")
 export async function POST(req, { params }) {
     try {
-        const { userId } = await auth();
-        if (!userId) {
+        // TWILIO-AUTH: getAuthUser() currently returns a dev stub
+        const user = await getAuthUser();
+        if (!user) {
             return Response.json({ error: "Unauthorized" }, { status: 401 });
         }
 
@@ -18,14 +18,9 @@ export async function POST(req, { params }) {
 
         await connectMongo();
 
-        const facilitator = await Facilitator.findOne({ clerkUserId: userId });
-        if (!facilitator) {
-            return Response.json({ error: "Unauthorized" }, { status: 401 });
-        }
-
         const sourceEvent = await BookingEvent.findOne({
             _id: id,
-            facilitatorId: facilitator._id,
+            createdBy: user._id,
         });
 
         if (!sourceEvent) {
@@ -34,10 +29,10 @@ export async function POST(req, { params }) {
 
         // Create copy — strip date, slug, status; link back to source
         const newEvent = await BookingEvent.create({
-            facilitatorId: facilitator._id,
+            createdBy: user._id,
             title: sourceEvent.title,
             status: "draft",
-            dateTime: null, // Clear — facilitator picks new date
+            dateTime: null,
             durationMinutes: sourceEvent.durationMinutes,
             meetingPoint: sourceEvent.meetingPoint,
             activityType: sourceEvent.activityType,
@@ -56,15 +51,12 @@ export async function POST(req, { params }) {
 
         // If notifyPrevious flag is set and event gets published later,
         // we store the source so the publish flow can trigger notifications.
-        // For now, if explicitly requested, notify previous attendees immediately.
         if (body.notifyPrevious && body.newDateTime) {
             const prevRsvps = await Rsvp.find({
                 eventId: sourceEvent._id,
                 status: "confirmed",
             }).lean();
-
-            // This would send emails — only if we have email addresses
-            // For phone-only participants, this is a placeholder for SMS
+            // TWILIO-AUTH: Wire SMS/WhatsApp notifications here
         }
 
         return Response.json({

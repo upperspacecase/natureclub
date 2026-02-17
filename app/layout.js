@@ -1,5 +1,5 @@
 import { Inter, Libre_Baskerville } from "next/font/google";
-import { ClerkProvider } from "@clerk/nextjs";
+// TWILIO-AUTH: ClerkProvider removed — was: import { ClerkProvider } from "@clerk/nextjs";
 import { headers } from "next/headers";
 import { getSEOTags } from "@/libs/seo";
 import { getSiteUrl } from "@/libs/site-url";
@@ -16,7 +16,6 @@ const libre = Libre_Baskerville({
 });
 
 export const viewport = {
-  // Will use the primary color of your theme to show a nice theme color in the URL bar of supported browsers
   themeColor: config.colors.main,
   width: "device-width",
   initialScale: 1,
@@ -60,25 +59,15 @@ export async function generateMetadata() {
 }
 
 export default function RootLayout({ children }) {
-  const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-
-  const inner = (
+  return (
     <html
       lang="en"
       data-theme={config.colors.theme}
       className={`${inter.className} ${inter.variable} ${libre.variable}`}
     >
       <body>
-        {/* ClientLayout contains all the client wrappers (Crisp chat support, toast messages, tooltips, etc.) */}
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );
-
-  // Clerk needs a valid publishable key — skip during builds without keys
-  if (!clerkKey || !clerkKey.startsWith("pk_")) {
-    return inner;
-  }
-
-  return <ClerkProvider>{inner}</ClerkProvider>;
 }

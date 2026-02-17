@@ -1,28 +1,23 @@
-import { auth } from "@clerk/nextjs/server";
 import connectMongo from "@/libs/mongoose";
 import BookingEvent from "@/models/BookingEvent";
-import Facilitator from "@/models/Facilitator";
 import { slugify } from "@/libs/slugify";
+import { getAuthUser } from "@/libs/auth";
 
-// GET — Fetch a single event (facilitator only, their own)
+// GET — Fetch a single event (owner only)
 export async function GET(req, { params }) {
     try {
-        const { userId } = await auth();
-        if (!userId) {
+        // TWILIO-AUTH: getAuthUser() currently returns a dev stub
+        const user = await getAuthUser();
+        if (!user) {
             return Response.json({ error: "Unauthorized" }, { status: 401 });
         }
 
         const { id } = await params;
         await connectMongo();
 
-        const facilitator = await Facilitator.findOne({ clerkUserId: userId });
-        if (!facilitator) {
-            return Response.json({ error: "Facilitator not found" }, { status: 404 });
-        }
-
         const event = await BookingEvent.findOne({
             _id: id,
-            facilitatorId: facilitator._id,
+            createdBy: user._id,
         });
 
         if (!event) {
@@ -39,8 +34,9 @@ export async function GET(req, { params }) {
 // PATCH — Update event fields (auto-save)
 export async function PATCH(req, { params }) {
     try {
-        const { userId } = await auth();
-        if (!userId) {
+        // TWILIO-AUTH: getAuthUser() currently returns a dev stub
+        const user = await getAuthUser();
+        if (!user) {
             return Response.json({ error: "Unauthorized" }, { status: 401 });
         }
 
@@ -48,14 +44,9 @@ export async function PATCH(req, { params }) {
         const body = await req.json();
         await connectMongo();
 
-        const facilitator = await Facilitator.findOne({ clerkUserId: userId });
-        if (!facilitator) {
-            return Response.json({ error: "Facilitator not found" }, { status: 404 });
-        }
-
         const event = await BookingEvent.findOne({
             _id: id,
-            facilitatorId: facilitator._id,
+            createdBy: user._id,
         });
 
         if (!event) {

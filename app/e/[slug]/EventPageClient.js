@@ -193,13 +193,13 @@ export default function EventPageClient({ event }) {
                 </h1>
 
                 {/* Facilitator */}
-                {event.facilitator && (
+                {event.host && (
                     <div className="mb-6 flex items-center gap-3">
-                        {event.facilitator.photoUrl ? (
+                        {event.host.photoUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
-                                src={event.facilitator.photoUrl}
-                                alt={event.facilitator.name}
+                                src={event.host.photoUrl}
+                                alt={event.host.name}
                                 className="h-10 w-10 rounded-full object-cover"
                             />
                         ) : (
@@ -209,14 +209,14 @@ export default function EventPageClient({ event }) {
                         )}
                         <div>
                             <p className="text-sm font-medium text-white/90">
-                                {event.facilitator.name}
+                                {event.host.name}
                             </p>
-                            {event.facilitator.username && (
+                            {event.host.username && (
                                 <a
-                                    href={`/@${event.facilitator.username}`}
+                                    href={`/@${event.host.username}`}
                                     className="text-xs text-white/50 hover:text-white hover:underline"
                                 >
-                                    @{event.facilitator.username}
+                                    @{event.host.username}
                                 </a>
                             )}
                         </div>

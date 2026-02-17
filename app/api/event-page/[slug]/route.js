@@ -1,6 +1,6 @@
 import connectMongo from "@/libs/mongoose";
 import BookingEvent from "@/models/BookingEvent";
-import Facilitator from "@/models/Facilitator";
+import User from "@/models/User";
 import Rsvp from "@/models/Rsvp";
 
 // GET — Public event data by slug (no auth required)
@@ -15,7 +15,7 @@ export async function GET(req, { params }) {
             return Response.json({ error: "Event not found" }, { status: 404 });
         }
 
-        const facilitator = await Facilitator.findById(event.facilitatorId);
+        const host = await User.findById(event.createdBy);
 
         // Count confirmed RSVPs
         const rsvpCount = await Rsvp.countDocuments({
@@ -62,12 +62,12 @@ export async function GET(req, { params }) {
                     lng: Math.round(event.meetingPoint.lng * 100) / 100,
                 }
                 : null,
-            facilitator: facilitator
+            host: host
                 ? {
-                    name: facilitator.name,
-                    photoUrl: facilitator.photoUrl,
-                    bio: facilitator.bio,
-                    username: facilitator.username,
+                    name: host.name,
+                    photoUrl: host.photoUrl,
+                    bio: host.bio,
+                    username: host.username,
                 }
                 : null,
             rsvpCount,

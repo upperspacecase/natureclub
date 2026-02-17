@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import connectMongo from "@/libs/mongoose";
 import BookingEvent from "@/models/BookingEvent";
-import Facilitator from "@/models/Facilitator";
+import User from "@/models/User";
 
 export const runtime = "nodejs";
 export const size = { width: 1200, height: 630 };
@@ -35,7 +35,7 @@ export default async function Image({ params }) {
         );
     }
 
-    const facilitator = await Facilitator.findById(event.facilitatorId);
+    const host = await User.findById(event.createdBy);
 
     const dateStr = event.dateTime
         ? new Date(event.dateTime).toLocaleDateString("en-US", {
@@ -110,8 +110,8 @@ export default async function Image({ params }) {
                     }}
                 >
                     {dateStr && <span>{dateStr}</span>}
-                    {dateStr && facilitator?.name && <span>·</span>}
-                    {facilitator?.name && <span>with {facilitator.name}</span>}
+                    {dateStr && host?.name && <span>·</span>}
+                    {host?.name && <span>with {host.name}</span>}
                 </div>
 
                 {/* Nature Club branding */}

@@ -1,14 +1,14 @@
-import { auth } from "@clerk/nextjs/server";
 import connectMongo from "@/libs/mongoose";
 import BookingEvent from "@/models/BookingEvent";
-import Facilitator from "@/models/Facilitator";
 import Rsvp from "@/models/Rsvp";
+import { getAuthUser } from "@/libs/auth";
 
 // POST — Rain check: on, reschedule, or cancel
 export async function POST(req, { params }) {
     try {
-        const { userId } = await auth();
-        if (!userId) {
+        // TWILIO-AUTH: getAuthUser() currently returns a dev stub
+        const user = await getAuthUser();
+        if (!user) {
             return Response.json({ error: "Unauthorized" }, { status: 401 });
         }
 
@@ -24,14 +24,9 @@ export async function POST(req, { params }) {
 
         await connectMongo();
 
-        const facilitator = await Facilitator.findOne({ clerkUserId: userId });
-        if (!facilitator) {
-            return Response.json({ error: "Unauthorized" }, { status: 401 });
-        }
-
         const event = await BookingEvent.findOne({
             _id: id,
-            facilitatorId: facilitator._id,
+            createdBy: user._id,
             status: "published",
         });
 
@@ -48,7 +43,7 @@ export async function POST(req, { params }) {
         switch (action) {
             case "on":
                 // "We're ON" — just confirms to attendees, no data change
-                // TODO: Wire notify() for rain-check-on template
+                // TWILIO-AUTH: Wire SMS/WhatsApp notification here
                 return Response.json({
                     message: `"We're ON" sent to ${attendees.length} attendees`,
                     attendeeCount: attendees.length,
@@ -65,7 +60,7 @@ export async function POST(req, { params }) {
                 event.dateTime = new Date(newDateTime);
                 await event.save();
 
-                // TODO: Wire notify() for rain-check-reschedule template
+                // TWILIO-AUTH: Wire SMS/WhatsApp notification here
                 return Response.json({
                     message: `Rescheduled to ${event.dateTime.toISOString()}. ${attendees.length} attendees notified.`,
                     dateTime: event.dateTime.toISOString(),
@@ -77,7 +72,7 @@ export async function POST(req, { params }) {
                 event.cancelledReason = reason || "";
                 await event.save();
 
-                // TODO: Wire notify() for rain-check-cancel template
+                // TWILIO-AUTH: Wire SMS/WhatsApp notification here
                 return Response.json({
                     message: `Event cancelled. ${attendees.length} attendees notified.`,
                     attendeeCount: attendees.length,

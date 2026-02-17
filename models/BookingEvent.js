@@ -27,9 +27,9 @@ const meetingPointSchema = new mongoose.Schema(
 
 const bookingEventSchema = mongoose.Schema(
     {
-        facilitatorId: {
+        createdBy: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Facilitator",
+            ref: "User",
             required: true,
             index: true,
         },
@@ -137,7 +137,7 @@ const bookingEventSchema = mongoose.Schema(
     }
 );
 
-bookingEventSchema.index({ facilitatorId: 1, status: 1, dateTime: -1 });
+bookingEventSchema.index({ createdBy: 1, status: 1, dateTime: -1 });
 
 bookingEventSchema.plugin(toJSON);
 

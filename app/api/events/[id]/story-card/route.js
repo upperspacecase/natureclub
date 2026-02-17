@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import connectMongo from "@/libs/mongoose";
 import BookingEvent from "@/models/BookingEvent";
-import Facilitator from "@/models/Facilitator";
+import User from "@/models/User";
 import { getSiteUrl } from "@/libs/site-url";
 
 export const runtime = "nodejs";
@@ -17,7 +17,7 @@ export async function GET(req, { params }) {
             return Response.json({ error: "Event not found" }, { status: 404 });
         }
 
-        const facilitator = await Facilitator.findById(event.facilitatorId);
+        const host = await User.findById(event.createdBy);
         const siteUrl = getSiteUrl();
 
         const dateStr = event.dateTime
@@ -112,7 +112,7 @@ export async function GET(req, { params }) {
                             }}
                         >
                             <span>📅 {dateStr}{timeStr ? ` at ${timeStr}` : ""}</span>
-                            {facilitator?.name && <span>🌿 with {facilitator.name}</span>}
+                            {host?.name && <span>🌿 with {host.name}</span>}
                             {event.groupSize && (
                                 <span>👥 {event.groupSize} spots</span>
                             )}
