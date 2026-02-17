@@ -162,7 +162,7 @@ export default function EventPageClient({ event }) {
         "w-full rounded-[5px] border border-white/35 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder-white/60 outline-none focus:border-white/70";
 
     return (
-        <div className="min-h-screen bg-base-100 text-white">
+        <div className="min-h-screen bg-black text-white">
             {/* Cover Photo */}
             {event.coverPhotoUrl && (
                 <div className="relative h-56 sm:h-72">

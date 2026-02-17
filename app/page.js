@@ -8,7 +8,7 @@ export default function Page() {
   const heroVideoSrc = "/children_hero_vid.mp4";
 
   return (
-    <div className="bg-base-100 text-white">
+    <div className="bg-black text-white">
       <RecordVisit />
       <section className="hero-shell overflow-hidden">
         {/* Background Video with black fallback */}

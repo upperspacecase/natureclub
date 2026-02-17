@@ -106,7 +106,7 @@ export default async function ProfilePage({ params }) {
     }
 
     return (
-        <div className="min-h-screen bg-base-100 text-white">
+        <div className="min-h-screen bg-black text-white">
             <div className="mx-auto max-w-lg px-5 py-10">
                 {/* Profile header */}
                 <div className="mb-8 text-center">

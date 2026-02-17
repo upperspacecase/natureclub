@@ -192,7 +192,7 @@ export default function EventCreatePage() {
     }
 
     return (
-        <div className="min-h-screen bg-base-100 text-white">
+        <div className="min-h-screen bg-black text-white">
             <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
                 {/* Header */}
                 <div className="mb-8 flex items-center justify-between">

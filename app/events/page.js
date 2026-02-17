@@ -115,7 +115,7 @@ export default function FacilitatorEventsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-base-100 text-white">
+        <div className="min-h-screen bg-black text-white">
             <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
                 {/* Header */}
                 <div className="mb-6 flex items-center justify-between">
@@ -220,8 +220,8 @@ export default function FacilitatorEventsPage() {
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`flex-1 rounded-lg py-2 text-xs font-medium capitalize transition-colors ${activeTab === tab
-                                    ? "bg-white/20 text-white"
-                                    : "text-white/50 hover:text-white/80"
+                                ? "bg-white/20 text-white"
+                                : "text-white/50 hover:text-white/80"
                                 }`}
                         >
                             {tab}
