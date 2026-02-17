@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import apiClient from "@/libs/api";
+import ShareActions from "@/components/ShareActions";
+import StoryCardPreview from "@/components/StoryCardPreview";
 import {
     getActivityDefaults,
     getActivityTypeOptions,
@@ -216,6 +218,13 @@ export default function EventCreatePage() {
                                 View event →
                             </a>
                         )}
+                        {published && slug && eventId && (
+                            <ShareActions
+                                slug={slug}
+                                eventId={eventId}
+                                title={title}
+                            />
+                        )}
                         <button
                             onClick={handlePublish}
                             disabled={!title.trim() || publishing || published}
@@ -268,13 +277,18 @@ export default function EventCreatePage() {
                 </div>
 
                 {/* Title */}
-                <input
-                    type="text"
+                <textarea
                     value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    onChange={(e) => {
+                        setTitle(e.target.value.replace(/\n/g, ""));
+                        e.target.style.height = "auto";
+                        e.target.style.height = e.target.scrollHeight + "px";
+                    }}
                     placeholder={placeholder}
                     maxLength={80}
-                    className="mb-6 w-full border-0 bg-transparent font-serif text-3xl italic text-white placeholder-white/30 outline-none focus:ring-0 sm:text-4xl"
+                    rows={1}
+                    className="mb-6 w-full resize-none overflow-visible border-0 bg-transparent font-serif text-3xl italic text-white placeholder-white/30 outline-none focus:ring-0 sm:text-4xl"
+                    style={{ lineHeight: 1.8, paddingBottom: "0.5em" }}
                 />
 
                 {/* Add details toggle */}
@@ -541,6 +555,25 @@ export default function EventCreatePage() {
                         </div>
                     </div>
                 )}
+
+                {/* Live Story Card Preview */}
+                <div className="mt-10 border-t border-white/10 pt-8">
+                    <h3 className="mb-4 text-center text-xs font-medium uppercase tracking-widest text-white/40">
+                        Story card preview
+                    </h3>
+                    <div className="mx-auto max-w-[260px]">
+                        <StoryCardPreview
+                            title={title}
+                            dateTime={dateTime}
+                            activityType={activityType === "other" ? activityTypeOther : activityType}
+                            groupSize={groupSize}
+                            hostName=""
+                            slug={slug}
+                            published={published}
+                            eventId={eventId}
+                        />
+                    </div>
+                </div>
             </div>
         </div>
     );
