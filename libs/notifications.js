@@ -1,15 +1,19 @@
 import { sendEmail } from "@/libs/resend";
+import { sendSms } from "@/libs/twilio";
 import { getSiteUrl } from "@/libs/site-url";
 
 /**
  * Central notification dispatcher.
  *
- * v1: sends email via Resend.
- * When Twilio is ready, swap the transport inside this function.
- * Nothing else in the codebase needs to change.
+ * Routes to SMS (Twilio) for phone numbers, email (Resend) for email addresses.
  */
 export async function notify({ to, subject, body, html }) {
-    // `to` is an email address (v1) — will become a phone number for SMS later
+    // Phone number → SMS
+    if (to && to.startsWith("+")) {
+        return sendSms(to, body);
+    }
+
+    // Email address → Resend
     return sendEmail({
         to,
         subject,
@@ -22,7 +26,7 @@ export async function notify({ to, subject, body, html }) {
 // Notification templates — each returns { to, subject, body }
 // ---------------------------------------------------------------------------
 
-export function rsvpConfirmedParticipant({ email, eventTitle, eventDate, eventUrl }) {
+export function rsvpConfirmedParticipant({ phone, eventTitle, eventDate, eventUrl }) {
     const dateStr = eventDate
         ? new Date(eventDate).toLocaleDateString("en-US", {
             weekday: "long",
@@ -32,7 +36,7 @@ export function rsvpConfirmedParticipant({ email, eventTitle, eventDate, eventUr
         : "a date TBA";
 
     return {
-        to: email,
+        to: phone,
         subject: `You're in for ${eventTitle}!`,
         body: `You're in for ${eventTitle} on ${dateStr}!\n\nDetails: ${eventUrl}`,
     };
@@ -52,40 +56,40 @@ export function rsvpConfirmedHost({
     };
 }
 
-export function waitlistJoined({ email, eventTitle, position }) {
+export function waitlistJoined({ phone, eventTitle, position }) {
     return {
-        to: email,
+        to: phone,
         subject: `You're on the waitlist for ${eventTitle}`,
         body: `You're on the waitlist (#${position}) for ${eventTitle}. We'll let you know if a spot opens.`,
     };
 }
 
-export function spotOpened({ email, eventTitle, confirmUrl }) {
+export function spotOpened({ phone, eventTitle, confirmUrl }) {
     return {
-        to: email,
+        to: phone,
         subject: `A spot opened for ${eventTitle}!`,
         body: `A spot opened for ${eventTitle}! Confirm in 2 hours: ${confirmUrl}`,
     };
 }
 
-export function waitlistExpired({ email, eventTitle }) {
+export function waitlistExpired({ phone, eventTitle }) {
     return {
-        to: email,
+        to: phone,
         subject: `Waitlist update for ${eventTitle}`,
         body: `The spot for ${eventTitle} has been offered to the next person.`,
     };
 }
 
-export function eventEdited({ email, eventTitle, changes, eventUrl }) {
+export function eventEdited({ phone, eventTitle, changes, eventUrl }) {
     const changeLines = changes.map((c) => `• ${c}`).join("\n");
     return {
-        to: email,
+        to: phone,
         subject: `${eventTitle} updated`,
         body: `${eventTitle} has been updated:\n${changeLines}\n\nDetails: ${eventUrl}`,
     };
 }
 
-export function rainCheckOn({ email, eventTitle, eventDate, note }) {
+export function rainCheckOn({ phone, eventTitle, eventDate, note }) {
     const dateStr = eventDate
         ? new Date(eventDate).toLocaleDateString("en-US", {
             weekday: "long",
@@ -94,26 +98,26 @@ export function rainCheckOn({ email, eventTitle, eventDate, note }) {
         })
         : "";
     return {
-        to: email,
+        to: phone,
         subject: `${eventTitle} is ON!`,
         body: `${eventTitle} is ON for ${dateStr}.${note ? ` ${note}` : ""}`,
     };
 }
 
-export function rainCheckReschedule({ email, eventTitle, newDate, eventUrl }) {
+export function rainCheckReschedule({ phone, eventTitle, newDate, eventUrl }) {
     const dateStr = new Date(newDate).toLocaleDateString("en-US", {
         weekday: "long",
         month: "long",
         day: "numeric",
     });
     return {
-        to: email,
+        to: phone,
         subject: `${eventTitle} rescheduled`,
         body: `${eventTitle} has been rescheduled to ${dateStr}. Your RSVP is confirmed.\n\nDetails: ${eventUrl}`,
     };
 }
 
-export function rainCheckCancel({ email, eventTitle, eventDate, reason }) {
+export function rainCheckCancel({ phone, eventTitle, eventDate, reason }) {
     const dateStr = eventDate
         ? new Date(eventDate).toLocaleDateString("en-US", {
             weekday: "long",
@@ -122,14 +126,14 @@ export function rainCheckCancel({ email, eventTitle, eventDate, reason }) {
         })
         : "";
     return {
-        to: email,
+        to: phone,
         subject: `${eventTitle} cancelled`,
         body: `${eventTitle} on ${dateStr} has been cancelled.${reason ? ` Reason: ${reason}` : ""}`,
     };
 }
 
 export function duplicateNotify({
-    email,
+    phone,
     hostName,
     eventTitle,
     newDate,
@@ -141,7 +145,7 @@ export function duplicateNotify({
         day: "numeric",
     });
     return {
-        to: email,
+        to: phone,
         subject: `${hostName} is running ${eventTitle} again!`,
         body: `${hostName} is running ${eventTitle} again on ${dateStr}.\n\nRSVP: ${eventUrl}`,
     };

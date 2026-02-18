@@ -1,5 +1,4 @@
 import { Inter, Libre_Baskerville } from "next/font/google";
-// TWILIO-AUTH: ClerkProvider removed — was: import { ClerkProvider } from "@clerk/nextjs";
 import { headers } from "next/headers";
 import { getSEOTags } from "@/libs/seo";
 import { getSiteUrl } from "@/libs/site-url";

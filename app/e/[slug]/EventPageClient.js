@@ -6,12 +6,37 @@ import { generateIcs, googleCalendarUrl } from "@/libs/calendar";
 export default function EventPageClient({ event }) {
     const [rsvpState, setRsvpState] = useState("idle"); // idle | form | confirmed | waitlisted
     const [phone, setPhone] = useState("");
+    const [countryCode, setCountryCode] = useState("+1");
     const [name, setName] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
     const [meetingPoint, setMeetingPoint] = useState(null);
     const [rsvpCount, setRsvpCount] = useState(0);
     const [attendeeNames, setAttendeeNames] = useState([]);
+
+    // Common country codes — ordered by likely usage
+    const countryCodes = [
+        { code: "+1", flag: "🇺🇸", label: "US" },
+        { code: "+1", flag: "🇨🇦", label: "CA" },
+        { code: "+44", flag: "🇬🇧", label: "UK" },
+        { code: "+61", flag: "🇦🇺", label: "AU" },
+        { code: "+64", flag: "🇳🇿", label: "NZ" },
+        { code: "+353", flag: "🇮🇪", label: "IE" },
+        { code: "+49", flag: "🇩🇪", label: "DE" },
+        { code: "+33", flag: "🇫🇷", label: "FR" },
+        { code: "+34", flag: "🇪🇸", label: "ES" },
+        { code: "+39", flag: "🇮🇹", label: "IT" },
+        { code: "+31", flag: "🇳🇱", label: "NL" },
+        { code: "+46", flag: "🇸🇪", label: "SE" },
+        { code: "+47", flag: "🇳🇴", label: "NO" },
+        { code: "+45", flag: "🇩🇰", label: "DK" },
+        { code: "+55", flag: "🇧🇷", label: "BR" },
+        { code: "+52", flag: "🇲🇽", label: "MX" },
+        { code: "+81", flag: "🇯🇵", label: "JP" },
+        { code: "+82", flag: "🇰🇷", label: "KR" },
+        { code: "+91", flag: "🇮🇳", label: "IN" },
+        { code: "+27", flag: "🇿🇦", label: "ZA" },
+    ];
 
     // Load current RSVP count
     useEffect(() => {
@@ -28,12 +53,46 @@ export default function EventPageClient({ event }) {
         loadPublicData();
     }, [event.slug]);
 
+    // Detect user timezone and set default country code
+    useEffect(() => {
+        try {
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+            const tzCountryMap = {
+                "America/": "+1", "US/": "+1", "Canada/": "+1",
+                "Europe/London": "+44", "GB": "+44",
+                "Australia/": "+61",
+                "Pacific/Auckland": "+64",
+                "Europe/Dublin": "+353",
+                "Europe/Berlin": "+49",
+                "Europe/Paris": "+33",
+                "Europe/Madrid": "+34",
+                "Europe/Rome": "+39",
+                "Europe/Amsterdam": "+31",
+                "Europe/Stockholm": "+46",
+                "Europe/Oslo": "+47",
+                "Europe/Copenhagen": "+45",
+                "America/Sao_Paulo": "+55",
+                "America/Mexico_City": "+52",
+                "Asia/Tokyo": "+81",
+                "Asia/Seoul": "+82",
+                "Asia/Kolkata": "+91", "Asia/Calcutta": "+91",
+                "Africa/Johannesburg": "+27",
+            };
+            for (const [prefix, code] of Object.entries(tzCountryMap)) {
+                if (tz.startsWith(prefix) || tz === prefix) {
+                    setCountryCode(code);
+                    break;
+                }
+            }
+        } catch { }
+    }, []);
+
     // Check if returning user
     useEffect(() => {
         const savedPhone = localStorage.getItem("nc_phone");
         const savedName = localStorage.getItem("nc_name");
         if (savedPhone) {
-            setPhone(savedPhone);
+            setPhone(savedPhone.replace(/^\+\d+/, ""));  // strip country code if stored
             if (savedName) setName(savedName);
             checkExistingRsvp(savedPhone);
         }
@@ -60,13 +119,15 @@ export default function EventPageClient({ event }) {
         setSubmitting(true);
 
         try {
+            const fullPhone = phone.startsWith("+") ? phone : `${countryCode}${phone.replace(/^0+/, "")}`;
+
             const res = await fetch("/api/rsvp", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     eventId: event.id,
                     participantName: name,
-                    participantPhone: phone,
+                    participantPhone: fullPhone,
                 }),
             });
 
@@ -82,7 +143,7 @@ export default function EventPageClient({ event }) {
                 return;
             }
 
-            localStorage.setItem("nc_phone", phone);
+            localStorage.setItem("nc_phone", fullPhone);
             localStorage.setItem("nc_name", name);
 
             if (data.rsvp.status === "waitlisted") {
@@ -278,27 +339,31 @@ export default function EventPageClient({ event }) {
                             </span>
                         </div>
                     )}
-                    {event.price > 0 && (
-                        <div className="flex items-center gap-2 text-white/80">
-                            <span className="w-5 text-center">💵</span>
-                            <span className="text-sm">
-                                ${event.price}
-                                {event.priceLink && (
-                                    <>
-                                        {" · "}
-                                        <a
-                                            href={event.priceLink}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-white hover:underline"
-                                        >
-                                            Pay here
-                                        </a>
-                                    </>
-                                )}
-                            </span>
-                        </div>
-                    )}
+                    <div className="flex items-center gap-2 text-white/80">
+                        <span className="w-5 text-center">💵</span>
+                        <span className="text-sm">
+                            {event.price > 0 ? (
+                                <>
+                                    ${event.price}
+                                    {event.priceLink && (
+                                        <>
+                                            {" · "}
+                                            <a
+                                                href={event.priceLink}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-white hover:underline"
+                                            >
+                                                Pay here
+                                            </a>
+                                        </>
+                                    )}
+                                </>
+                            ) : (
+                                "Free"
+                            )}
+                        </span>
+                    </div>
                 </div>
 
                 {/* Description */}
@@ -371,14 +436,27 @@ export default function EventPageClient({ event }) {
                                     maxLength={50}
                                     className={inputClass}
                                 />
-                                <input
-                                    type="tel"
-                                    value={phone}
-                                    onChange={(e) => setPhone(e.target.value)}
-                                    placeholder="Phone number"
-                                    required
-                                    className={inputClass}
-                                />
+                                <div className="flex gap-2">
+                                    <select
+                                        value={countryCode}
+                                        onChange={(e) => setCountryCode(e.target.value)}
+                                        className="w-[90px] shrink-0 rounded-[5px] border border-white/35 bg-white/[0.04] px-2 py-3 text-sm text-white outline-none focus:border-white/70"
+                                    >
+                                        {countryCodes.map((c, i) => (
+                                            <option key={`${c.code}-${c.label}-${i}`} value={c.code}>
+                                                {c.flag} {c.code}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <input
+                                        type="tel"
+                                        value={phone}
+                                        onChange={(e) => setPhone(e.target.value)}
+                                        placeholder="Phone number"
+                                        required
+                                        className={`flex-1 ${inputClass}`}
+                                    />
+                                </div>
                                 {error && (
                                     <p className="text-sm text-red-400">{error}</p>
                                 )}

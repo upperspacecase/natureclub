@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import apiClient from "@/libs/api";
 import ShareActions from "@/components/ShareActions";
 import StoryCardPreview from "@/components/StoryCardPreview";
+import DateTimePicker from "@/components/DateTimePicker";
+import LocationPicker from "@/components/LocationPicker";
 import {
     getActivityDefaults,
     getActivityTypeOptions,
@@ -46,8 +48,9 @@ export default function EventCreatePage() {
 
     // Form state
     const [title, setTitle] = useState("");
-    const [dateTime, setDateTime] = useState("");
+    const [dateTime, setDateTime] = useState(null); // Date object or null
     const [durationMinutes, setDurationMinutes] = useState(90);
+    const [locationObj, setLocationObj] = useState({ description: "", lat: null, lng: null });
     const [activityType, setActivityType] = useState("");
     const [activityTypeOther, setActivityTypeOther] = useState("");
     const [difficulty, setDifficulty] = useState("");
@@ -106,8 +109,18 @@ export default function EventCreatePage() {
         if (!eventId) return;
         autoSave({
             title,
-            dateTime: dateTime ? new Date(dateTime).toISOString() : null,
+            dateTime: dateTime instanceof Date && !isNaN(dateTime.getTime())
+                ? dateTime.toISOString()
+                : null,
             durationMinutes,
+            meetingPoint: locationObj.description?.trim()
+                ? {
+                    description: locationObj.description.trim(),
+                    ...(locationObj.lat != null && locationObj.lng != null
+                        ? { lat: locationObj.lat, lng: locationObj.lng }
+                        : {}),
+                }
+                : null,
             activityType,
             activityTypeOther,
             difficulty,
@@ -123,9 +136,10 @@ export default function EventCreatePage() {
             coverPhotoUrl,
         });
     }, [
-        eventId, title, dateTime, durationMinutes, activityType, activityTypeOther,
-        difficulty, groupSize, description, whatToBring, weatherPolicy, customWeather,
-        price, priceLink, accessibilityNotes, coverPhotoUrl, autoSave,
+        eventId, title, dateTime, durationMinutes, locationObj, activityType,
+        activityTypeOther, difficulty, groupSize, description, whatToBring,
+        weatherPolicy, customWeather, price, priceLink, accessibilityNotes,
+        coverPhotoUrl, autoSave,
     ]);
 
     // When activity type changes, set defaults
@@ -139,7 +153,7 @@ export default function EventCreatePage() {
         }
     }, [activityType]);
 
-    // Publish
+    // Publish — then redirect to live event page
     async function handlePublish() {
         if (!title.trim()) return;
         setPublishing(true);
@@ -150,6 +164,8 @@ export default function EventCreatePage() {
             });
             setPublished(true);
             setSlug(res.slug);
+            // Redirect to the live event page
+            router.push(`/e/${res.slug}`);
         } catch (err) {
             console.error("Publish failed:", err);
         } finally {
@@ -193,6 +209,9 @@ export default function EventCreatePage() {
         setWhatToBring(whatToBring.filter((_, i) => i !== index));
     }
 
+    // Check if required fields present for publish
+    const canPublish = title.trim() && dateTime && locationObj.description?.trim();
+
     return (
         <div className="min-h-screen bg-black text-white">
             <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
@@ -227,7 +246,7 @@ export default function EventCreatePage() {
                         )}
                         <button
                             onClick={handlePublish}
-                            disabled={!title.trim() || publishing || published}
+                            disabled={!canPublish || publishing || published}
                             className="btn disabled:cursor-not-allowed disabled:opacity-40"
                         >
                             {published ? "Published ✓" : publishing ? "Publishing..." : "Publish"}
@@ -276,6 +295,8 @@ export default function EventCreatePage() {
                     )}
                 </div>
 
+                {/* ─── MANDATORY FIELDS ─── */}
+
                 {/* Title */}
                 <textarea
                     value={title}
@@ -291,7 +312,31 @@ export default function EventCreatePage() {
                     style={{ lineHeight: 1.8, paddingBottom: "0.5em" }}
                 />
 
-                {/* Add details toggle */}
+                {/* Date & Time */}
+                <div className="mb-4">
+                    <label className="mb-1 flex items-center gap-1 text-sm font-medium text-white/60">
+                        Date & Time <span className="text-red-400">*</span>
+                    </label>
+                    <DateTimePicker
+                        value={dateTime}
+                        onChange={(date) => setDateTime(date)}
+                        placeholder="Pick a date & time"
+                    />
+                </div>
+
+                {/* Location */}
+                <div className="mb-6">
+                    <label className="mb-1 flex items-center gap-1 text-sm font-medium text-white/60">
+                        Location <span className="text-red-400">*</span>
+                    </label>
+                    <LocationPicker
+                        value={locationObj}
+                        onChange={setLocationObj}
+                    />
+                </div>
+
+                {/* ─── ADD DETAILS ACCORDION ─── */}
+
                 <button
                     onClick={() => setDetailsOpen(!detailsOpen)}
                     className="mb-6 flex items-center gap-2 text-sm font-medium text-white/60 hover:text-white"
@@ -308,19 +353,6 @@ export default function EventCreatePage() {
                 {/* Details section */}
                 {detailsOpen && (
                     <div className="space-y-6 rounded-3xl border border-white/15 bg-white/10 p-6 backdrop-blur-sm">
-                        {/* Date & Time */}
-                        <div>
-                            <label className="mb-1 block text-sm font-medium text-white/60">
-                                Date & Time
-                            </label>
-                            <input
-                                type="datetime-local"
-                                value={dateTime}
-                                onChange={(e) => setDateTime(e.target.value)}
-                                className={inputClass}
-                            />
-                        </div>
-
                         {/* Duration */}
                         <div>
                             <label className="mb-1 block text-sm font-medium text-white/60">
@@ -564,13 +596,15 @@ export default function EventCreatePage() {
                     <div className="mx-auto max-w-[260px]">
                         <StoryCardPreview
                             title={title}
-                            dateTime={dateTime}
+                            dateTime={dateTime instanceof Date ? dateTime.toISOString() : dateTime}
                             activityType={activityType === "other" ? activityTypeOther : activityType}
                             groupSize={groupSize}
                             hostName=""
                             slug={slug}
                             published={published}
                             eventId={eventId}
+                            coverPhotoUrl={coverPhotoUrl}
+                            price={price}
                         />
                     </div>
                 </div>

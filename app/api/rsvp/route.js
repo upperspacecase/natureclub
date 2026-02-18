@@ -1,6 +1,14 @@
 import connectMongo from "@/libs/mongoose";
 import BookingEvent from "@/models/BookingEvent";
 import Rsvp from "@/models/Rsvp";
+import User from "@/models/User";
+import {
+    notify,
+    rsvpConfirmedParticipant,
+    rsvpConfirmedHost,
+    waitlistJoined,
+    eventUrl as buildEventUrl,
+} from "@/libs/notifications";
 
 // POST — Create RSVP or join waitlist
 export async function POST(req) {
@@ -99,6 +107,45 @@ export async function POST(req) {
                 participantPhone: cleanPhone,
                 status: "confirmed",
             });
+        }
+
+        // Send notifications (non-blocking — don't fail the RSVP if SMS fails)
+        try {
+            const url = event.slug ? buildEventUrl(event.slug) : "";
+
+            if (rsvp.status === "confirmed") {
+                // Notify participant
+                const participantMsg = rsvpConfirmedParticipant({
+                    phone: cleanPhone,
+                    eventTitle: event.title,
+                    eventDate: event.dateTime,
+                    eventUrl: url,
+                });
+                await notify(participantMsg);
+
+                // Notify host
+                const host = await User.findById(event.createdBy);
+                if (host?.phone) {
+                    const confirmedNow = confirmedCount + 1;
+                    const hostMsg = rsvpConfirmedHost({
+                        hostPhone: host.phone,
+                        participantName: trimmedName,
+                        eventTitle: event.title,
+                        rsvpCount: confirmedNow,
+                        groupSize: event.groupSize,
+                    });
+                    await notify(hostMsg);
+                }
+            } else if (rsvp.status === "waitlisted") {
+                const waitlistMsg = waitlistJoined({
+                    phone: cleanPhone,
+                    eventTitle: event.title,
+                    position: rsvp.waitlistPosition,
+                });
+                await notify(waitlistMsg);
+            }
+        } catch (notifyErr) {
+            console.error("RSVP notification error (non-fatal):", notifyErr);
         }
 
         // Return the exact meeting point now that they're RSVP'd

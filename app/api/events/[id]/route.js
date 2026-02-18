@@ -6,7 +6,6 @@ import { getAuthUser } from "@/libs/auth";
 // GET — Fetch a single event (owner only)
 export async function GET(req, { params }) {
     try {
-        // TWILIO-AUTH: getAuthUser() currently returns a dev stub
         const user = await getAuthUser();
         if (!user) {
             return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -34,7 +33,6 @@ export async function GET(req, { params }) {
 // PATCH — Update event fields (auto-save)
 export async function PATCH(req, { params }) {
     try {
-        // TWILIO-AUTH: getAuthUser() currently returns a dev stub
         const user = await getAuthUser();
         if (!user) {
             return Response.json({ error: "Unauthorized" }, { status: 401 });

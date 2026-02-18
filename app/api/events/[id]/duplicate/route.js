@@ -1,13 +1,12 @@
 import connectMongo from "@/libs/mongoose";
 import BookingEvent from "@/models/BookingEvent";
 import Rsvp from "@/models/Rsvp";
-import { notify } from "@/libs/notifications";
+import { notify, duplicateNotify, eventUrl } from "@/libs/notifications";
 import { getAuthUser } from "@/libs/auth";
 
 // POST — Duplicate an event ("Run this again")
 export async function POST(req, { params }) {
     try {
-        // TWILIO-AUTH: getAuthUser() currently returns a dev stub
         const user = await getAuthUser();
         if (!user) {
             return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -49,14 +48,29 @@ export async function POST(req, { params }) {
             sourceEventId: sourceEvent._id,
         });
 
-        // If notifyPrevious flag is set and event gets published later,
-        // we store the source so the publish flow can trigger notifications.
+        // Notify previous attendees if requested
         if (body.notifyPrevious && body.newDateTime) {
             const prevRsvps = await Rsvp.find({
                 eventId: sourceEvent._id,
                 status: "confirmed",
             }).lean();
-            // TWILIO-AUTH: Wire SMS/WhatsApp notifications here
+
+            const url = newEvent.slug ? eventUrl(newEvent.slug) : "";
+
+            for (const rsvp of prevRsvps) {
+                try {
+                    const msg = duplicateNotify({
+                        phone: rsvp.participantPhone,
+                        hostName: user.name || "Your host",
+                        eventTitle: sourceEvent.title,
+                        newDate: body.newDateTime,
+                        eventUrl: url,
+                    });
+                    await notify(msg);
+                } catch (err) {
+                    console.error(`Failed to notify ${rsvp.participantPhone}:`, err);
+                }
+            }
         }
 
         return Response.json({

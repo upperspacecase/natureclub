@@ -6,7 +6,6 @@ import { getAuthUser } from "@/libs/auth";
 // GET — Get the current user's profile
 export async function GET(req) {
     try {
-        // TWILIO-AUTH: getAuthUser() currently returns a dev stub
         const user = await getAuthUser();
         if (!user) {
             return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -22,7 +21,6 @@ export async function GET(req) {
 // PATCH — Update user profile
 export async function PATCH(req) {
     try {
-        // TWILIO-AUTH: getAuthUser() currently returns a dev stub
         const user = await getAuthUser();
         if (!user) {
             return Response.json({ error: "Unauthorized" }, { status: 401 });

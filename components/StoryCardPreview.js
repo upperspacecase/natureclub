@@ -15,6 +15,8 @@ import { useRef } from "react";
  *  - slug: string (event slug, shown in URL)
  *  - published: boolean (controls download button)
  *  - eventId: string (for API download)
+ *  - coverPhotoUrl: string (cover photo URL)
+ *  - price: number (0 = free)
  */
 export default function StoryCardPreview({
     title,
@@ -25,6 +27,8 @@ export default function StoryCardPreview({
     slug,
     published,
     eventId,
+    coverPhotoUrl,
+    price,
 }) {
     const cardRef = useRef(null);
 
@@ -53,6 +57,13 @@ export default function StoryCardPreview({
         ? `natureclub.app/e/${slug}`
         : "natureclub.app/e/...";
 
+    const priceLabel =
+        price === undefined || price === null
+            ? null
+            : price === 0
+                ? "Free"
+                : `$${price}`;
+
     async function handleDownload() {
         if (!published || !eventId) return;
         try {
@@ -78,11 +89,25 @@ export default function StoryCardPreview({
                 className="relative w-full overflow-hidden rounded-2xl shadow-2xl"
                 style={{ aspectRatio: "9 / 16" }}
             >
+                {/* Cover photo background */}
+                {coverPhotoUrl && (
+                    <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                            src={coverPhotoUrl}
+                            alt=""
+                            className="absolute inset-0 h-full w-full object-cover"
+                        />
+                        {/* Dark overlay for readability */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
+                    </>
+                )}
+
                 {/* Card body */}
                 <div
                     className="absolute inset-0 flex flex-col justify-between p-6 sm:p-8"
                     style={{
-                        backgroundColor: "#292524",
+                        backgroundColor: coverPhotoUrl ? "transparent" : "#292524",
                         color: "#fafaf9",
                     }}
                 >
@@ -95,6 +120,7 @@ export default function StoryCardPreview({
                                     style={{
                                         backgroundColor: "rgba(255,255,255,0.12)",
                                         color: "#d6d3d1",
+                                        backdropFilter: coverPhotoUrl ? "blur(8px)" : "none",
                                     }}
                                 >
                                     {activityLabel}
@@ -107,6 +133,7 @@ export default function StoryCardPreview({
                             style={{
                                 fontSize: "clamp(1.25rem, 5vw, 2rem)",
                                 opacity: title ? 1 : 0.3,
+                                textShadow: coverPhotoUrl ? "0 1px 4px rgba(0,0,0,0.5)" : "none",
                             }}
                         >
                             {title || "Your event title"}
@@ -114,7 +141,7 @@ export default function StoryCardPreview({
 
                         <div
                             className="flex flex-col gap-1 text-xs"
-                            style={{ color: "#a8a29e" }}
+                            style={{ color: coverPhotoUrl ? "#e7e5e4" : "#a8a29e" }}
                         >
                             {dateStr ? (
                                 <span>
@@ -135,6 +162,9 @@ export default function StoryCardPreview({
                                 <span style={{ opacity: 0.4 }}>
                                     👥 Group size
                                 </span>
+                            )}
+                            {priceLabel !== null && (
+                                <span>💵 {priceLabel}</span>
                             )}
                         </div>
                     </div>

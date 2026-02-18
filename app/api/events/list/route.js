@@ -7,7 +7,6 @@ import { getAuthUser } from "@/libs/auth";
 // GET — List all events for the authenticated user
 export async function GET(req) {
     try {
-        // TWILIO-AUTH: getAuthUser() currently returns a dev stub
         const user = await getAuthUser();
         if (!user) {
             return Response.json({ error: "Unauthorized" }, { status: 401 });

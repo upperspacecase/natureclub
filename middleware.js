@@ -1,6 +1,3 @@
-// TWILIO-AUTH: When Twilio is wired, replace with JWT session middleware
-// that checks the nc_session cookie on protected routes.
-
 import { NextResponse } from "next/server";
 
 export default function middleware(req) {
@@ -12,14 +9,17 @@ export default function middleware(req) {
     return NextResponse.rewrite(url);
   }
 
-  // TWILIO-AUTH: Uncomment when auth is wired:
-  // const isProtected = req.nextUrl.pathname.startsWith("/events");
-  // if (isProtected) {
-  //     const token = req.cookies.get("nc_session")?.value;
-  //     if (!token) {
-  //         return NextResponse.redirect(new URL("/signin", req.url));
-  //     }
-  // }
+  // Protect facilitator routes — redirect to signin if no session
+  const isProtected =
+    req.nextUrl.pathname.startsWith("/events") ||
+    req.nextUrl.pathname.startsWith("/dashboard");
+
+  if (isProtected) {
+    const token = req.cookies.get("nc_session")?.value;
+    if (!token) {
+      return NextResponse.redirect(new URL("/signin", req.url));
+    }
+  }
 
   return NextResponse.next();
 }

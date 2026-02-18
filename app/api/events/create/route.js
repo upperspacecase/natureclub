@@ -5,7 +5,6 @@ import { getAuthUser } from "@/libs/auth";
 // POST — Create a new draft event
 export async function POST(req) {
     try {
-        // TWILIO-AUTH: getAuthUser() currently returns a dev stub
         const user = await getAuthUser();
         if (!user) {
             return Response.json({ error: "Unauthorized" }, { status: 401 });

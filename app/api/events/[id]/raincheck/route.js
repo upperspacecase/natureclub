@@ -2,11 +2,17 @@ import connectMongo from "@/libs/mongoose";
 import BookingEvent from "@/models/BookingEvent";
 import Rsvp from "@/models/Rsvp";
 import { getAuthUser } from "@/libs/auth";
+import {
+    notify,
+    rainCheckOn,
+    rainCheckReschedule,
+    rainCheckCancel,
+    eventUrl,
+} from "@/libs/notifications";
 
 // POST — Rain check: on, reschedule, or cancel
 export async function POST(req, { params }) {
     try {
-        // TWILIO-AUTH: getAuthUser() currently returns a dev stub
         const user = await getAuthUser();
         if (!user) {
             return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -40,10 +46,24 @@ export async function POST(req, { params }) {
             status: "confirmed",
         }).lean();
 
+        const url = event.slug ? eventUrl(event.slug) : "";
+
         switch (action) {
             case "on":
-                // "We're ON" — just confirms to attendees, no data change
-                // TWILIO-AUTH: Wire SMS/WhatsApp notification here
+                // Notify all attendees: "We're ON"
+                for (const a of attendees) {
+                    try {
+                        const msg = rainCheckOn({
+                            phone: a.participantPhone,
+                            eventTitle: event.title,
+                            eventDate: event.dateTime,
+                            note,
+                        });
+                        await notify(msg);
+                    } catch (err) {
+                        console.error(`Failed to notify ${a.participantPhone}:`, err);
+                    }
+                }
                 return Response.json({
                     message: `"We're ON" sent to ${attendees.length} attendees`,
                     attendeeCount: attendees.length,
@@ -60,7 +80,20 @@ export async function POST(req, { params }) {
                 event.dateTime = new Date(newDateTime);
                 await event.save();
 
-                // TWILIO-AUTH: Wire SMS/WhatsApp notification here
+                // Notify all attendees about reschedule
+                for (const a of attendees) {
+                    try {
+                        const msg = rainCheckReschedule({
+                            phone: a.participantPhone,
+                            eventTitle: event.title,
+                            newDate: event.dateTime,
+                            eventUrl: url,
+                        });
+                        await notify(msg);
+                    } catch (err) {
+                        console.error(`Failed to notify ${a.participantPhone}:`, err);
+                    }
+                }
                 return Response.json({
                     message: `Rescheduled to ${event.dateTime.toISOString()}. ${attendees.length} attendees notified.`,
                     dateTime: event.dateTime.toISOString(),
@@ -72,7 +105,20 @@ export async function POST(req, { params }) {
                 event.cancelledReason = reason || "";
                 await event.save();
 
-                // TWILIO-AUTH: Wire SMS/WhatsApp notification here
+                // Notify all attendees about cancellation
+                for (const a of attendees) {
+                    try {
+                        const msg = rainCheckCancel({
+                            phone: a.participantPhone,
+                            eventTitle: event.title,
+                            eventDate: event.dateTime,
+                            reason,
+                        });
+                        await notify(msg);
+                    } catch (err) {
+                        console.error(`Failed to notify ${a.participantPhone}:`, err);
+                    }
+                }
                 return Response.json({
                     message: `Event cancelled. ${attendees.length} attendees notified.`,
                     attendeeCount: attendees.length,

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-// TWILIO-AUTH: Was: import { UserButton } from "@clerk/nextjs";
 import apiClient from "@/libs/api";
 import ShareActions from "@/components/ShareActions";
 
@@ -76,6 +75,15 @@ export default function FacilitatorEventsPage() {
         }
     }
 
+    async function signOut() {
+        try {
+            await fetch("/api/auth/signout", { method: "POST" });
+            router.push("/signin");
+        } catch (err) {
+            console.error("Sign out failed:", err);
+        }
+    }
+
     async function rainCheck(eventId, action, data = {}) {
         try {
             await apiClient.post(`/events/${eventId}/raincheck`, { action, ...data });
@@ -135,7 +143,12 @@ export default function FacilitatorEventsPage() {
                         >
                             + New Event
                         </button>
-                        {/* TWILIO-AUTH: Add sign-out button when auth is wired */}
+                        <button
+                            onClick={signOut}
+                            className="text-sm text-white/50 hover:text-red-400"
+                        >
+                            Sign Out
+                        </button>
                     </div>
                 </div>
 
