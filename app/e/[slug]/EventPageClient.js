@@ -559,28 +559,37 @@ export default function EventPageClient({ event }) {
                                     placeholder="Your name"
                                     required
                                     maxLength={50}
-                                    className={inputClass}
+                                    className="w-full rounded-xl border border-white/25 bg-white/[0.04] px-4 py-4 text-base text-white placeholder-white/35 outline-none focus:border-white/50"
                                 />
-                                <div className="flex gap-2">
-                                    <select
-                                        value={countryCode}
-                                        onChange={(e) => setCountryCode(e.target.value)}
-                                        className="w-[90px] shrink-0 rounded-[5px] border border-white/35 bg-white/[0.04] px-2 py-3 text-sm text-white outline-none focus:border-white/70"
-                                    >
-                                        {countryCodes.map((c, i) => (
-                                            <option key={`${c.code}-${c.label}-${i}`} value={c.code}>
-                                                {c.flag} {c.code}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <input
-                                        type="tel"
-                                        value={phone}
-                                        onChange={(e) => setPhone(e.target.value)}
-                                        placeholder="Phone number"
-                                        required
-                                        className={`flex-1 ${inputClass}`}
-                                    />
+                                {/* Combined phone row */}
+                                <div className="flex overflow-hidden rounded-xl border border-white/25">
+                                    <div className="relative flex items-center border-r border-white/25 bg-white/[0.04]">
+                                        <select
+                                            value={countryCode}
+                                            onChange={(e) => setCountryCode(e.target.value)}
+                                            className="h-full appearance-none border-0 bg-transparent py-4 pl-4 pr-10 text-base outline-none"
+                                            style={{ paddingRight: "40px" }}
+                                        >
+                                            {countryCodes.map((c, i) => (
+                                                <option key={`${c.code}-${c.label}-${i}`} value={c.code}>
+                                                    {c.flag} {c.code}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="relative flex flex-1 items-center bg-white/[0.04]">
+                                        <input
+                                            type="tel"
+                                            value={phone}
+                                            onChange={(e) => setPhone(e.target.value)}
+                                            placeholder="Phone number"
+                                            required
+                                            className="w-full border-0 bg-transparent px-4 py-4 text-base text-white placeholder-white/35 outline-none"
+                                        />
+                                        {phone.replace(/\D/g, "").length >= 7 && (
+                                            <span className="absolute right-4 text-base text-white/50">✓</span>
+                                        )}
+                                    </div>
                                 </div>
                                 {error && (
                                     <p className="text-sm text-red-400">{error}</p>
@@ -589,14 +598,17 @@ export default function EventPageClient({ event }) {
                                     <button
                                         type="button"
                                         onClick={() => { setRsvpState("idle"); setRsvpResponse(null); }}
-                                        className="rounded-[5px] border border-white/30 px-4 py-3 text-sm text-white/60 hover:border-white hover:text-white"
+                                        className="rounded-xl border border-white/25 px-4 py-4 text-sm text-white/60 hover:border-white hover:text-white"
                                     >
                                         Back
                                     </button>
                                     <button
                                         type="submit"
                                         disabled={submitting || !name.trim() || !phone.trim()}
-                                        className="btn flex-1 py-3 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40"
+                                        className={`flex-1 rounded-xl py-4 text-base font-semibold transition-all ${name.trim() && phone.trim()
+                                            ? "bg-white text-black hover:bg-white/90"
+                                            : "cursor-not-allowed bg-white/15 text-white/30"
+                                            }`}
                                     >
                                         {submitting ? "Saving..." : "Confirm"}
                                     </button>
