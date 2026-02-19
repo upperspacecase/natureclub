@@ -356,19 +356,40 @@ export default function EventPageClient({ event }) {
                     </div>
                 )}
 
-                {/* Show Details accordion */}
+                {/* Details accordion */}
                 <div className="mb-6">
                     <button
                         onClick={() => setDetailsOpen(!detailsOpen)}
-                        className="flex w-full items-center gap-2 text-sm font-medium text-white/60 hover:text-white"
+                        className="w-full rounded-2xl border border-white/15 bg-white/5 p-4 text-left transition-colors hover:bg-white/[0.08]"
                     >
-                        <span
-                            className="inline-block transition-transform"
-                            style={{ transform: detailsOpen ? "rotate(90deg)" : "rotate(0deg)" }}
-                        >
-                            ▸
-                        </span>
-                        Show details
+                        {/* Preview snippets */}
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-white/70">
+                            {event.durationMinutes > 0 && (
+                                <span>⏱ {formatDuration(event.durationMinutes)}</span>
+                            )}
+                            {event.price > 0 ? (
+                                <span>💵 {currencySymbol}{event.price}</span>
+                            ) : (
+                                <span>💵 Free</span>
+                            )}
+                            {event.difficulty && (
+                                <span>📊 {DIFFICULTY_LABELS[event.difficulty] || event.difficulty}</span>
+                            )}
+                        </div>
+                        {event.description && (
+                            <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-white/50">
+                                {event.description}
+                            </p>
+                        )}
+                        <div className="mt-3 flex items-center gap-1 text-xs font-medium text-white/40">
+                            <span
+                                className="inline-block transition-transform"
+                                style={{ transform: detailsOpen ? "rotate(90deg)" : "rotate(0deg)" }}
+                            >
+                                ▸
+                            </span>
+                            {detailsOpen ? "Hide details" : "Show all details"}
+                        </div>
                     </button>
 
                     {detailsOpen && (
