@@ -55,6 +55,45 @@ function getDefaultDate() {
     return d;
 }
 
+const CURRENCIES = [
+    { code: "USD", symbol: "$", label: "$ USD" },
+    { code: "EUR", symbol: "€", label: "€ EUR" },
+    { code: "GBP", symbol: "£", label: "£ GBP" },
+    { code: "CAD", symbol: "CA$", label: "CA$ CAD" },
+    { code: "AUD", symbol: "A$", label: "A$ AUD" },
+    { code: "NZD", symbol: "NZ$", label: "NZ$ NZD" },
+    { code: "BRL", symbol: "R$", label: "R$ BRL" },
+    { code: "MXN", symbol: "MX$", label: "MX$ MXN" },
+    { code: "JPY", symbol: "¥", label: "¥ JPY" },
+    { code: "INR", symbol: "₹", label: "₹ INR" },
+    { code: "ZAR", symbol: "R", label: "R ZAR" },
+    { code: "CHF", symbol: "CHF", label: "CHF" },
+    { code: "SEK", symbol: "kr", label: "kr SEK" },
+    { code: "NOK", symbol: "kr", label: "kr NOK" },
+    { code: "DKK", symbol: "kr", label: "kr DKK" },
+    { code: "COP", symbol: "COL$", label: "COL$ COP" },
+    { code: "ARS", symbol: "AR$", label: "AR$ ARS" },
+    { code: "CLP", symbol: "CL$", label: "CL$ CLP" },
+];
+
+function detectCurrency() {
+    try {
+        const locale = Intl.DateTimeFormat().resolvedOptions().locale || navigator.language;
+        const region = locale.split("-").pop()?.toUpperCase();
+        const map = {
+            US: "USD", GB: "GBP", CA: "CAD", AU: "AUD", NZ: "NZD",
+            BR: "BRL", MX: "MXN", JP: "JPY", IN: "INR", ZA: "ZAR",
+            CH: "CHF", SE: "SEK", NO: "NOK", DK: "DKK", CO: "COP",
+            AR: "ARS", CL: "CLP",
+            DE: "EUR", FR: "EUR", IT: "EUR", ES: "EUR", NL: "EUR",
+            PT: "EUR", IE: "EUR", AT: "EUR", BE: "EUR", FI: "EUR",
+        };
+        return map[region] || "USD";
+    } catch {
+        return "USD";
+    }
+}
+
 const inputClass =
     "w-full rounded-[5px] border border-white/35 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder-white/60 outline-none focus:border-white/70";
 
@@ -91,6 +130,7 @@ function EventCreatePageInner() {
     const [weatherPolicy, setWeatherPolicy] = useState("Light rain OK, storms cancel");
     const [weatherOpen, setWeatherOpen] = useState(false);
     const [price, setPrice] = useState(0);
+    const [currency, setCurrency] = useState(() => detectCurrency());
     const [priceLink, setPriceLink] = useState("");
     const [coverPhotoUrl, setCoverPhotoUrl] = useState("");
     const [uploadingPhoto, setUploadingPhoto] = useState(false);
@@ -141,6 +181,7 @@ function EventCreatePageInner() {
                         setWeatherPolicy(res.weatherPolicy);
                     }
                     if (res.price != null) setPrice(res.price);
+                    if (res.currency) setCurrency(res.currency);
                     if (res.priceLink) setPriceLink(res.priceLink);
                     // accessibilityNotes removed
                     if (res.coverPhotoUrl) setCoverPhotoUrl(res.coverPhotoUrl);
@@ -221,13 +262,14 @@ function EventCreatePageInner() {
             whatToBring,
             weatherPolicy,
             price,
+            currency,
             priceLink,
             coverPhotoUrl,
         });
     }, [
         eventId, title, dateTime, durationMinutes, locationObj, activityType,
         activityTypeOther, difficulty, groupSize, description, whatToBring,
-        weatherPolicy, price, priceLink,
+        weatherPolicy, price, currency, priceLink,
         coverPhotoUrl, autoSave,
     ]);
 
@@ -390,6 +432,7 @@ function EventCreatePageInner() {
                             hideDownload={true}
                             location={locationObj.description}
                             durationMinutes={durationMinutes}
+                            currency={currency}
                         />
                     </div>
 
@@ -758,7 +801,17 @@ function EventCreatePageInner() {
                                         Price
                                     </label>
                                     <div className="flex items-center gap-2">
-                                        <span className="text-white/60">$</span>
+                                        <select
+                                            value={currency}
+                                            onChange={(e) => setCurrency(e.target.value)}
+                                            className="rounded-[5px] border border-white/35 bg-white/[0.04] px-2 py-3 text-sm text-white outline-none focus:border-white/70"
+                                        >
+                                            {CURRENCIES.map((c) => (
+                                                <option key={c.code} value={c.code}>
+                                                    {c.label}
+                                                </option>
+                                            ))}
+                                        </select>
                                         <input
                                             type="number"
                                             value={price}
@@ -807,6 +860,7 @@ function EventCreatePageInner() {
                                     price={price}
                                     location={locationObj.description}
                                     durationMinutes={durationMinutes}
+                                    currency={currency}
                                 />
                             </div>
                         </div>

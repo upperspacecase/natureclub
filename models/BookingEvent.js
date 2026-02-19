@@ -104,6 +104,11 @@ const bookingEventSchema = mongoose.Schema(
             type: Number,
             default: 0,
         },
+        currency: {
+            type: String,
+            trim: true,
+            default: "USD",
+        },
         priceLink: {
             type: String,
             trim: true,

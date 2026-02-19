@@ -23,6 +23,7 @@ export default function StoryCardPreview({
     hideDownload,
     location,
     durationMinutes,
+    currency,
 }) {
     const cardRef = useRef(null);
 
@@ -41,12 +42,19 @@ export default function StoryCardPreview({
         })
         : "";
 
+    const currencySymbol = {
+        USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$",
+        NZD: "NZ$", BRL: "R$", MXN: "MX$", JPY: "¥", INR: "₹",
+        ZAR: "R", CHF: "CHF", SEK: "kr", NOK: "kr", DKK: "kr",
+        COP: "COL$", ARS: "AR$", CLP: "CL$",
+    }[currency] || "$";
+
     const priceLabel =
         price === undefined || price === null
             ? null
             : price === 0
                 ? "Free"
-                : `$${price}`;
+                : `${currencySymbol}${price}`;
 
     function formatDuration(mins) {
         if (!mins) return "";

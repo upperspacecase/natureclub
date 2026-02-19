@@ -102,6 +102,14 @@ export async function GET(req, { params }) {
                         {event.groupSize > 0 && (
                             <span>👥 {event.groupSize} spots</span>
                         )}
+                        {event.price != null && (
+                            <span>💵 {event.price === 0 ? "Free" : `${({
+                                USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$",
+                                NZD: "NZ$", BRL: "R$", MXN: "MX$", JPY: "¥", INR: "₹",
+                                ZAR: "R", CHF: "CHF", SEK: "kr", NOK: "kr", DKK: "kr",
+                                COP: "COL$", ARS: "AR$", CLP: "CL$",
+                            })[event.currency] || "$"}${event.price}`}</span>
+                        )}
                     </div>
                 </div>
             ),
