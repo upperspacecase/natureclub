@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { generateIcs, googleCalendarUrl } from "@/libs/calendar";
 
 export default function EventPageClient({ event }) {
@@ -84,7 +84,9 @@ export default function EventPageClient({ event }) {
                     break;
                 }
             }
-        } catch { }
+        } catch {
+            // Timezone detection is best-effort, no action needed on failure
+        }
     }, []);
 
     // Check if returning user
@@ -96,9 +98,9 @@ export default function EventPageClient({ event }) {
             if (savedName) setName(savedName);
             checkExistingRsvp(savedPhone);
         }
-    }, []);
+    }, [checkExistingRsvp]);
 
-    async function checkExistingRsvp(phoneNum) {
+    const checkExistingRsvp = useCallback(async (phoneNum) => {
         try {
             const res = await fetch(
                 `/api/rsvp?eventId=${event.id}&phone=${encodeURIComponent(phoneNum)}`
@@ -108,10 +110,10 @@ export default function EventPageClient({ event }) {
                 setRsvpState(data.rsvp.status === "waitlisted" ? "waitlisted" : "confirmed");
                 if (data.meetingPoint) setMeetingPoint(data.meetingPoint);
             }
-        } catch (err) {
+        } catch (_err) {
             // Not a critical error
         }
-    }
+    }, [event.id]);
 
     async function handleRsvp(e) {
         e.preventDefault();
@@ -153,7 +155,7 @@ export default function EventPageClient({ event }) {
                 if (data.meetingPoint) setMeetingPoint(data.meetingPoint);
                 setRsvpCount((c) => c + 1);
             }
-        } catch (err) {
+        } catch (_err) {
             setError("Network error — please try again");
         } finally {
             setSubmitting(false);

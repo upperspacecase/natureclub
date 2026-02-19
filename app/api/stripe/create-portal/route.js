@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { createCustomerPortal } from "@/libs/stripe";
+// import { createCustomerPortal } from "@/libs/stripe";
 
-export async function POST(req) {
+export async function POST(_req) {
   return NextResponse.json(
     { error: "Customer portal disabled while auth is off." },
     { status: 403 }

@@ -3,7 +3,7 @@ import BookingEvent from "@/models/BookingEvent";
 import { getAuthUser } from "@/libs/auth";
 
 // POST — Create a new draft event
-export async function POST(req) {
+export async function POST(_req) {
     try {
         const user = await getAuthUser();
         if (!user) {

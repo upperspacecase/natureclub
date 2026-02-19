@@ -36,7 +36,8 @@ export default function LocationPicker({ value, onChange }) {
         if (value?.description && value.description !== query) {
             setQuery(value.description);
         }
-    }, [value?.description]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [value?.description, query]);
 
     // Close suggestions on outside click
     useEffect(() => {
@@ -135,7 +136,7 @@ export default function LocationPicker({ value, onChange }) {
 
     // Long-press support for touch devices
     function handleTouchStart(e) {
-        const touch = e.touches[0];
+        const _touch = e.touches[0];
         longPressRef.current = setTimeout(() => {
             // Simulate a click via the map's onClick
         }, 500);

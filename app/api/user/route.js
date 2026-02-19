@@ -4,7 +4,7 @@ import { isReservedUsername } from "@/libs/reserved-usernames";
 import { getAuthUser } from "@/libs/auth";
 
 // GET — Get the current user's profile
-export async function GET(req) {
+export async function GET(_req) {
     try {
         const user = await getAuthUser();
         if (!user) {

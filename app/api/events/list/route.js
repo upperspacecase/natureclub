@@ -1,11 +1,11 @@
 import connectMongo from "@/libs/mongoose";
 import BookingEvent from "@/models/BookingEvent";
-import User from "@/models/User";
+// User model registered via BookingEvent population if needed
 import Rsvp from "@/models/Rsvp";
 import { getAuthUser } from "@/libs/auth";
 
 // GET — List all events for the authenticated user
-export async function GET(req) {
+export async function GET(_req) {
     try {
         const user = await getAuthUser();
         if (!user) {

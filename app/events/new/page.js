@@ -151,7 +151,8 @@ export default function EventCreatePage() {
             if (whatToBring.length === 0) setWhatToBring([...defaults.whatToBring]);
             if (!description) setDescription(defaults.placeholder);
         }
-    }, [activityType]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activityType, difficulty, description, whatToBring.length]);
 
     // Publish — then redirect to live event page
     async function handlePublish() {
