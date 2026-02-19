@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import HexagonLogo from "@/components/HexagonLogo";
 
 const COUNTRY_CODES = [
     { code: "+1", flag: "🇺🇸", label: "US" },
@@ -146,6 +147,11 @@ export default function SignInPage() {
     return (
         <div className="flex min-h-screen flex-col items-center justify-center bg-black px-5 text-white">
             <div className="w-full max-w-sm">
+                {/* Logo */}
+                <div className="mb-4 flex justify-center">
+                    <HexagonLogo className="h-12 w-12 text-white/80" />
+                </div>
+
                 {/* Title */}
                 <h1 className="mb-8 text-center font-serif text-3xl italic text-white">
                     Sign in or sign up
@@ -195,8 +201,8 @@ export default function SignInPage() {
                             type="submit"
                             disabled={!phoneValid}
                             className={`mt-4 w-full rounded-xl py-4 text-base font-semibold transition-all ${phoneValid
-                                    ? "bg-white text-black hover:bg-white/90"
-                                    : "cursor-not-allowed bg-white/15 text-white/30"
+                                ? "bg-white text-black hover:bg-white/90"
+                                : "cursor-not-allowed bg-white/15 text-white/30"
                                 }`}
                         >
                             Login
@@ -312,8 +318,8 @@ export default function SignInPage() {
                             type="submit"
                             disabled={loading || code.length < 6}
                             className={`mt-5 w-full rounded-xl py-4 text-base font-semibold transition-all ${code.length >= 6
-                                    ? "bg-white text-black hover:bg-white/90"
-                                    : "cursor-not-allowed bg-white/15 text-white/30"
+                                ? "bg-white text-black hover:bg-white/90"
+                                : "cursor-not-allowed bg-white/15 text-white/30"
                                 }`}
                         >
                             {loading ? "Verifying..." : "I agree"}
