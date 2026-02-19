@@ -391,11 +391,16 @@ progress::-webkit-progress-value {
 /* ── Dark-themed react-datepicker ── */
 .nc-datepicker-wrapper {
   width: 100%;
+  position: relative;
 }
 
 .nc-datepicker-wrapper .react-datepicker-wrapper,
 .nc-datepicker-wrapper .react-datepicker__input-container {
   width: 100%;
+}
+
+.nc-datepicker-wrapper .react-datepicker-popper {
+  z-index: 50;
 }
 
 .nc-dark-calendar.react-datepicker {

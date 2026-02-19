@@ -49,7 +49,6 @@ export default function DateTimePicker({ value, onChange, placeholder }) {
                 placeholderText={placeholder || "Pick a date & time"}
                 customInput={<CustomInput />}
                 popperPlacement="bottom-start"
-                popperStrategy="fixed"
                 popperModifiers={[
                     {
                         name: "offset",
