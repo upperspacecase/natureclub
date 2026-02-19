@@ -89,17 +89,6 @@ export default function EventPageClient({ event }) {
         }
     }, []);
 
-    // Check if returning user
-    useEffect(() => {
-        const savedPhone = localStorage.getItem("nc_phone");
-        const savedName = localStorage.getItem("nc_name");
-        if (savedPhone) {
-            setPhone(savedPhone.replace(/^\+\d+/, ""));  // strip country code if stored
-            if (savedName) setName(savedName);
-            checkExistingRsvp(savedPhone);
-        }
-    }, [checkExistingRsvp]);
-
     const checkExistingRsvp = useCallback(async (phoneNum) => {
         try {
             const res = await fetch(
@@ -114,6 +103,17 @@ export default function EventPageClient({ event }) {
             // Not a critical error
         }
     }, [event.id]);
+
+    // Check if returning user
+    useEffect(() => {
+        const savedPhone = localStorage.getItem("nc_phone");
+        const savedName = localStorage.getItem("nc_name");
+        if (savedPhone) {
+            setPhone(savedPhone.replace(/^\+\d+/, ""));  // strip country code if stored
+            if (savedName) setName(savedName);
+            checkExistingRsvp(savedPhone);
+        }
+    }, [checkExistingRsvp]);
 
     async function handleRsvp(e) {
         e.preventDefault();
