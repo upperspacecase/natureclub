@@ -3,20 +3,11 @@
 import { useRef } from "react";
 
 /**
- * Live story card preview — mirrors the server-side story card design
- * at /api/events/[id]/story-card but renders as pure CSS/HTML.
+ * Live story card preview — mirrors the server-side story card design.
  *
- * Props:
- *  - title: string
- *  - dateTime: string (ISO or datetime-local value)
- *  - activityType: string (slug like "forest-bathing")
- *  - groupSize: number
- *  - hostName: string
- *  - slug: string (event slug, shown in URL)
- *  - published: boolean (controls download button)
- *  - eventId: string (for API download)
- *  - coverPhotoUrl: string (cover photo URL)
- *  - price: number (0 = free)
+ * Props: title, dateTime, activityType, groupSize, hostName, slug,
+ *        published, eventId, coverPhotoUrl, price, hideDownload,
+ *        location, durationMinutes
  */
 export default function StoryCardPreview({
     title,
@@ -30,14 +21,10 @@ export default function StoryCardPreview({
     coverPhotoUrl,
     price,
     hideDownload,
+    location,
+    durationMinutes,
 }) {
     const cardRef = useRef(null);
-
-    const activityLabel = activityType
-        ? activityType
-            .replace(/-/g, " ")
-            .replace(/\b\w/g, (c) => c.toUpperCase())
-        : "";
 
     const dateStr = dateTime
         ? new Date(dateTime).toLocaleDateString("en-US", {
@@ -54,16 +41,21 @@ export default function StoryCardPreview({
         })
         : "";
 
-    const displayUrl = slug
-        ? `natureclub.app/e/${slug}`
-        : "natureclub.app/e/...";
-
     const priceLabel =
         price === undefined || price === null
             ? null
             : price === 0
                 ? "Free"
                 : `$${price}`;
+
+    function formatDuration(mins) {
+        if (!mins) return "";
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        if (h === 0) return `${m} min`;
+        if (m === 0) return `${h} hr`;
+        return `${h} hr ${m} min`;
+    }
 
     async function handleDownload() {
         if (!published || !eventId) return;
@@ -141,16 +133,18 @@ export default function StoryCardPreview({
                                 📅 Date & time
                             </span>
                         )}
+                        {durationMinutes > 0 && (
+                            <span>⏱ {formatDuration(durationMinutes)}</span>
+                        )}
+                        {location && (
+                            <span>📍 {location}</span>
+                        )}
                         {hostName && (
                             <span>🌿 with {hostName}</span>
                         )}
                         {groupSize ? (
                             <span>👥 {groupSize} spots</span>
-                        ) : (
-                            <span style={{ opacity: 0.4 }}>
-                                👥 Group size
-                            </span>
-                        )}
+                        ) : null}
                         {priceLabel !== null && (
                             <span>💵 {priceLabel}</span>
                         )}

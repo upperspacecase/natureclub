@@ -2,7 +2,6 @@ import { ImageResponse } from "next/og";
 import connectMongo from "@/libs/mongoose";
 import BookingEvent from "@/models/BookingEvent";
 import User from "@/models/User";
-import { getSiteUrl } from "@/libs/site-url";
 
 export const runtime = "nodejs";
 
@@ -18,7 +17,6 @@ export async function GET(req, { params }) {
         }
 
         const host = await User.findById(event.createdBy);
-        const siteUrl = getSiteUrl();
 
         const dateStr = event.dateTime
             ? new Date(event.dateTime).toLocaleDateString("en-US", {
@@ -35,11 +33,17 @@ export async function GET(req, { params }) {
             })
             : "";
 
-        const activityLabel = event.activityType
-            ? event.activityType
-                .replace(/-/g, " ")
-                .replace(/\b\w/g, (c) => c.toUpperCase())
-            : "";
+        const locationStr = event.meetingPoint?.description || "";
+
+        function fmtDur(mins) {
+            if (!mins) return "";
+            const h = Math.floor(mins / 60);
+            const m = mins % 60;
+            if (h === 0) return `${m} min`;
+            if (m === 0) return `${h} hr`;
+            return `${h} hr ${m} min`;
+        }
+        const durationStr = fmtDur(event.durationMinutes);
 
         return new ImageResponse(
             (
@@ -92,8 +96,10 @@ export async function GET(req, { params }) {
                         }}
                     >
                         <span>📅 {dateStr}{timeStr ? ` at ${timeStr}` : ""}</span>
+                        {durationStr && <span>⏱ {durationStr}</span>}
+                        {locationStr && <span>📍 {locationStr}</span>}
                         {host?.name && <span>🌿 with {host.name}</span>}
-                        {event.groupSize && (
+                        {event.groupSize > 0 && (
                             <span>👥 {event.groupSize} spots</span>
                         )}
                     </div>

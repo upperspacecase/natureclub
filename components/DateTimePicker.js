@@ -49,10 +49,15 @@ export default function DateTimePicker({ value, onChange, placeholder }) {
                 placeholderText={placeholder || "Pick a date & time"}
                 customInput={<CustomInput />}
                 popperPlacement="bottom-start"
+                popperStrategy="fixed"
                 popperModifiers={[
                     {
                         name: "offset",
                         options: { offset: [0, 8] },
+                    },
+                    {
+                        name: "preventOverflow",
+                        options: { boundary: "viewport" },
                     },
                 ]}
                 calendarClassName="nc-dark-calendar"

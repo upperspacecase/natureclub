@@ -30,8 +30,30 @@ const DIFFICULTY_OPTIONS = [
     { value: "easy", label: "Easy" },
     { value: "moderate", label: "Moderate" },
     { value: "hard", label: "Hard" },
-    { value: "strenuous", label: "Strenuous" },
+    { value: "strenuous", label: "Crazy" },
 ];
+
+const DURATION_OPTIONS = [
+    { value: 30, label: "30 min" },
+    { value: 45, label: "45 min" },
+    { value: 60, label: "1 hr" },
+    { value: 75, label: "1 hr 15 min" },
+    { value: 90, label: "1 hr 30 min" },
+    { value: 120, label: "2 hr" },
+    { value: 150, label: "2 hr 30 min" },
+    { value: 180, label: "3 hr" },
+    { value: 240, label: "4 hr" },
+    { value: 300, label: "5 hr" },
+    { value: 360, label: "6 hr" },
+    { value: 480, label: "8 hr" },
+];
+
+function getDefaultDate() {
+    const d = new Date();
+    d.setDate(d.getDate() + 3);
+    d.setHours(8, 0, 0, 0);
+    return d;
+}
 
 const inputClass =
     "w-full rounded-[5px] border border-white/35 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder-white/60 outline-none focus:border-white/70";
@@ -56,21 +78,20 @@ function EventCreatePageInner() {
 
     // Form state
     const [title, setTitle] = useState("");
-    const [dateTime, setDateTime] = useState(null); // Date object or null
+    const [dateTime, setDateTime] = useState(() => getDefaultDate());
     const [durationMinutes, setDurationMinutes] = useState(90);
     const [locationObj, setLocationObj] = useState({ description: "", lat: null, lng: null });
     const [activityType, setActivityType] = useState("");
     const [activityTypeOther, setActivityTypeOther] = useState("");
     const [difficulty, setDifficulty] = useState("");
-    const [groupSize, setGroupSize] = useState(10);
+    const [groupSize, setGroupSize] = useState("");
     const [description, setDescription] = useState("");
     const [whatToBring, setWhatToBring] = useState([]);
     const [newBringItem, setNewBringItem] = useState("");
     const [weatherPolicy, setWeatherPolicy] = useState("Light rain OK, storms cancel");
-    const [customWeather, setCustomWeather] = useState("");
+    const [weatherOpen, setWeatherOpen] = useState(false);
     const [price, setPrice] = useState(0);
     const [priceLink, setPriceLink] = useState("");
-    const [accessibilityNotes, setAccessibilityNotes] = useState("");
     const [coverPhotoUrl, setCoverPhotoUrl] = useState("");
     const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
@@ -117,16 +138,11 @@ function EventCreatePageInner() {
                     if (res.description) setDescription(res.description);
                     if (res.whatToBring) setWhatToBring(res.whatToBring);
                     if (res.weatherPolicy) {
-                        if (WEATHER_PRESETS.includes(res.weatherPolicy)) {
-                            setWeatherPolicy(res.weatherPolicy);
-                        } else {
-                            setWeatherPolicy("custom");
-                            setCustomWeather(res.weatherPolicy);
-                        }
+                        setWeatherPolicy(res.weatherPolicy);
                     }
                     if (res.price != null) setPrice(res.price);
                     if (res.priceLink) setPriceLink(res.priceLink);
-                    if (res.accessibilityNotes) setAccessibilityNotes(res.accessibilityNotes);
+                    // accessibilityNotes removed
                     if (res.coverPhotoUrl) setCoverPhotoUrl(res.coverPhotoUrl);
                     if (res.slug) setSlug(res.slug);
                     if (res.status === "published") setPublished(true);
@@ -203,18 +219,15 @@ function EventCreatePageInner() {
             groupSize,
             description,
             whatToBring,
-            weatherPolicy: WEATHER_PRESETS.includes(weatherPolicy)
-                ? weatherPolicy
-                : customWeather,
+            weatherPolicy,
             price,
             priceLink,
-            accessibilityNotes,
             coverPhotoUrl,
         });
     }, [
         eventId, title, dateTime, durationMinutes, locationObj, activityType,
         activityTypeOther, difficulty, groupSize, description, whatToBring,
-        weatherPolicy, customWeather, price, priceLink, accessibilityNotes,
+        weatherPolicy, price, priceLink,
         coverPhotoUrl, autoSave,
     ]);
 
@@ -375,6 +388,8 @@ function EventCreatePageInner() {
                             coverPhotoUrl={coverPhotoUrl}
                             price={price}
                             hideDownload={true}
+                            location={locationObj.description}
+                            durationMinutes={durationMinutes}
                         />
                     </div>
 
@@ -455,365 +470,348 @@ function EventCreatePageInner() {
                             onClick={() => setShareView(true)}
                             className="btn"
                         >
-                            Done →
+                            Save →
                         </button>
                     )}
                 </div>
 
-                {/* Cover Photo */}
-                <div className="relative mb-6 aspect-[16/9] overflow-hidden rounded-[6px] border border-white/15 bg-white/10">
-                    {coverPhotoUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                            src={coverPhotoUrl}
-                            alt="Cover"
-                            className="h-full w-full object-cover"
+                {/* ─── Two-column layout on desktop ─── */}
+                <div className="lg:flex lg:gap-10">
+                    {/* ─── LEFT: Form ─── */}
+                    <div className="lg:flex-1">
+
+                        {/* Title (above the image) */}
+                        <textarea
+                            value={title}
+                            onChange={(e) => {
+                                setTitle(e.target.value.replace(/\n/g, ""));
+                                e.target.style.height = "auto";
+                                e.target.style.height = e.target.scrollHeight + "px";
+                            }}
+                            placeholder={placeholder}
+                            maxLength={80}
+                            rows={1}
+                            className="mb-6 w-full resize-none overflow-visible border-0 bg-transparent font-serif text-3xl italic text-white placeholder-white/30 outline-none focus:ring-0 sm:text-4xl"
+                            style={{ lineHeight: 1.8, paddingBottom: "0.5em" }}
                         />
-                    ) : (
-                        <div className="flex h-full items-center justify-center text-white/40">
-                            <label className="cursor-pointer text-center">
-                                <span className="text-3xl">📷</span>
-                                <p className="mt-2 text-sm">Add a cover photo</p>
-                                <input
-                                    type="file"
-                                    accept="image/jpeg,image/png,image/webp"
-                                    onChange={handlePhotoUpload}
-                                    className="hidden"
+
+                        {/* Cover Photo */}
+                        <div className="relative mb-6 aspect-[16/9] overflow-hidden rounded-[6px] border border-white/15 bg-white/10">
+                            {coverPhotoUrl ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                    src={coverPhotoUrl}
+                                    alt="Cover"
+                                    className="h-full w-full object-cover"
                                 />
-                            </label>
-                        </div>
-                    )}
-                    {coverPhotoUrl && (
-                        <label className="absolute bottom-3 right-3 cursor-pointer rounded-full border border-white/30 bg-black/50 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm hover:bg-black/70">
-                            Change photo
-                            <input
-                                type="file"
-                                accept="image/jpeg,image/png,image/webp"
-                                onChange={handlePhotoUpload}
-                                className="hidden"
-                            />
-                        </label>
-                    )}
-                    {uploadingPhoto && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                            <span className="text-white">Uploading...</span>
-                        </div>
-                    )}
-                </div>
-
-                {/* ─── MANDATORY FIELDS ─── */}
-
-                {/* Title */}
-                <textarea
-                    value={title}
-                    onChange={(e) => {
-                        setTitle(e.target.value.replace(/\n/g, ""));
-                        e.target.style.height = "auto";
-                        e.target.style.height = e.target.scrollHeight + "px";
-                    }}
-                    placeholder={placeholder}
-                    maxLength={80}
-                    rows={1}
-                    className="mb-6 w-full resize-none overflow-visible border-0 bg-transparent font-serif text-3xl italic text-white placeholder-white/30 outline-none focus:ring-0 sm:text-4xl"
-                    style={{ lineHeight: 1.8, paddingBottom: "0.5em" }}
-                />
-
-                {/* Date & Time */}
-                <div className="mb-4">
-                    <label className="mb-1 flex items-center gap-1 text-sm font-medium text-white/60">
-                        Date & Time <span className="text-red-400">*</span>
-                    </label>
-                    <DateTimePicker
-                        value={dateTime}
-                        onChange={(date) => setDateTime(date)}
-                        placeholder="Pick a date & time"
-                    />
-                </div>
-
-                {/* Location */}
-                <div className="mb-6">
-                    <label className="mb-1 flex items-center gap-1 text-sm font-medium text-white/60">
-                        Location <span className="text-red-400">*</span>
-                    </label>
-                    <LocationPicker
-                        value={locationObj}
-                        onChange={setLocationObj}
-                    />
-                </div>
-
-                {/* ─── ADD DETAILS ACCORDION ─── */}
-
-                <button
-                    onClick={() => setDetailsOpen(!detailsOpen)}
-                    className="mb-6 flex items-center gap-2 text-sm font-medium text-white/60 hover:text-white"
-                >
-                    <span
-                        className="inline-block transition-transform"
-                        style={{ transform: detailsOpen ? "rotate(90deg)" : "rotate(0deg)" }}
-                    >
-                        ▸
-                    </span>
-                    Add details
-                </button>
-
-                {/* Details section */}
-                {detailsOpen && (
-                    <div className="space-y-6 rounded-3xl border border-white/15 bg-white/10 p-6 backdrop-blur-sm">
-                        {/* Duration */}
-                        <div>
-                            <label className="mb-1 block text-sm font-medium text-white/60">
-                                Duration
-                            </label>
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="number"
-                                    value={durationMinutes}
-                                    onChange={(e) => setDurationMinutes(Number(e.target.value))}
-                                    min={15}
-                                    max={480}
-                                    step={15}
-                                    className={`w-24 ${inputClass}`}
-                                />
-                                <span className="text-sm text-white/60">minutes</span>
-                            </div>
-                        </div>
-
-                        {/* Activity Type */}
-                        <div>
-                            <label className="mb-1 block text-sm font-medium text-white/60">
-                                Activity Type
-                            </label>
-                            <select
-                                value={activityType}
-                                onChange={(e) => setActivityType(e.target.value)}
-                                className={inputClass}
-                            >
-                                <option value="">Select activity...</option>
-                                {getActivityTypeOptions().map((opt) => (
-                                    <option key={opt.value} value={opt.value}>
-                                        {opt.label}
-                                    </option>
-                                ))}
-                            </select>
-                            {activityType === "other" && (
-                                <input
-                                    type="text"
-                                    value={activityTypeOther}
-                                    onChange={(e) => setActivityTypeOther(e.target.value)}
-                                    placeholder="What kind of activity?"
-                                    className={`mt-2 ${inputClass}`}
-                                />
+                            ) : (
+                                <div className="flex h-full items-center justify-center text-white/40">
+                                    <label className="cursor-pointer text-center">
+                                        <span className="text-3xl">📷</span>
+                                        <p className="mt-2 text-sm">Add a cover photo</p>
+                                        <input
+                                            type="file"
+                                            accept="image/jpeg,image/png,image/webp"
+                                            onChange={handlePhotoUpload}
+                                            className="hidden"
+                                        />
+                                    </label>
+                                </div>
                             )}
-                        </div>
-
-                        {/* Difficulty */}
-                        <div>
-                            <label className="mb-1 block text-sm font-medium text-white/60">
-                                Difficulty
-                            </label>
-                            <div className="flex flex-wrap gap-2">
-                                {DIFFICULTY_OPTIONS.map((opt) => (
-                                    <button
-                                        key={opt.value}
-                                        onClick={() => setDifficulty(opt.value)}
-                                        className={`rounded-full px-4 py-1.5 text-sm transition-colors ${difficulty === opt.value
-                                            ? "border border-white bg-white/20 text-white"
-                                            : "border border-white/30 text-white/70 hover:border-white"
-                                            }`}
-                                    >
-                                        {opt.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Group Size */}
-                        <div>
-                            <label className="mb-1 block text-sm font-medium text-white/60">
-                                Group Size
-                            </label>
-                            <div className="flex items-center gap-3">
-                                <button
-                                    onClick={() => setGroupSize(Math.max(2, groupSize - 1))}
-                                    className="flex h-8 w-8 items-center justify-center rounded-full border border-white/30 text-white/70 hover:border-white hover:text-white"
-                                >
-                                    −
-                                </button>
-                                <span className="w-10 text-center text-lg font-medium text-white">
-                                    {groupSize}
-                                </span>
-                                <button
-                                    onClick={() => setGroupSize(Math.min(100, groupSize + 1))}
-                                    className="flex h-8 w-8 items-center justify-center rounded-full border border-white/30 text-white/70 hover:border-white hover:text-white"
-                                >
-                                    +
-                                </button>
-                                <span className="text-sm text-white/60">people</span>
-                            </div>
-                        </div>
-
-                        {/* Description */}
-                        <div>
-                            <label className="mb-1 block text-sm font-medium text-white/60">
-                                Description
-                            </label>
-                            <textarea
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                maxLength={2000}
-                                rows={4}
-                                placeholder="Tell people what to expect..."
-                                className={`resize-none ${inputClass}`}
-                            />
-                            <p className="mt-1 text-right text-xs text-white/40">
-                                {description.length}/2000
-                            </p>
-                        </div>
-
-                        {/* What to Bring */}
-                        <div>
-                            <label className="mb-1 block text-sm font-medium text-white/60">
-                                What to Bring
-                            </label>
-                            <ul className="mb-2 space-y-1">
-                                {whatToBring.map((item, i) => (
-                                    <li
-                                        key={i}
-                                        className="flex items-center justify-between rounded-[5px] border border-white/15 bg-white/[0.06] px-3 py-1.5 text-sm text-white/80"
-                                    >
-                                        <span>☑ {item}</span>
-                                        <button
-                                            onClick={() => removeBringItem(i)}
-                                            className="text-white/40 hover:text-white"
-                                        >
-                                            ✕
-                                        </button>
-                                    </li>
-                                ))}
-                            </ul>
-                            <div className="flex gap-2">
-                                <input
-                                    type="text"
-                                    value={newBringItem}
-                                    onChange={(e) => setNewBringItem(e.target.value)}
-                                    onKeyDown={(e) => e.key === "Enter" && addBringItem()}
-                                    placeholder="Add item..."
-                                    className={`flex-1 ${inputClass}`}
-                                />
-                                <button
-                                    onClick={addBringItem}
-                                    className="rounded-[5px] border border-white/30 px-3 py-2 text-sm text-white/70 hover:border-white hover:text-white"
-                                >
-                                    Add
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Weather Policy */}
-                        <div>
-                            <label className="mb-1 block text-sm font-medium text-white/60">
-                                Weather Policy
-                            </label>
-                            <div className="space-y-2">
-                                {WEATHER_PRESETS.map((preset) => (
-                                    <button
-                                        key={preset}
-                                        onClick={() => { setWeatherPolicy(preset); setCustomWeather(""); }}
-                                        className={`block w-full rounded-[5px] border px-4 py-2 text-left text-sm transition ${weatherPolicy === preset
-                                            ? "border-white bg-white/20 text-white"
-                                            : "border-white/30 text-white/70 hover:border-white"
-                                            }`}
-                                    >
-                                        {preset}
-                                    </button>
-                                ))}
-                                <button
-                                    onClick={() => setWeatherPolicy("custom")}
-                                    className={`block w-full rounded-[5px] border px-4 py-2 text-left text-sm transition ${weatherPolicy === "custom"
-                                        ? "border-white bg-white/20 text-white"
-                                        : "border-white/30 text-white/70 hover:border-white"
-                                        }`}
-                                >
-                                    Custom
-                                </button>
-                                {weatherPolicy === "custom" && (
+                            {coverPhotoUrl && (
+                                <label className="absolute bottom-3 right-3 cursor-pointer rounded-full border border-white/30 bg-black/50 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm hover:bg-black/70">
+                                    Change photo
                                     <input
-                                        type="text"
-                                        value={customWeather}
-                                        onChange={(e) => setCustomWeather(e.target.value)}
-                                        placeholder="Describe your weather policy..."
-                                        className={inputClass}
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/webp"
+                                        onChange={handlePhotoUpload}
+                                        className="hidden"
                                     />
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Price */}
-                        <div>
-                            <label className="mb-1 block text-sm font-medium text-white/60">
-                                Price
-                            </label>
-                            <div className="flex items-center gap-2">
-                                <span className="text-white/60">$</span>
-                                <input
-                                    type="number"
-                                    value={price}
-                                    onChange={(e) => setPrice(Number(e.target.value))}
-                                    min={0}
-                                    className={`w-24 ${inputClass}`}
-                                />
-                                <span className="text-sm text-white/60">
-                                    {price === 0 ? "(Free)" : ""}
-                                </span>
-                            </div>
-                            {price > 0 && (
-                                <input
-                                    type="url"
-                                    value={priceLink}
-                                    onChange={(e) => setPriceLink(e.target.value)}
-                                    placeholder="Payment link (Venmo, PayPal, etc.)"
-                                    className={`mt-2 ${inputClass}`}
-                                />
+                                </label>
+                            )}
+                            {uploadingPhoto && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                                    <span className="text-white">Uploading...</span>
+                                </div>
                             )}
                         </div>
 
-                        {/* Accessibility */}
-                        <div>
-                            <label className="mb-1 block text-sm font-medium text-white/60">
-                                Accessibility Notes
+                        {/* Date & Time */}
+                        <div className="mb-4">
+                            <label className="mb-1 flex items-center gap-1 text-sm font-medium text-white/60">
+                                Date & Time <span className="text-red-400">*</span>
                             </label>
-                            <input
-                                type="text"
-                                value={accessibilityNotes}
-                                onChange={(e) => setAccessibilityNotes(e.target.value)}
-                                maxLength={500}
-                                placeholder="Trail is wheelchair accessible for first 0.5 miles"
-                                className={inputClass}
+                            <DateTimePicker
+                                value={dateTime}
+                                onChange={(date) => setDateTime(date)}
+                                placeholder="Pick a date & time"
                             />
                         </div>
-                    </div>
-                )}
 
-                {/* Live Story Card Preview */}
-                <div className="mt-10 border-t border-white/10 pt-8">
-                    <h3 className="mb-4 text-center text-xs font-medium uppercase tracking-widest text-white/40">
-                        Story card preview
-                    </h3>
-                    <div className="mx-auto max-w-[260px]">
-                        <StoryCardPreview
-                            title={title}
-                            dateTime={dateTime instanceof Date ? dateTime.toISOString() : dateTime}
-                            activityType={activityType === "other" ? activityTypeOther : activityType}
-                            groupSize={groupSize}
-                            hostName={hostName}
-                            slug={slug}
-                            published={published}
-                            eventId={eventId}
-                            coverPhotoUrl={coverPhotoUrl}
-                            price={price}
-                        />
+                        {/* Location */}
+                        <div className="mb-6">
+                            <label className="mb-1 flex items-center gap-1 text-sm font-medium text-white/60">
+                                Location <span className="text-red-400">*</span>
+                            </label>
+                            <LocationPicker
+                                value={locationObj}
+                                onChange={setLocationObj}
+                            />
+                        </div>
+
+                        {/* ─── ADD DETAILS ACCORDION ─── */}
+
+                        <button
+                            onClick={() => setDetailsOpen(!detailsOpen)}
+                            className="mb-6 flex items-center gap-2 text-sm font-medium text-white/60 hover:text-white"
+                        >
+                            <span
+                                className="inline-block transition-transform"
+                                style={{ transform: detailsOpen ? "rotate(90deg)" : "rotate(0deg)" }}
+                            >
+                                ▸
+                            </span>
+                            Add details
+                        </button>
+
+                        {/* Details section */}
+                        {detailsOpen && (
+                            <div className="space-y-6 rounded-3xl border border-white/15 bg-white/10 p-6 backdrop-blur-sm">
+                                {/* Duration */}
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium text-white/60">
+                                        Duration
+                                    </label>
+                                    <select
+                                        value={durationMinutes}
+                                        onChange={(e) => setDurationMinutes(Number(e.target.value))}
+                                        className={inputClass}
+                                    >
+                                        {DURATION_OPTIONS.map((opt) => (
+                                            <option key={opt.value} value={opt.value}>
+                                                {opt.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                {/* Activity Type */}
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium text-white/60">
+                                        Activity Type
+                                    </label>
+                                    <select
+                                        value={activityType}
+                                        onChange={(e) => setActivityType(e.target.value)}
+                                        className={inputClass}
+                                    >
+                                        <option value="">Select activity...</option>
+                                        {getActivityTypeOptions().map((opt) => (
+                                            <option key={opt.value} value={opt.value}>
+                                                {opt.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {activityType === "other" && (
+                                        <input
+                                            type="text"
+                                            value={activityTypeOther}
+                                            onChange={(e) => setActivityTypeOther(e.target.value)}
+                                            placeholder="What kind of activity?"
+                                            className={`mt-2 ${inputClass}`}
+                                        />
+                                    )}
+                                </div>
+
+                                {/* Difficulty */}
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium text-white/60">
+                                        Difficulty
+                                    </label>
+                                    <div className="flex flex-wrap gap-2">
+                                        {DIFFICULTY_OPTIONS.map((opt) => (
+                                            <button
+                                                key={opt.value}
+                                                onClick={() => setDifficulty(opt.value)}
+                                                className={`rounded-full px-4 py-1.5 text-sm transition-colors ${difficulty === opt.value
+                                                    ? "border border-white bg-white/20 text-white"
+                                                    : "border border-white/30 text-white/70 hover:border-white"
+                                                    }`}
+                                            >
+                                                {opt.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Group Size */}
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium text-white/60">
+                                        Group Size (optional)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={groupSize}
+                                        onChange={(e) => setGroupSize(e.target.value === "" ? "" : Number(e.target.value))}
+                                        min={2}
+                                        max={100}
+                                        placeholder="Leave empty if no limit"
+                                        className={`w-full ${inputClass}`}
+                                    />
+                                </div>
+
+                                {/* Description */}
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium text-white/60">
+                                        Description
+                                    </label>
+                                    <textarea
+                                        value={description}
+                                        onChange={(e) => setDescription(e.target.value)}
+                                        maxLength={2000}
+                                        rows={4}
+                                        placeholder="Tell people what to expect..."
+                                        className={`resize-none ${inputClass}`}
+                                    />
+                                    <p className="mt-1 text-right text-xs text-white/40">
+                                        {description.length}/2000
+                                    </p>
+                                </div>
+
+                                {/* What to Bring */}
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium text-white/60">
+                                        What to Bring
+                                    </label>
+                                    <ul className="mb-2 space-y-1">
+                                        {whatToBring.map((item, i) => (
+                                            <li
+                                                key={i}
+                                                className="flex items-center justify-between rounded-[5px] border border-white/15 bg-white/[0.06] px-3 py-1.5 text-sm text-white/80"
+                                            >
+                                                <span>☑ {item}</span>
+                                                <button
+                                                    onClick={() => removeBringItem(i)}
+                                                    className="text-white/40 hover:text-white"
+                                                >
+                                                    ✕
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            value={newBringItem}
+                                            onChange={(e) => setNewBringItem(e.target.value)}
+                                            onKeyDown={(e) => e.key === "Enter" && addBringItem()}
+                                            placeholder="Add item..."
+                                            className={`flex-1 ${inputClass}`}
+                                        />
+                                        <button
+                                            onClick={addBringItem}
+                                            className="rounded-[5px] border border-white/30 px-3 py-2 text-sm text-white/70 hover:border-white hover:text-white"
+                                        >
+                                            Add
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Weather / Rain Policy — collapsible */}
+                                <div>
+                                    <button
+                                        onClick={() => setWeatherOpen(!weatherOpen)}
+                                        className="flex w-full items-center gap-2 text-sm font-medium text-white/60 hover:text-white"
+                                    >
+                                        <span
+                                            className="inline-block transition-transform"
+                                            style={{ transform: weatherOpen ? "rotate(90deg)" : "rotate(0deg)" }}
+                                        >
+                                            ▸
+                                        </span>
+                                        Rain policy
+                                        {weatherPolicy && (
+                                            <span className="ml-auto text-xs text-white/40">{weatherPolicy}</span>
+                                        )}
+                                    </button>
+                                    {weatherOpen && (
+                                        <div className="mt-3 space-y-2">
+                                            {WEATHER_PRESETS.map((preset) => (
+                                                <button
+                                                    key={preset}
+                                                    onClick={() => setWeatherPolicy(preset)}
+                                                    className={`block w-full rounded-[5px] border px-4 py-2 text-left text-sm transition ${weatherPolicy === preset
+                                                        ? "border-white bg-white/20 text-white"
+                                                        : "border-white/30 text-white/70 hover:border-white"
+                                                        }`}
+                                                >
+                                                    {preset}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Price */}
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium text-white/60">
+                                        Price
+                                    </label>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-white/60">$</span>
+                                        <input
+                                            type="number"
+                                            value={price}
+                                            onChange={(e) => setPrice(Number(e.target.value))}
+                                            min={0}
+                                            className={`w-24 ${inputClass}`}
+                                        />
+                                        <span className="text-sm text-white/60">
+                                            {price === 0 ? "(Free)" : ""}
+                                        </span>
+                                    </div>
+                                    {price > 0 && (
+                                        <input
+                                            type="url"
+                                            value={priceLink}
+                                            onChange={(e) => setPriceLink(e.target.value)}
+                                            placeholder="Payment link (Venmo, PayPal, etc.)"
+                                            className={`mt-2 ${inputClass}`}
+                                        />
+                                    )}
+                                </div>
+
+
+                            </div>
+                        )}
+
+                    </div>{/* end left column */}
+
+                    {/* ─── RIGHT: Live Story Card Preview (desktop: sticky sidebar) ─── */}
+                    <div className="mt-10 border-t border-white/10 pt-8 lg:mt-0 lg:w-[300px] lg:flex-shrink-0 lg:border-t-0 lg:pt-0">
+                        <div className="lg:sticky lg:top-8">
+                            <h3 className="mb-4 text-center text-xs font-medium uppercase tracking-widest text-white/40">
+                                Story card preview
+                            </h3>
+                            <div className="mx-auto max-w-[260px]">
+                                <StoryCardPreview
+                                    title={title}
+                                    dateTime={dateTime instanceof Date ? dateTime.toISOString() : dateTime}
+                                    activityType={activityType === "other" ? activityTypeOther : activityType}
+                                    groupSize={groupSize}
+                                    hostName={hostName}
+                                    slug={slug}
+                                    published={published}
+                                    eventId={eventId}
+                                    coverPhotoUrl={coverPhotoUrl}
+                                    price={price}
+                                    location={locationObj.description}
+                                    durationMinutes={durationMinutes}
+                                />
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </div>{/* end two-column wrapper */}
             </div>
         </div>
     );
