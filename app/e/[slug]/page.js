@@ -60,6 +60,7 @@ export default async function EventPage({ params }) {
         whatToBring: event.whatToBring,
         weatherPolicy: event.weatherPolicy,
         price: event.price,
+        currency: event.currency || "USD",
         priceLink: event.priceLink,
         coverPhotoUrl: event.coverPhotoUrl,
         accessibilityNotes: event.accessibilityNotes,

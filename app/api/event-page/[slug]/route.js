@@ -23,10 +23,16 @@ export async function GET(req, { params }) {
             status: "confirmed",
         });
 
+        // Count maybe RSVPs
+        const maybeCount = await Rsvp.countDocuments({
+            eventId: event._id,
+            status: "maybe",
+        });
+
         // Get attendee first names for "who's going"
         const attendees = await Rsvp.find({
             eventId: event._id,
-            status: "confirmed",
+            status: { $in: ["confirmed", "maybe"] },
         })
             .select("participantName")
             .lean();
@@ -49,6 +55,7 @@ export async function GET(req, { params }) {
             whatToBring: event.whatToBring,
             weatherPolicy: event.weatherPolicy,
             price: event.price,
+            currency: event.currency || "USD",
             priceLink: event.priceLink,
             coverPhotoUrl: event.coverPhotoUrl,
             accessibilityNotes: event.accessibilityNotes,
@@ -71,6 +78,7 @@ export async function GET(req, { params }) {
                 }
                 : null,
             rsvpCount,
+            maybeCount,
             attendeeNames,
         };
 

@@ -2,9 +2,18 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { generateIcs, googleCalendarUrl } from "@/libs/calendar";
+import StoryCardPreview from "@/components/StoryCardPreview";
+
+const DIFFICULTY_LABELS = {
+    easy: "Easy",
+    moderate: "Moderate",
+    hard: "Hard",
+    strenuous: "Crazy",
+};
 
 export default function EventPageClient({ event }) {
-    const [rsvpState, setRsvpState] = useState("idle"); // idle | form | confirmed | waitlisted
+    const [rsvpState, setRsvpState] = useState("idle"); // idle | form | confirmed | maybe | waitlisted
+    const [rsvpResponse, setRsvpResponse] = useState(null); // "going" | "maybe" | "cantgo"
     const [phone, setPhone] = useState("");
     const [countryCode, setCountryCode] = useState("+1");
     const [name, setName] = useState("");
@@ -12,9 +21,11 @@ export default function EventPageClient({ event }) {
     const [error, setError] = useState("");
     const [meetingPoint, setMeetingPoint] = useState(null);
     const [rsvpCount, setRsvpCount] = useState(0);
+    const [maybeCount, setMaybeCount] = useState(0);
     const [attendeeNames, setAttendeeNames] = useState([]);
+    const [detailsOpen, setDetailsOpen] = useState(false);
 
-    // Common country codes — ordered by likely usage
+    // Common country codes
     const countryCodes = [
         { code: "+1", flag: "🇺🇸", label: "US" },
         { code: "+1", flag: "🇨🇦", label: "CA" },
@@ -38,13 +49,14 @@ export default function EventPageClient({ event }) {
         { code: "+27", flag: "🇿🇦", label: "ZA" },
     ];
 
-    // Load current RSVP count
+    // Load current RSVP data
     useEffect(() => {
         async function loadPublicData() {
             try {
                 const res = await fetch(`/api/event-page/${event.slug}`);
                 const data = await res.json();
                 if (data.rsvpCount !== undefined) setRsvpCount(data.rsvpCount);
+                if (data.maybeCount !== undefined) setMaybeCount(data.maybeCount);
                 if (data.attendeeNames) setAttendeeNames(data.attendeeNames);
             } catch (err) {
                 console.error("Failed to load event data:", err);
@@ -85,7 +97,7 @@ export default function EventPageClient({ event }) {
                 }
             }
         } catch {
-            // Timezone detection is best-effort, no action needed on failure
+            // best-effort
         }
     }, []);
 
@@ -96,11 +108,17 @@ export default function EventPageClient({ event }) {
             );
             const data = await res.json();
             if (data.found) {
-                setRsvpState(data.rsvp.status === "waitlisted" ? "waitlisted" : "confirmed");
+                if (data.rsvp.status === "waitlisted") {
+                    setRsvpState("waitlisted");
+                } else if (data.rsvp.status === "maybe") {
+                    setRsvpState("maybe");
+                } else if (data.rsvp.status === "confirmed") {
+                    setRsvpState("confirmed");
+                }
                 if (data.meetingPoint) setMeetingPoint(data.meetingPoint);
             }
         } catch (_err) {
-            // Not a critical error
+            // Not critical
         }
     }, [event.id]);
 
@@ -109,7 +127,7 @@ export default function EventPageClient({ event }) {
         const savedPhone = localStorage.getItem("nc_phone");
         const savedName = localStorage.getItem("nc_name");
         if (savedPhone) {
-            setPhone(savedPhone.replace(/^\+\d+/, ""));  // strip country code if stored
+            setPhone(savedPhone.replace(/^\+\d+/, ""));
             if (savedName) setName(savedName);
             checkExistingRsvp(savedPhone);
         }
@@ -123,6 +141,10 @@ export default function EventPageClient({ event }) {
         try {
             const fullPhone = phone.startsWith("+") ? phone : `${countryCode}${phone.replace(/^0+/, "")}`;
 
+            const rsvpStatus = rsvpResponse === "going" ? "confirmed"
+                : rsvpResponse === "maybe" ? "maybe"
+                    : "cancelled";
+
             const res = await fetch("/api/rsvp", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -130,6 +152,7 @@ export default function EventPageClient({ event }) {
                     eventId: event.id,
                     participantName: name,
                     participantPhone: fullPhone,
+                    status: rsvpStatus,
                 }),
             });
 
@@ -137,7 +160,9 @@ export default function EventPageClient({ event }) {
 
             if (!res.ok) {
                 if (res.status === 409) {
-                    setRsvpState(data.status === "waitlisted" ? "waitlisted" : "confirmed");
+                    if (data.status === "waitlisted") setRsvpState("waitlisted");
+                    else if (data.status === "maybe") setRsvpState("maybe");
+                    else setRsvpState("confirmed");
                     if (data.rsvp?.meetingPoint) setMeetingPoint(data.rsvp.meetingPoint);
                 } else {
                     setError(data.error || "Something went wrong");
@@ -148,8 +173,16 @@ export default function EventPageClient({ event }) {
             localStorage.setItem("nc_phone", fullPhone);
             localStorage.setItem("nc_name", name);
 
-            if (data.rsvp.status === "waitlisted") {
+            if (rsvpStatus === "cancelled") {
+                setRsvpState("idle");
+                return;
+            }
+
+            if (data.rsvp?.status === "waitlisted") {
                 setRsvpState("waitlisted");
+            } else if (rsvpStatus === "maybe") {
+                setRsvpState("maybe");
+                setMaybeCount((c) => c + 1);
             } else {
                 setRsvpState("confirmed");
                 if (data.meetingPoint) setMeetingPoint(data.meetingPoint);
@@ -180,7 +213,6 @@ export default function EventPageClient({ event }) {
             description: event.description || "",
             url: window.location.href,
         };
-
         if (type === "google") {
             window.open(googleCalendarUrl(calData), "_blank");
         } else {
@@ -198,6 +230,22 @@ export default function EventPageClient({ event }) {
     const isCancelled = event.status === "cancelled";
     const isFull = event.groupSize && rsvpCount >= event.groupSize;
     const spotsLeft = event.groupSize ? event.groupSize - rsvpCount : null;
+
+    const currencySymbol = {
+        USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$",
+        NZD: "NZ$", BRL: "R$", MXN: "MX$", JPY: "¥", INR: "₹",
+        ZAR: "R", CHF: "CHF", SEK: "kr", NOK: "kr", DKK: "kr",
+        COP: "COL$", ARS: "AR$", CLP: "CL$",
+    }[event.currency] || "$";
+
+    function formatDuration(mins) {
+        if (!mins) return "";
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        if (h === 0) return `${m} min`;
+        if (m === 0) return `${h} hr`;
+        return `${h} hr ${m} min`;
+    }
 
     const formattedDate = event.dateTime
         ? new Date(event.dateTime).toLocaleDateString("en-US", {
@@ -226,19 +274,6 @@ export default function EventPageClient({ event }) {
 
     return (
         <div className="min-h-screen bg-black text-white">
-            {/* Cover Photo */}
-            {event.coverPhotoUrl && (
-                <div className="relative h-56 sm:h-72">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                        src={event.coverPhotoUrl}
-                        alt={event.title}
-                        className="h-full w-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
-                </div>
-            )}
-
             <div className="mx-auto max-w-lg px-5 py-8">
                 {/* Cancelled banner */}
                 {isCancelled && (
@@ -250,12 +285,27 @@ export default function EventPageClient({ event }) {
                     </div>
                 )}
 
-                {/* Title */}
-                <h1 className="mb-2 font-serif text-3xl italic text-white sm:text-4xl">
-                    {event.title}
-                </h1>
+                {/* Story Card Preview (no download button) */}
+                <div className="mb-8">
+                    <StoryCardPreview
+                        title={event.title}
+                        dateTime={event.dateTime}
+                        activityType={activityLabel}
+                        groupSize={event.groupSize}
+                        hostName={event.host?.name}
+                        slug={event.slug}
+                        published={true}
+                        eventId={event.id}
+                        coverPhotoUrl={event.coverPhotoUrl}
+                        price={event.price}
+                        hideDownload={true}
+                        location={event.approximateLocation ? (meetingPoint?.description || "") : ""}
+                        durationMinutes={event.durationMinutes}
+                        currency={event.currency}
+                    />
+                </div>
 
-                {/* Facilitator */}
+                {/* Host info */}
                 {event.host && (
                     <div className="mb-6 flex items-center gap-3">
                         {event.host.photoUrl ? (
@@ -272,7 +322,7 @@ export default function EventPageClient({ event }) {
                         )}
                         <div>
                             <p className="text-sm font-medium text-white/90">
-                                {event.host.name}
+                                Hosted by {event.host.name}
                             </p>
                             {event.host.username && (
                                 <a
@@ -286,149 +336,201 @@ export default function EventPageClient({ event }) {
                     </div>
                 )}
 
-                {/* Key details */}
-                <div className="mb-6 space-y-2">
-                    {formattedDate && (
-                        <div className="flex items-center gap-2 text-white/80">
-                            <span className="w-5 text-center">📅</span>
-                            <span className="text-sm">
-                                {formattedDate} at {formattedTime}
+                {/* Attendees / Who's going */}
+                {(rsvpCount > 0 || maybeCount > 0) && (
+                    <div className="mb-6 rounded-2xl border border-white/15 bg-white/5 p-4">
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-white/80">
+                                👥 {rsvpCount} going
+                                {maybeCount > 0 && ` · ${maybeCount} maybe`}
+                                {spotsLeft !== null && spotsLeft > 0 && ` · ${spotsLeft} spots left`}
+                                {spotsLeft !== null && spotsLeft <= 0 && " · Full"}
                             </span>
                         </div>
-                    )}
-                    {activityLabel && (
-                        <div className="flex items-center gap-2 text-white/80">
-                            <span className="w-5 text-center">🥾</span>
-                            <span className="text-sm">{activityLabel}</span>
-                        </div>
-                    )}
-                    {event.difficulty && (
-                        <div className="flex items-center gap-2 text-white/80">
-                            <span className="w-5 text-center">📊</span>
-                            <span className="text-sm capitalize">{event.difficulty}</span>
-                        </div>
-                    )}
-                    <div className="flex items-center gap-2 text-white/80">
-                        <span className="w-5 text-center">👥</span>
-                        <span className="text-sm">
-                            {rsvpCount} going
-                            {spotsLeft !== null && ` · ${spotsLeft > 0 ? `${spotsLeft} spots left` : "Full"}`}
-                        </span>
+                        {attendeeNames.length > 0 && (
+                            <p className="mt-2 text-xs text-white/50">
+                                {attendeeNames.slice(0, 8).join(", ")}
+                                {attendeeNames.length > 8 && ` + ${attendeeNames.length - 8} more`}
+                            </p>
+                        )}
                     </div>
-                    {event.durationMinutes && (
-                        <div className="flex items-center gap-2 text-white/80">
-                            <span className="w-5 text-center">⏱</span>
-                            <span className="text-sm">
-                                {event.durationMinutes >= 60
-                                    ? `${Math.floor(event.durationMinutes / 60)}h${event.durationMinutes % 60 ? ` ${event.durationMinutes % 60}m` : ""}`
-                                    : `${event.durationMinutes}m`}
-                            </span>
-                        </div>
-                    )}
-                    {event.hasLocation && !meetingPoint && (
-                        <div className="flex items-center gap-2 text-white/50">
-                            <span className="w-5 text-center">📍</span>
-                            <span className="text-sm italic">
-                                Exact meeting point revealed after RSVP
-                            </span>
-                        </div>
-                    )}
-                    {meetingPoint && (
-                        <div className="flex items-center gap-2 text-white/80">
-                            <span className="w-5 text-center">📍</span>
-                            <span className="text-sm">
-                                {meetingPoint.description || `${meetingPoint.lat}, ${meetingPoint.lng}`}
-                            </span>
-                        </div>
-                    )}
-                    <div className="flex items-center gap-2 text-white/80">
-                        <span className="w-5 text-center">💵</span>
-                        <span className="text-sm">
-                            {event.price > 0 ? (
-                                <>
-                                    ${event.price}
-                                    {event.priceLink && (
-                                        <>
-                                            {" · "}
-                                            <a
-                                                href={event.priceLink}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-white hover:underline"
-                                            >
-                                                Pay here
-                                            </a>
-                                        </>
-                                    )}
-                                </>
-                            ) : (
-                                "Free"
+                )}
+
+                {/* Show Details accordion */}
+                <div className="mb-6">
+                    <button
+                        onClick={() => setDetailsOpen(!detailsOpen)}
+                        className="flex w-full items-center gap-2 text-sm font-medium text-white/60 hover:text-white"
+                    >
+                        <span
+                            className="inline-block transition-transform"
+                            style={{ transform: detailsOpen ? "rotate(90deg)" : "rotate(0deg)" }}
+                        >
+                            ▸
+                        </span>
+                        Show details
+                    </button>
+
+                    {detailsOpen && (
+                        <div className="mt-4 space-y-3">
+                            {/* Key details */}
+                            {formattedDate && (
+                                <div className="flex items-center gap-2 text-white/80">
+                                    <span className="w-5 text-center">📅</span>
+                                    <span className="text-sm">{formattedDate} at {formattedTime}</span>
+                                </div>
                             )}
-                        </span>
-                    </div>
+                            {event.durationMinutes > 0 && (
+                                <div className="flex items-center gap-2 text-white/80">
+                                    <span className="w-5 text-center">⏱</span>
+                                    <span className="text-sm">{formatDuration(event.durationMinutes)}</span>
+                                </div>
+                            )}
+                            {activityLabel && (
+                                <div className="flex items-center gap-2 text-white/80">
+                                    <span className="w-5 text-center">🥾</span>
+                                    <span className="text-sm">{activityLabel}</span>
+                                </div>
+                            )}
+                            {event.difficulty && (
+                                <div className="flex items-center gap-2 text-white/80">
+                                    <span className="w-5 text-center">📊</span>
+                                    <span className="text-sm">
+                                        {DIFFICULTY_LABELS[event.difficulty] || event.difficulty}
+                                    </span>
+                                </div>
+                            )}
+                            {event.hasLocation && !meetingPoint && (
+                                <div className="flex items-center gap-2 text-white/50">
+                                    <span className="w-5 text-center">📍</span>
+                                    <span className="text-sm italic">
+                                        Exact meeting point revealed after RSVP
+                                    </span>
+                                </div>
+                            )}
+                            {meetingPoint && (
+                                <div className="flex items-center gap-2 text-white/80">
+                                    <span className="w-5 text-center">📍</span>
+                                    <span className="text-sm">
+                                        {meetingPoint.description || `${meetingPoint.lat}, ${meetingPoint.lng}`}
+                                    </span>
+                                </div>
+                            )}
+                            <div className="flex items-center gap-2 text-white/80">
+                                <span className="w-5 text-center">💵</span>
+                                <span className="text-sm">
+                                    {event.price > 0 ? (
+                                        <>
+                                            {currencySymbol}{event.price}
+                                            {event.priceLink && (
+                                                <>
+                                                    {" · "}
+                                                    <a
+                                                        href={event.priceLink}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-white hover:underline"
+                                                    >
+                                                        Pay here
+                                                    </a>
+                                                </>
+                                            )}
+                                        </>
+                                    ) : (
+                                        "Free"
+                                    )}
+                                </span>
+                            </div>
+
+                            {/* Description */}
+                            {event.description && (
+                                <div className="mt-2 border-t border-white/10 pt-3">
+                                    <p className="whitespace-pre-wrap text-sm leading-relaxed text-white/70">
+                                        {event.description}
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* What to Bring */}
+                            {event.whatToBring?.length > 0 && (
+                                <div className="mt-2">
+                                    <h3 className="mb-2 text-sm font-medium text-white/60">
+                                        What to bring
+                                    </h3>
+                                    <ul className="space-y-1">
+                                        {event.whatToBring.map((item, i) => (
+                                            <li key={i} className="flex items-center gap-2 text-sm text-white/70">
+                                                <span>☐</span>
+                                                {item}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {/* Weather Policy */}
+                            {event.weatherPolicy && (
+                                <div className="mt-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                                    <p className="text-sm text-white/80">
+                                        <span className="font-medium text-white/90">🌧 Weather: </span>
+                                        {event.weatherPolicy}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
 
-                {/* Description */}
-                {event.description && (
-                    <div className="mb-6">
-                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-white/70">
-                            {event.description}
-                        </p>
-                    </div>
-                )}
-
-                {/* What to Bring */}
-                {event.whatToBring?.length > 0 && (
-                    <div className="mb-6">
-                        <h3 className="mb-2 text-sm font-medium text-white/60">
-                            What to bring
-                        </h3>
-                        <ul className="space-y-1">
-                            {event.whatToBring.map((item, i) => (
-                                <li key={i} className="flex items-center gap-2 text-sm text-white/70">
-                                    <span>☐</span>
-                                    {item}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
-
-                {/* Weather Policy */}
-                {event.weatherPolicy && (
-                    <div className="mb-6 rounded-3xl border border-white/15 bg-white/10 px-5 py-3 backdrop-blur-sm">
-                        <p className="text-sm text-white/80">
-                            <span className="font-medium text-white/90">Weather: </span>
-                            {event.weatherPolicy}
-                        </p>
-                    </div>
-                )}
-
-                {/* Accessibility */}
-                {event.accessibilityNotes && (
-                    <div className="mb-6 rounded-3xl border border-white/15 bg-white/10 px-5 py-3 backdrop-blur-sm">
-                        <p className="text-sm text-white/80">
-                            <span className="font-medium text-white/90">Accessibility: </span>
-                            {event.accessibilityNotes}
-                        </p>
-                    </div>
-                )}
-
-                {/* RSVP Section */}
+                {/* ── RSVP Section ── */}
                 {!isCancelled && (
-                    <div className="mt-8">
+                    <div className="mt-4">
+                        {/* RSVP Options — Going / Maybe / Can't Go */}
                         {rsvpState === "idle" && (
-                            <button
-                                onClick={() => setRsvpState("form")}
-                                disabled={isFull}
-                                className="btn w-full py-4 text-lg font-semibold disabled:cursor-not-allowed disabled:opacity-40"
-                            >
-                                {isFull ? "Full — Join waitlist" : "I'm in 🌱"}
-                            </button>
+                            <div>
+                                <h3 className="mb-4 text-center text-sm font-medium text-white/60">
+                                    RSVP
+                                </h3>
+                                <div className="flex justify-center gap-4">
+                                    {[
+                                        { key: "going", icon: "✓", label: "Going" },
+                                        { key: "maybe", icon: "?", label: "Maybe" },
+                                        { key: "cantgo", icon: "✕", label: "Can\u0027t Go" },
+                                    ].map((opt) => (
+                                        <button
+                                            key={opt.key}
+                                            onClick={() => {
+                                                setRsvpResponse(opt.key);
+                                                setRsvpState("form");
+                                            }}
+                                            disabled={opt.key === "going" && isFull}
+                                            className={`flex flex-col items-center gap-2 ${opt.key === "going" && isFull
+                                                ? "cursor-not-allowed opacity-40"
+                                                : "hover:scale-105"
+                                                } transition-transform`}
+                                        >
+                                            <div className="flex h-20 w-20 items-center justify-center rounded-full border border-white/20 bg-white/10 text-2xl font-bold text-white backdrop-blur-sm">
+                                                {opt.icon}
+                                            </div>
+                                            <span className="text-xs font-medium text-white/70">
+                                                {opt.key === "going" && isFull ? "Full" : opt.label}
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
+                                {isFull && (
+                                    <p className="mt-3 text-center text-xs text-white/40">
+                                        Event is full — select Maybe to join the waitlist
+                                    </p>
+                                )}
+                            </div>
                         )}
 
+                        {/* RSVP Form */}
                         {rsvpState === "form" && (
                             <form onSubmit={handleRsvp} className="space-y-3">
+                                <p className="mb-2 text-center text-sm text-white/60">
+                                    {rsvpResponse === "going" ? "You're going! 🌱" : rsvpResponse === "maybe" ? "Maybe — we'll save you a spot" : "Can't make it"}
+                                </p>
                                 <input
                                     type="text"
                                     value={name}
@@ -462,20 +564,26 @@ export default function EventPageClient({ event }) {
                                 {error && (
                                     <p className="text-sm text-red-400">{error}</p>
                                 )}
-                                <button
-                                    type="submit"
-                                    disabled={submitting || !name.trim() || !phone.trim()}
-                                    className="btn w-full py-4 text-lg font-semibold disabled:cursor-not-allowed disabled:opacity-40"
-                                >
-                                    {submitting
-                                        ? "Saving..."
-                                        : isFull
-                                            ? "Join waitlist"
-                                            : "I'm in 🌱"}
-                                </button>
+                                <div className="flex gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => { setRsvpState("idle"); setRsvpResponse(null); }}
+                                        className="rounded-[5px] border border-white/30 px-4 py-3 text-sm text-white/60 hover:border-white hover:text-white"
+                                    >
+                                        Back
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={submitting || !name.trim() || !phone.trim()}
+                                        className="btn flex-1 py-3 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40"
+                                    >
+                                        {submitting ? "Saving..." : "Confirm"}
+                                    </button>
+                                </div>
                             </form>
                         )}
 
+                        {/* Confirmed */}
                         {rsvpState === "confirmed" && (
                             <div className="rounded-3xl border border-white/15 bg-white/10 p-6 text-center backdrop-blur-sm">
                                 <p className="text-3xl">🌿</p>
@@ -486,7 +594,6 @@ export default function EventPageClient({ event }) {
                                     See you there. Here&apos;s what you need to know:
                                 </p>
 
-                                {/* Calendar buttons */}
                                 {event.dateTime && (
                                     <div className="mt-4 flex gap-2 justify-center">
                                         <button
@@ -504,29 +611,29 @@ export default function EventPageClient({ event }) {
                                     </div>
                                 )}
 
-                                {/* Who's going */}
-                                {attendeeNames.length > 0 && (
-                                    <div className="mt-4">
-                                        <p className="text-xs text-white/50">
-                                            {attendeeNames.slice(0, 5).join(", ")}
-                                            {attendeeNames.length > 5
-                                                ? ` + ${attendeeNames.length - 5} more`
-                                                : ""}{" "}
-                                            going
-                                        </p>
-                                    </div>
-                                )}
-
-                                {/* Share */}
-                                <button
-                                    onClick={handleShare}
-                                    className="btn mt-4"
-                                >
+                                <button onClick={handleShare} className="btn mt-4">
                                     Bring a friend →
                                 </button>
                             </div>
                         )}
 
+                        {/* Maybe */}
+                        {rsvpState === "maybe" && (
+                            <div className="rounded-3xl border border-white/15 bg-white/10 p-6 text-center backdrop-blur-sm">
+                                <p className="text-3xl">🤔</p>
+                                <h3 className="mt-2 font-serif text-xl italic text-white">
+                                    Noted — maybe!
+                                </h3>
+                                <p className="mt-1 text-sm text-white/70">
+                                    We&apos;ll keep a spot warm for you.
+                                </p>
+                                <button onClick={handleShare} className="btn mt-4">
+                                    Share with a friend →
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Waitlisted */}
                         {rsvpState === "waitlisted" && (
                             <div className="rounded-3xl border border-white/15 bg-white/10 p-6 text-center backdrop-blur-sm">
                                 <p className="text-3xl">⏳</p>

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import toJSON from "./plugins/toJSON";
 
-const RSVP_STATUSES = ["confirmed", "cancelled", "waitlisted"];
+const RSVP_STATUSES = ["confirmed", "maybe", "cancelled", "waitlisted"];
 
 const rsvpSchema = mongoose.Schema(
     {

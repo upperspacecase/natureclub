@@ -13,7 +13,7 @@ import {
 // POST — Create RSVP or join waitlist
 export async function POST(req) {
     try {
-        const { eventId, participantName, participantPhone } = await req.json();
+        const { eventId, participantName, participantPhone, status: requestedStatus } = await req.json();
 
         if (!eventId || !participantName || !participantPhone) {
             return Response.json(
@@ -49,6 +49,15 @@ export async function POST(req) {
             );
         }
 
+        // Handle "Can't Go" — cancel any existing RSVP
+        if (requestedStatus === "cancelled") {
+            await Rsvp.updateMany(
+                { eventId: event._id, participantPhone: cleanPhone, status: { $ne: "cancelled" } },
+                { $set: { status: "cancelled" } }
+            );
+            return Response.json({ message: "RSVP cancelled" }, { status: 200 });
+        }
+
         // Check for existing RSVP (deduplication)
         const existingRsvp = await Rsvp.findOne({
             eventId: event._id,
@@ -57,6 +66,16 @@ export async function POST(req) {
         });
 
         if (existingRsvp) {
+            // If status is changing (e.g. maybe → confirmed), update it
+            if (requestedStatus && requestedStatus !== existingRsvp.status) {
+                existingRsvp.status = requestedStatus;
+                existingRsvp.participantName = trimmedName;
+                await existingRsvp.save();
+                return Response.json({
+                    rsvp: existingRsvp.toJSON(),
+                    meetingPoint: requestedStatus === "confirmed" ? event.meetingPoint : null,
+                }, { status: 200 });
+            }
             return Response.json(
                 {
                     error: "You're already signed up!",
@@ -73,6 +92,20 @@ export async function POST(req) {
                 { error: "This event has already passed" },
                 { status: 400 }
             );
+        }
+
+        // Determine RSVP status
+        const wantedStatus = requestedStatus || "confirmed";
+
+        if (wantedStatus === "maybe") {
+            // Maybe doesn't count against group capacity
+            const rsvp = await Rsvp.create({
+                eventId: event._id,
+                participantName: trimmedName,
+                participantPhone: cleanPhone,
+                status: "maybe",
+            });
+            return Response.json({ rsvp: rsvp.toJSON() }, { status: 201 });
         }
 
         // Check group cap → waitlist
