@@ -465,7 +465,7 @@ function EventCreatePageInner() {
     // ── CREATE / EDIT VIEW ──
     return (
         <div className="min-h-screen bg-black text-white">
-            <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
+            <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 lg:max-w-5xl">
                 {/* Header */}
                 <div className="mb-8 flex items-center justify-between">
                     <button
@@ -534,7 +534,7 @@ function EventCreatePageInner() {
                             placeholder={placeholder}
                             maxLength={80}
                             rows={1}
-                            className="mb-6 w-full resize-none overflow-visible border-0 bg-transparent font-serif text-3xl italic text-white placeholder-white/30 outline-none focus:ring-0 sm:text-4xl"
+                            className="mb-6 w-full resize-none overflow-hidden border-0 bg-transparent font-serif text-3xl italic text-white placeholder-white/30 outline-none focus:ring-0 sm:text-4xl"
                             style={{ lineHeight: 1.8, paddingBottom: "0.5em" }}
                         />
 
