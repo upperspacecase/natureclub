@@ -83,6 +83,17 @@ export default function FacilitatorEventsPage() {
         }
     }
 
+    async function deleteEvent(eventId) {
+        if (!confirm("Delete this event permanently? This cannot be undone.")) return;
+        try {
+            await apiClient.delete(`/events/${eventId}`);
+            setEvents((prev) => prev.filter((e) => (e.id || e._id) !== eventId));
+            setMenuOpen(null);
+        } catch (_err) {
+            console.error("Delete failed:", _err);
+        }
+    }
+
     const now = new Date();
 
     // Sort: upcoming published first, then drafts, then past, then cancelled
@@ -262,17 +273,15 @@ export default function FacilitatorEventsPage() {
                                     </button>
 
                                     {/* Overflow menu trigger */}
-                                    {event.status !== "draft" && (
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setMenuOpen(menuOpen === eid ? null : eid);
-                                            }}
-                                            className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full text-white/40 transition hover:bg-white/10 hover:text-white/70"
-                                        >
-                                            ⋯
-                                        </button>
-                                    )}
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setMenuOpen(menuOpen === eid ? null : eid);
+                                        }}
+                                        className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full text-white/40 transition hover:bg-white/10 hover:text-white/70"
+                                    >
+                                        ⋯
+                                    </button>
 
                                     {/* Overflow menu dropdown */}
                                     {menuOpen === eid && (
@@ -326,6 +335,13 @@ export default function FacilitatorEventsPage() {
                                                     )}
                                                 </>
                                             )}
+                                            <div className="border-t border-white/10 mt-1 pt-1" />
+                                            <button
+                                                onClick={() => deleteEvent(eid)}
+                                                className="block w-full rounded-lg px-3 py-2 text-left text-sm text-red-400/70 hover:bg-white/10"
+                                            >
+                                                🗑 Delete
+                                            </button>
                                         </div>
                                     )}
                                 </div>

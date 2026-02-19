@@ -106,3 +106,37 @@ export async function PATCH(req, { params }) {
         return Response.json({ error: "Failed to update event" }, { status: 500 });
     }
 }
+
+// DELETE — Permanently delete an event and its RSVPs
+export async function DELETE(req, { params }) {
+    try {
+        const user = await getAuthUser();
+        if (!user) {
+            return Response.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const { id } = await params;
+        await connectMongo();
+
+        const event = await BookingEvent.findOne({
+            _id: id,
+            createdBy: user._id,
+        });
+
+        if (!event) {
+            return Response.json({ error: "Event not found" }, { status: 404 });
+        }
+
+        // Delete all RSVPs for this event
+        const { default: Rsvp } = await import("@/models/Rsvp");
+        await Rsvp.deleteMany({ eventId: event._id });
+
+        // Delete the event
+        await BookingEvent.deleteOne({ _id: event._id });
+
+        return Response.json({ message: "Event deleted" });
+    } catch (error) {
+        console.error("DELETE /api/events/[id] error:", error);
+        return Response.json({ error: "Failed to delete event" }, { status: 500 });
+    }
+}
