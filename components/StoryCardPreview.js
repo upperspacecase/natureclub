@@ -1,13 +1,11 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import html2canvas from "html2canvas";
 
 /**
- * Live story card preview — mirrors the server-side story card design.
- *
- * Props: title, dateTime, activityType, groupSize, hostName, slug,
- *        published, eventId, coverPhotoUrl, price, hideDownload,
- *        location, durationMinutes
+ * Live story card preview — single source of truth.
+ * Downloads use html2canvas to capture this exact DOM element.
  */
 export default function StoryCardPreview({
     title,
@@ -26,6 +24,7 @@ export default function StoryCardPreview({
     currency,
 }) {
     const cardRef = useRef(null);
+    const [saving, setSaving] = useState(false);
 
     const dateStr = dateTime
         ? new Date(dateTime).toLocaleDateString("en-US", {
@@ -66,19 +65,24 @@ export default function StoryCardPreview({
     }
 
     async function handleDownload() {
-        if (!published || !eventId) return;
+        if (!cardRef.current) return;
+        setSaving(true);
         try {
-            const res = await fetch(`/api/events/${eventId}/story-card`);
-            if (!res.ok) throw new Error("Failed to fetch");
-            const blob = await res.blob();
-            const url = URL.createObjectURL(blob);
+            const canvas = await html2canvas(cardRef.current, {
+                scale: 4, // High-res for Instagram Stories (1080×1920)
+                useCORS: true,
+                allowTaint: false,
+                backgroundColor: "#292524",
+            });
+            const url = canvas.toDataURL("image/png");
             const a = document.createElement("a");
             a.href = url;
             a.download = `${slug || "event"}-story.png`;
             a.click();
-            URL.revokeObjectURL(url);
         } catch (err) {
             console.error("Story card download failed:", err);
+        } finally {
+            setSaving(false);
         }
     }
 
@@ -97,6 +101,7 @@ export default function StoryCardPreview({
                         <img
                             src={coverPhotoUrl}
                             alt=""
+                            crossOrigin="anonymous"
                             className="absolute inset-0 h-full w-full object-cover"
                         />
                         {/* Dark overlay for readability */}
@@ -164,15 +169,17 @@ export default function StoryCardPreview({
             {!hideDownload && (
                 <button
                     onClick={handleDownload}
-                    disabled={!published}
+                    disabled={!published || saving}
                     className={`w-full rounded-full px-4 py-2.5 text-xs font-medium transition-all ${published
                         ? "bg-white text-black hover:bg-white/90"
                         : "cursor-not-allowed border border-white/15 bg-white/5 text-white/30"
                         }`}
                 >
-                    {published
-                        ? "📱 Download story card"
-                        : "📱 Download available after publishing"}
+                    {saving
+                        ? "Saving..."
+                        : published
+                            ? "📱 Download story card"
+                            : "📱 Download available after publishing"}
                 </button>
             )}
         </div>
