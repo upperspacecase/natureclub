@@ -69,81 +69,33 @@ export async function GET(req, { params }) {
                         🌿 Nature Club
                     </div>
 
-                    {/* Middle: event info */}
+                    {/* Top: title */}
                     <div
                         style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "24px",
+                            fontSize: "72px",
+                            fontWeight: 700,
+                            lineHeight: 1.1,
+                            maxWidth: "900px",
                         }}
                     >
-                        {activityLabel && (
-                            <div style={{ display: "flex" }}>
-                                <span
-                                    style={{
-                                        backgroundColor: "rgba(255,255,255,0.12)",
-                                        borderRadius: "24px",
-                                        padding: "8px 20px",
-                                        fontSize: "24px",
-                                        color: "#d6d3d1",
-                                    }}
-                                >
-                                    {activityLabel}
-                                </span>
-                            </div>
-                        )}
-                        <div
-                            style={{
-                                fontSize: "72px",
-                                fontWeight: 700,
-                                lineHeight: 1.1,
-                                maxWidth: "900px",
-                            }}
-                        >
-                            {event.title}
-                        </div>
-                        <div
-                            style={{
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "8px",
-                                fontSize: "28px",
-                                color: "#a8a29e",
-                            }}
-                        >
-                            <span>📅 {dateStr}{timeStr ? ` at ${timeStr}` : ""}</span>
-                            {host?.name && <span>🌿 with {host.name}</span>}
-                            {event.groupSize && (
-                                <span>👥 {event.groupSize} spots</span>
-                            )}
-                        </div>
+                        {event.title}
                     </div>
 
-                    {/* Bottom: CTA */}
+                    {/* Bottom-left: details */}
                     <div
                         style={{
                             display: "flex",
                             flexDirection: "column",
-                            alignItems: "center",
-                            gap: "16px",
+                            gap: "8px",
+                            fontSize: "28px",
+                            color: "#a8a29e",
                         }}
                     >
-                        <div
-                            style={{
-                                display: "flex",
-                                backgroundColor: "#fafaf9",
-                                color: "#292524",
-                                padding: "20px 60px",
-                                borderRadius: "40px",
-                                fontSize: "32px",
-                                fontWeight: 600,
-                            }}
-                        >
-                            RSVP — I&apos;m in 🌱
-                        </div>
-                        <span style={{ fontSize: "22px", color: "#78716c" }}>
-                            {siteUrl}/e/{event.slug}
-                        </span>
+                        <span>📅 {dateStr}{timeStr ? ` at ${timeStr}` : ""}</span>
+                        {host?.name && <span>🌿 with {host.name}</span>}
+                        {event.groupSize && (
+                            <span>👥 {event.groupSize} spots</span>
+                        )}
                     </div>
                 </div>
             ),

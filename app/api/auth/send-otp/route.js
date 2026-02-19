@@ -27,8 +27,19 @@ export async function POST(req) {
     } catch (error) {
         console.error("POST /api/auth/send-otp error:", error);
 
-        // Twilio rate-limit / bad number errors
-        if (error.code === 60203) {
+        // Twilio-specific error codes
+        const code = error.code || error.status;
+
+        // Invalid phone number
+        if (code === 21211 || code === 21614 || code === 60200) {
+            return NextResponse.json(
+                { error: "That doesn't look like a valid phone number. Please check and try again." },
+                { status: 400 }
+            );
+        }
+
+        // Rate-limit / too many attempts
+        if (code === 60203) {
             return NextResponse.json(
                 { error: "Too many attempts. Please wait a few minutes." },
                 { status: 429 }
@@ -36,7 +47,7 @@ export async function POST(req) {
         }
 
         return NextResponse.json(
-            { error: "Failed to send verification code" },
+            { error: "Failed to send verification code. Please try again." },
             { status: 500 }
         );
     }

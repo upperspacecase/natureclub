@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, useCallback, useRef, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import apiClient from "@/libs/api";
-import ShareActions from "@/components/ShareActions";
 import StoryCardPreview from "@/components/StoryCardPreview";
 import DateTimePicker from "@/components/DateTimePicker";
 import LocationPicker from "@/components/LocationPicker";
@@ -37,14 +36,23 @@ const DIFFICULTY_OPTIONS = [
 const inputClass =
     "w-full rounded-[5px] border border-white/35 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder-white/60 outline-none focus:border-white/70";
 
-export default function EventCreatePage() {
+function EventCreatePageInner() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const existingId = searchParams.get("id");
+    const initialView = searchParams.get("view");
+
     const [eventId, setEventId] = useState(null);
-    const [saving, setSaving] = useState(false);
     const [publishing, setPublishing] = useState(false);
-    const [published, setPublished] = useState(false);
+    const [published, setPublished] = useState(initialView === "share");
     const [slug, setSlug] = useState("");
     const [detailsOpen, setDetailsOpen] = useState(false);
+    const [shareView, setShareView] = useState(initialView === "share");
+    const [copied, setCopied] = useState(false);
+    const [downloading, setDownloading] = useState(false);
+    const [loadingExisting, setLoadingExisting] = useState(!!existingId);
+    const [hostName, setHostName] = useState("");
+    const [saveMenuOpen, setSaveMenuOpen] = useState(false);
 
     // Form state
     const [title, setTitle] = useState("");
@@ -71,18 +79,89 @@ export default function EventCreatePage() {
     );
 
     const saveTimer = useRef(null);
+    const saveMenuRef = useRef(null);
 
-    // Create draft event on mount
+    // Close save menu on outside click
     useEffect(() => {
-        async function createDraft() {
-            try {
-                const res = await apiClient.post("/events/create");
-                setEventId(res.id);
-            } catch (err) {
-                console.error("Failed to create draft:", err);
+        function handleClick(e) {
+            if (saveMenuRef.current && !saveMenuRef.current.contains(e.target)) {
+                setSaveMenuOpen(false);
             }
         }
-        createDraft();
+        document.addEventListener("mousedown", handleClick);
+        return () => document.removeEventListener("mousedown", handleClick);
+    }, []);
+
+    // Load existing event or create a new draft on mount
+    useEffect(() => {
+        if (existingId) {
+            // Load existing event
+            async function loadEvent() {
+                try {
+                    const res = await apiClient.get(`/events/${existingId}`);
+                    setEventId(res.id || res._id);
+                    setTitle(res.title || "");
+                    if (res.dateTime) setDateTime(new Date(res.dateTime));
+                    if (res.durationMinutes) setDurationMinutes(res.durationMinutes);
+                    if (res.meetingPoint) {
+                        setLocationObj({
+                            description: res.meetingPoint.description || "",
+                            lat: res.meetingPoint.lat ?? null,
+                            lng: res.meetingPoint.lng ?? null,
+                        });
+                    }
+                    if (res.activityType) setActivityType(res.activityType);
+                    if (res.activityTypeOther) setActivityTypeOther(res.activityTypeOther);
+                    if (res.difficulty) setDifficulty(res.difficulty);
+                    if (res.groupSize) setGroupSize(res.groupSize);
+                    if (res.description) setDescription(res.description);
+                    if (res.whatToBring) setWhatToBring(res.whatToBring);
+                    if (res.weatherPolicy) {
+                        if (WEATHER_PRESETS.includes(res.weatherPolicy)) {
+                            setWeatherPolicy(res.weatherPolicy);
+                        } else {
+                            setWeatherPolicy("custom");
+                            setCustomWeather(res.weatherPolicy);
+                        }
+                    }
+                    if (res.price != null) setPrice(res.price);
+                    if (res.priceLink) setPriceLink(res.priceLink);
+                    if (res.accessibilityNotes) setAccessibilityNotes(res.accessibilityNotes);
+                    if (res.coverPhotoUrl) setCoverPhotoUrl(res.coverPhotoUrl);
+                    if (res.slug) setSlug(res.slug);
+                    if (res.status === "published") setPublished(true);
+                } catch (err) {
+                    console.error("Failed to load event:", err);
+                } finally {
+                    setLoadingExisting(false);
+                }
+            }
+            loadEvent();
+        } else {
+            // Create a new draft
+            async function createDraft() {
+                try {
+                    const res = await apiClient.post("/events/create");
+                    setEventId(res.id);
+                } catch (err) {
+                    console.error("Failed to create draft:", err);
+                }
+            }
+            createDraft();
+        }
+    }, [existingId]);
+
+    // Load host profile name
+    useEffect(() => {
+        async function loadHost() {
+            try {
+                const res = await apiClient.get("/user");
+                setHostName(res.name || "");
+            } catch (_err) {
+                // ignore
+            }
+        }
+        loadHost();
     }, []);
 
     // Auto-save (debounced)
@@ -91,13 +170,10 @@ export default function EventCreatePage() {
             if (!eventId) return;
             if (saveTimer.current) clearTimeout(saveTimer.current);
             saveTimer.current = setTimeout(async () => {
-                setSaving(true);
                 try {
                     await apiClient.patch(`/events/${eventId}`, fields);
                 } catch (err) {
                     console.error("Auto-save failed:", err);
-                } finally {
-                    setSaving(false);
                 }
             }, 800);
         },
@@ -154,7 +230,7 @@ export default function EventCreatePage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activityType, difficulty, description, whatToBring.length]);
 
-    // Publish — then redirect to live event page
+    // Publish — stay on page, show share view
     async function handlePublish() {
         if (!title.trim()) return;
         setPublishing(true);
@@ -165,12 +241,51 @@ export default function EventCreatePage() {
             });
             setPublished(true);
             setSlug(res.slug);
-            // Redirect to the live event page
-            router.push(`/e/${res.slug}`);
+            setShareView(true);
         } catch (err) {
             console.error("Publish failed:", err);
         } finally {
             setPublishing(false);
+        }
+    }
+
+    // Copy link to clipboard
+    async function copyLink() {
+        const url = typeof window !== "undefined"
+            ? `${window.location.origin}/e/${slug}`
+            : `/e/${slug}`;
+        try {
+            await navigator.clipboard.writeText(url);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch {
+            const input = document.createElement("input");
+            input.value = url;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand("copy");
+            document.body.removeChild(input);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
+    }
+
+    // Download story card image
+    async function downloadStoryCard() {
+        setDownloading(true);
+        try {
+            const res = await fetch(`/api/events/${eventId}/story-card`);
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `${slug}-story.png`;
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error("Download failed:", err);
+        } finally {
+            setDownloading(false);
         }
     }
 
@@ -213,6 +328,83 @@ export default function EventCreatePage() {
     // Check if required fields present for publish
     const canPublish = title.trim() && dateTime && locationObj.description?.trim();
 
+    if (loadingExisting) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-black text-white">
+                <span className="text-white/40">Loading...</span>
+            </div>
+        );
+    }
+
+    // ── SHARE VIEW (post-publish) ──
+    if (shareView && published && slug) {
+        const eventUrl = typeof window !== "undefined"
+            ? `${window.location.origin}/e/${slug}`
+            : `/e/${slug}`;
+
+        return (
+            <div className="min-h-screen bg-black text-white">
+                <div className="mx-auto max-w-md px-4 py-8 sm:px-6">
+                    {/* Header */}
+                    <div className="mb-8 flex items-center justify-between">
+                        <button
+                            onClick={() => router.push("/events")}
+                            className="text-sm text-white/60 hover:text-white"
+                        >
+                            ← Events
+                        </button>
+                        <button
+                            onClick={() => setShareView(false)}
+                            className="text-sm text-white/60 hover:text-white"
+                        >
+                            ✏️ Edit
+                        </button>
+                    </div>
+
+                    {/* Story card preview */}
+                    <div className="mx-auto max-w-[280px]">
+                        <StoryCardPreview
+                            title={title}
+                            dateTime={dateTime instanceof Date ? dateTime.toISOString() : dateTime}
+                            activityType={activityType === "other" ? activityTypeOther : activityType}
+                            groupSize={groupSize}
+                            hostName={hostName}
+                            slug={slug}
+                            published={true}
+                            eventId={eventId}
+                            coverPhotoUrl={coverPhotoUrl}
+                            price={price}
+                            hideDownload={true}
+                        />
+                    </div>
+
+                    {/* Share actions */}
+                    <div className="mt-6 flex gap-3">
+                        <button
+                            onClick={copyLink}
+                            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-medium text-stone-800 transition hover:bg-white/90"
+                        >
+                            {copied ? "✓ Copied!" : "🔗 Copy Link"}
+                        </button>
+                        <button
+                            onClick={downloadStoryCard}
+                            disabled={downloading}
+                            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/15 disabled:opacity-50"
+                        >
+                            {downloading ? "..." : "📱 Download Image"}
+                        </button>
+                    </div>
+
+                    {/* Event URL display */}
+                    <p className="mt-4 text-center text-xs text-white/30">
+                        {eventUrl}
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
+    // ── CREATE / EDIT VIEW ──
     return (
         <div className="min-h-screen bg-black text-white">
             <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
@@ -224,35 +416,48 @@ export default function EventCreatePage() {
                     >
                         ← Back
                     </button>
-                    <div className="flex items-center gap-3">
-                        {saving && (
-                            <span className="text-xs text-white/40">Saving...</span>
-                        )}
-                        {published && slug && (
-                            <a
-                                href={`/e/${slug}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-sm text-white/70 hover:text-white hover:underline"
+                    {!published ? (
+                        <div ref={saveMenuRef} className="relative">
+                            <button
+                                onClick={() => setSaveMenuOpen(!saveMenuOpen)}
+                                disabled={publishing}
+                                className="btn flex items-center gap-1.5 disabled:cursor-not-allowed disabled:opacity-40"
                             >
-                                View event →
-                            </a>
-                        )}
-                        {published && slug && eventId && (
-                            <ShareActions
-                                slug={slug}
-                                eventId={eventId}
-                                title={title}
-                            />
-                        )}
+                                {publishing ? "Publishing..." : "Save ▾"}
+                            </button>
+                            {saveMenuOpen && (
+                                <div className="absolute right-0 z-50 mt-2 w-44 overflow-hidden rounded-xl border border-white/15 bg-[#1c1917] shadow-xl">
+                                    <button
+                                        onClick={() => {
+                                            setSaveMenuOpen(false);
+                                            router.push("/events");
+                                        }}
+                                        className="block w-full px-4 py-2.5 text-left text-sm text-white/70 hover:bg-white/10"
+                                    >
+                                        Save draft
+                                    </button>
+                                    <div className="border-t border-white/10" />
+                                    <button
+                                        onClick={() => {
+                                            setSaveMenuOpen(false);
+                                            handlePublish();
+                                        }}
+                                        disabled={!canPublish}
+                                        className="block w-full px-4 py-2.5 text-left text-sm font-medium text-white hover:bg-white/10 disabled:opacity-40"
+                                    >
+                                        Publish
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
                         <button
-                            onClick={handlePublish}
-                            disabled={!canPublish || publishing || published}
-                            className="btn disabled:cursor-not-allowed disabled:opacity-40"
+                            onClick={() => setShareView(true)}
+                            className="btn"
                         >
-                            {published ? "Published ✓" : publishing ? "Publishing..." : "Publish"}
+                            Done →
                         </button>
-                    </div>
+                    )}
                 </div>
 
                 {/* Cover Photo */}
@@ -600,7 +805,7 @@ export default function EventCreatePage() {
                             dateTime={dateTime instanceof Date ? dateTime.toISOString() : dateTime}
                             activityType={activityType === "other" ? activityTypeOther : activityType}
                             groupSize={groupSize}
-                            hostName=""
+                            hostName={hostName}
                             slug={slug}
                             published={published}
                             eventId={eventId}
@@ -611,5 +816,18 @@ export default function EventCreatePage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+// Wrap in Suspense for useSearchParams
+export default function EventCreatePage() {
+    return (
+        <Suspense fallback={
+            <div className="flex min-h-screen items-center justify-center bg-black text-white">
+                <span className="text-white/40">Loading...</span>
+            </div>
+        }>
+            <EventCreatePageInner />
+        </Suspense>
     );
 }

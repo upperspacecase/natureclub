@@ -25,7 +25,13 @@ export default function SignInPage() {
                 body: JSON.stringify({ phone }),
             });
 
-            const data = await res.json();
+            let data;
+            try {
+                data = await res.json();
+            } catch {
+                setError("Something went wrong. Please try again.");
+                return;
+            }
 
             if (!res.ok) {
                 setError(data.error || "Failed to send code");
@@ -34,7 +40,6 @@ export default function SignInPage() {
 
             setCleanPhone(data.phone);
             setStep("code");
-            // Focus code input after render
             setTimeout(() => codeInputRef.current?.focus(), 100);
         } catch {
             setError("Something went wrong. Please try again.");
@@ -55,7 +60,13 @@ export default function SignInPage() {
                 body: JSON.stringify({ phone: cleanPhone, code }),
             });
 
-            const data = await res.json();
+            let data;
+            try {
+                data = await res.json();
+            } catch {
+                setError("Something went wrong. Please try again.");
+                return;
+            }
 
             if (!res.ok) {
                 setError(data.error || "Invalid code");
