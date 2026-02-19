@@ -285,8 +285,8 @@ export default function EventPageClient({ event }) {
                     </div>
                 )}
 
-                {/* Story Card Preview (no download button) */}
-                <div className="mb-8">
+                {/* Story Card Preview — compact 4:5 ratio */}
+                <div className="mb-4">
                     <StoryCardPreview
                         title={event.title}
                         dateTime={event.dateTime}
@@ -302,21 +302,22 @@ export default function EventPageClient({ event }) {
                         location={event.approximateLocation ? (meetingPoint?.description || "") : ""}
                         durationMinutes={event.durationMinutes}
                         currency={event.currency}
+                        compact={true}
                     />
                 </div>
 
                 {/* Host info */}
                 {event.host && (
-                    <div className="mb-6 flex items-center gap-3">
+                    <div className="mb-4 flex items-center gap-3">
                         {event.host.photoUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
                                 src={event.host.photoUrl}
                                 alt={event.host.name}
-                                className="h-10 w-10 rounded-full object-cover"
+                                className="h-9 w-9 rounded-full object-cover"
                             />
                         ) : (
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-lg">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-base">
                                 🌿
                             </div>
                         )}
@@ -336,175 +337,47 @@ export default function EventPageClient({ event }) {
                     </div>
                 )}
 
-                {/* Attendees / Who's going */}
+                {/* Attendees — Partiful-style circles */}
                 {(rsvpCount > 0 || maybeCount > 0) && (
-                    <div className="mb-6 rounded-2xl border border-white/15 bg-white/5 p-4">
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-white/80">
-                                👥 {rsvpCount} going
+                    <div className="mb-5">
+                        <div className="flex items-center gap-3">
+                            {/* Overlapping circles */}
+                            <div className="flex -space-x-2">
+                                {attendeeNames.slice(0, 6).map((name, i) => {
+                                    const colors = [
+                                        "bg-emerald-600", "bg-amber-600", "bg-sky-600",
+                                        "bg-rose-600", "bg-violet-600", "bg-teal-600",
+                                    ];
+                                    return (
+                                        <div
+                                            key={i}
+                                            className={`flex h-8 w-8 items-center justify-center rounded-full border-2 border-black text-xs font-semibold text-white ${colors[i % colors.length]}`}
+                                            title={name}
+                                        >
+                                            {name.charAt(0).toUpperCase()}
+                                        </div>
+                                    );
+                                })}
+                                {attendeeNames.length > 6 && (
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-black bg-white/20 text-[10px] font-medium text-white/80">
+                                        +{attendeeNames.length - 6}
+                                    </div>
+                                )}
+                            </div>
+                            {/* Count text */}
+                            <span className="text-sm text-white/60">
+                                {rsvpCount} going
                                 {maybeCount > 0 && ` · ${maybeCount} maybe`}
-                                {spotsLeft !== null && spotsLeft > 0 && ` · ${spotsLeft} spots left`}
+                                {spotsLeft !== null && spotsLeft > 0 && ` · ${spotsLeft} left`}
                                 {spotsLeft !== null && spotsLeft <= 0 && " · Full"}
                             </span>
                         </div>
-                        {attendeeNames.length > 0 && (
-                            <p className="mt-2 text-xs text-white/50">
-                                {attendeeNames.slice(0, 8).join(", ")}
-                                {attendeeNames.length > 8 && ` + ${attendeeNames.length - 8} more`}
-                            </p>
-                        )}
                     </div>
                 )}
 
-                {/* Details accordion */}
-                <div className="mb-6">
-                    <button
-                        onClick={() => setDetailsOpen(!detailsOpen)}
-                        className="w-full rounded-2xl border border-white/15 bg-white/5 p-4 text-left transition-colors hover:bg-white/[0.08]"
-                    >
-                        {/* Preview snippets */}
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-white/70">
-                            {event.durationMinutes > 0 && (
-                                <span>⏱ {formatDuration(event.durationMinutes)}</span>
-                            )}
-                            {event.price > 0 ? (
-                                <span>💵 {currencySymbol}{event.price}</span>
-                            ) : (
-                                <span>💵 Free</span>
-                            )}
-                            {event.difficulty && (
-                                <span>📊 {DIFFICULTY_LABELS[event.difficulty] || event.difficulty}</span>
-                            )}
-                        </div>
-                        {event.description && (
-                            <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-white/50">
-                                {event.description}
-                            </p>
-                        )}
-                        <div className="mt-3 flex items-center gap-1 text-xs font-medium text-white/40">
-                            <span
-                                className="inline-block transition-transform"
-                                style={{ transform: detailsOpen ? "rotate(90deg)" : "rotate(0deg)" }}
-                            >
-                                ▸
-                            </span>
-                            {detailsOpen ? "Hide details" : "Show all details"}
-                        </div>
-                    </button>
-
-                    {detailsOpen && (
-                        <div className="mt-4 space-y-3">
-                            {/* Key details */}
-                            {formattedDate && (
-                                <div className="flex items-center gap-2 text-white/80">
-                                    <span className="w-5 text-center">📅</span>
-                                    <span className="text-sm">{formattedDate} at {formattedTime}</span>
-                                </div>
-                            )}
-                            {event.durationMinutes > 0 && (
-                                <div className="flex items-center gap-2 text-white/80">
-                                    <span className="w-5 text-center">⏱</span>
-                                    <span className="text-sm">{formatDuration(event.durationMinutes)}</span>
-                                </div>
-                            )}
-                            {activityLabel && (
-                                <div className="flex items-center gap-2 text-white/80">
-                                    <span className="w-5 text-center">🥾</span>
-                                    <span className="text-sm">{activityLabel}</span>
-                                </div>
-                            )}
-                            {event.difficulty && (
-                                <div className="flex items-center gap-2 text-white/80">
-                                    <span className="w-5 text-center">📊</span>
-                                    <span className="text-sm">
-                                        {DIFFICULTY_LABELS[event.difficulty] || event.difficulty}
-                                    </span>
-                                </div>
-                            )}
-                            {event.hasLocation && !meetingPoint && (
-                                <div className="flex items-center gap-2 text-white/50">
-                                    <span className="w-5 text-center">📍</span>
-                                    <span className="text-sm italic">
-                                        Exact meeting point revealed after RSVP
-                                    </span>
-                                </div>
-                            )}
-                            {meetingPoint && (
-                                <div className="flex items-center gap-2 text-white/80">
-                                    <span className="w-5 text-center">📍</span>
-                                    <span className="text-sm">
-                                        {meetingPoint.description || `${meetingPoint.lat}, ${meetingPoint.lng}`}
-                                    </span>
-                                </div>
-                            )}
-                            <div className="flex items-center gap-2 text-white/80">
-                                <span className="w-5 text-center">💵</span>
-                                <span className="text-sm">
-                                    {event.price > 0 ? (
-                                        <>
-                                            {currencySymbol}{event.price}
-                                            {event.priceLink && (
-                                                <>
-                                                    {" · "}
-                                                    <a
-                                                        href={event.priceLink}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="text-white hover:underline"
-                                                    >
-                                                        Pay here
-                                                    </a>
-                                                </>
-                                            )}
-                                        </>
-                                    ) : (
-                                        "Free"
-                                    )}
-                                </span>
-                            </div>
-
-                            {/* Description */}
-                            {event.description && (
-                                <div className="mt-2 border-t border-white/10 pt-3">
-                                    <p className="whitespace-pre-wrap text-sm leading-relaxed text-white/70">
-                                        {event.description}
-                                    </p>
-                                </div>
-                            )}
-
-                            {/* What to Bring */}
-                            {event.whatToBring?.length > 0 && (
-                                <div className="mt-2">
-                                    <h3 className="mb-2 text-sm font-medium text-white/60">
-                                        What to bring
-                                    </h3>
-                                    <ul className="space-y-1">
-                                        {event.whatToBring.map((item, i) => (
-                                            <li key={i} className="flex items-center gap-2 text-sm text-white/70">
-                                                <span>☐</span>
-                                                {item}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
-
-                            {/* Weather Policy */}
-                            {event.weatherPolicy && (
-                                <div className="mt-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-                                    <p className="text-sm text-white/80">
-                                        <span className="font-medium text-white/90">🌧 Weather: </span>
-                                        {event.weatherPolicy}
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-
                 {/* ── RSVP Section ── */}
                 {!isCancelled && (
-                    <div className="mt-4">
+                    <div className="mb-6">
                         {/* RSVP Options — Going / Maybe / Can't Go */}
                         {rsvpState === "idle" && (
                             <div>
@@ -680,6 +553,142 @@ export default function EventPageClient({ event }) {
                         )}
                     </div>
                 )}
+
+                {/* Details accordion — below RSVP */}
+                <div className="mb-6">
+                    <button
+                        onClick={() => setDetailsOpen(!detailsOpen)}
+                        className="w-full rounded-2xl border border-white/15 bg-white/5 p-4 text-left transition-colors hover:bg-white/[0.08]"
+                    >
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-white/70">
+                            {event.durationMinutes > 0 && (
+                                <span>⏱ {formatDuration(event.durationMinutes)}</span>
+                            )}
+                            {event.price > 0 ? (
+                                <span>💵 {currencySymbol}{event.price}</span>
+                            ) : (
+                                <span>💵 Free</span>
+                            )}
+                            {event.difficulty && (
+                                <span>📊 {DIFFICULTY_LABELS[event.difficulty] || event.difficulty}</span>
+                            )}
+                        </div>
+                        {event.description && (
+                            <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-white/50">
+                                {event.description}
+                            </p>
+                        )}
+                        <div className="mt-3 flex items-center gap-1 text-xs font-medium text-white/40">
+                            <span
+                                className="inline-block transition-transform"
+                                style={{ transform: detailsOpen ? "rotate(90deg)" : "rotate(0deg)" }}
+                            >
+                                ▸
+                            </span>
+                            {detailsOpen ? "Hide details" : "Show all details"}
+                        </div>
+                    </button>
+
+                    {detailsOpen && (
+                        <div className="mt-4 space-y-3">
+                            {formattedDate && (
+                                <div className="flex items-center gap-2 text-white/80">
+                                    <span className="w-5 text-center">📅</span>
+                                    <span className="text-sm">{formattedDate} at {formattedTime}</span>
+                                </div>
+                            )}
+                            {event.durationMinutes > 0 && (
+                                <div className="flex items-center gap-2 text-white/80">
+                                    <span className="w-5 text-center">⏱</span>
+                                    <span className="text-sm">{formatDuration(event.durationMinutes)}</span>
+                                </div>
+                            )}
+                            {activityLabel && (
+                                <div className="flex items-center gap-2 text-white/80">
+                                    <span className="w-5 text-center">🥾</span>
+                                    <span className="text-sm">{activityLabel}</span>
+                                </div>
+                            )}
+                            {event.difficulty && (
+                                <div className="flex items-center gap-2 text-white/80">
+                                    <span className="w-5 text-center">📊</span>
+                                    <span className="text-sm">
+                                        {DIFFICULTY_LABELS[event.difficulty] || event.difficulty}
+                                    </span>
+                                </div>
+                            )}
+                            {event.hasLocation && !meetingPoint && (
+                                <div className="flex items-center gap-2 text-white/50">
+                                    <span className="w-5 text-center">📍</span>
+                                    <span className="text-sm italic">
+                                        Exact meeting point revealed after RSVP
+                                    </span>
+                                </div>
+                            )}
+                            {meetingPoint && (
+                                <div className="flex items-center gap-2 text-white/80">
+                                    <span className="w-5 text-center">📍</span>
+                                    <span className="text-sm">
+                                        {meetingPoint.description || `${meetingPoint.lat}, ${meetingPoint.lng}`}
+                                    </span>
+                                </div>
+                            )}
+                            <div className="flex items-center gap-2 text-white/80">
+                                <span className="w-5 text-center">💵</span>
+                                <span className="text-sm">
+                                    {event.price > 0 ? (
+                                        <>
+                                            {currencySymbol}{event.price}
+                                            {event.priceLink && (
+                                                <>
+                                                    {" · "}
+                                                    <a
+                                                        href={event.priceLink}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-white hover:underline"
+                                                    >
+                                                        Pay here
+                                                    </a>
+                                                </>
+                                            )}
+                                        </>
+                                    ) : (
+                                        "Free"
+                                    )}
+                                </span>
+                            </div>
+                            {event.description && (
+                                <div className="mt-2 border-t border-white/10 pt-3">
+                                    <p className="whitespace-pre-wrap text-sm leading-relaxed text-white/70">
+                                        {event.description}
+                                    </p>
+                                </div>
+                            )}
+                            {event.whatToBring?.length > 0 && (
+                                <div className="mt-2">
+                                    <h3 className="mb-2 text-sm font-medium text-white/60">What to bring</h3>
+                                    <ul className="space-y-1">
+                                        {event.whatToBring.map((item, i) => (
+                                            <li key={i} className="flex items-center gap-2 text-sm text-white/70">
+                                                <span>☐</span>
+                                                {item}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                            {event.weatherPolicy && (
+                                <div className="mt-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                                    <p className="text-sm text-white/80">
+                                        <span className="font-medium text-white/90">🌧 Weather: </span>
+                                        {event.weatherPolicy}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

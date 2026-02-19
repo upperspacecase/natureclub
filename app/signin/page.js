@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import HexagonLogo from "@/components/HexagonLogo";
 
 const COUNTRY_CODES = [
     { code: "+1", flag: "🇺🇸", label: "US" },
@@ -149,7 +148,12 @@ export default function SignInPage() {
             <div className="w-full max-w-sm">
                 {/* Logo */}
                 <div className="mb-4 flex justify-center">
-                    <HexagonLogo className="h-12 w-12 text-white/80" />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                        src="/logo-light.svg"
+                        alt="Nature Club"
+                        className="h-10 w-auto"
+                    />
                 </div>
 
                 {/* Title */}

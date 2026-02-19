@@ -22,6 +22,7 @@ export default function StoryCardPreview({
     location,
     durationMinutes,
     currency,
+    compact,
 }) {
     const cardRef = useRef(null);
     const [saving, setSaving] = useState(false);
@@ -92,7 +93,7 @@ export default function StoryCardPreview({
             <div
                 ref={cardRef}
                 className="relative w-full overflow-hidden rounded-2xl shadow-2xl"
-                style={{ aspectRatio: "9 / 16" }}
+                style={{ aspectRatio: compact ? "4 / 5" : "9 / 16" }}
             >
                 {/* Cover photo background */}
                 {coverPhotoUrl && (
