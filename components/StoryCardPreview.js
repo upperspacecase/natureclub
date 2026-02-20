@@ -23,6 +23,7 @@ export default function StoryCardPreview({
     durationMinutes,
     currency,
     compact,
+    children,
 }) {
     const cardRef = useRef(null);
     const [saving, setSaving] = useState(false);
@@ -132,35 +133,44 @@ export default function StoryCardPreview({
                         </h2>
                     </div>
 
-                    {/* Bottom-left: details */}
-                    <div
-                        className="flex flex-col gap-1 text-xs"
-                        style={{ color: coverPhotoUrl ? "#e7e5e4" : "#a8a29e" }}
-                    >
-                        {dateStr ? (
-                            <span>
-                                📅 {dateStr}
-                                {timeStr ? ` at ${timeStr}` : ""}
-                            </span>
-                        ) : (
-                            <span style={{ opacity: 0.4 }}>
-                                📅 Date & time
-                            </span>
-                        )}
-                        {durationMinutes > 0 && (
-                            <span>⏱ {formatDuration(durationMinutes)}</span>
-                        )}
-                        {location && (
-                            <span>📍 {location}</span>
-                        )}
-                        {hostName && (
-                            <span>🌿 with {hostName}</span>
-                        )}
-                        {groupSize ? (
-                            <span>👥 {groupSize} spots</span>
-                        ) : null}
-                        {priceLabel !== null && (
-                            <span>💵 {priceLabel}</span>
+                    {/* Bottom: details + children overlay */}
+                    <div className="flex items-end justify-between">
+                        {/* Bottom-left: details */}
+                        <div
+                            className="flex flex-col gap-1 text-sm"
+                            style={{ color: coverPhotoUrl ? "#e7e5e4" : "#a8a29e" }}
+                        >
+                            {dateStr ? (
+                                <span>
+                                    📅 {dateStr}
+                                    {timeStr ? ` at ${timeStr}` : ""}
+                                </span>
+                            ) : (
+                                <span style={{ opacity: 0.4 }}>
+                                    📅 Date & time
+                                </span>
+                            )}
+                            {durationMinutes > 0 && (
+                                <span>⏱ {formatDuration(durationMinutes)}</span>
+                            )}
+                            {location && (
+                                <span>📍 {location}</span>
+                            )}
+                            {hostName && (
+                                <span>🌿 with {hostName}</span>
+                            )}
+                            {groupSize ? (
+                                <span>👥 {groupSize} spots</span>
+                            ) : null}
+                            {priceLabel !== null && (
+                                <span>💵 {priceLabel}</span>
+                            )}
+                        </div>
+                        {/* Bottom-right: overlay children (RSVP buttons, etc.) */}
+                        {children && (
+                            <div className="ml-4 flex-shrink-0">
+                                {children}
+                            </div>
                         )}
                     </div>
                 </div>

@@ -285,7 +285,7 @@ export default function EventPageClient({ event }) {
                     </div>
                 )}
 
-                {/* Story Card Preview — compact 4:5 ratio */}
+                {/* Story Card Preview — compact 4:5 ratio with RSVP on card */}
                 <div className="mb-4">
                     <StoryCardPreview
                         title={event.title}
@@ -303,7 +303,39 @@ export default function EventPageClient({ event }) {
                         durationMinutes={event.durationMinutes}
                         currency={event.currency}
                         compact={true}
-                    />
+                    >
+                        {/* RSVP mini-buttons on card — vertical stack */}
+                        {!isCancelled && rsvpState === "idle" && (
+                            <div className="flex flex-col items-center gap-2">
+                                {[
+                                    { key: "going", icon: "✓", label: "Going" },
+                                    { key: "maybe", icon: "?", label: "Maybe" },
+                                    { key: "cantgo", icon: "✕", label: "Can't Go" },
+                                ].map((opt) => (
+                                    <button
+                                        key={opt.key}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setRsvpResponse(opt.key);
+                                            setRsvpState("form");
+                                        }}
+                                        disabled={opt.key === "going" && isFull}
+                                        className={`flex flex-col items-center gap-0.5 ${opt.key === "going" && isFull
+                                            ? "cursor-not-allowed opacity-30"
+                                            : "hover:scale-110"
+                                            } transition-transform`}
+                                    >
+                                        <div className="flex h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-black/40 text-base font-bold text-white backdrop-blur-md">
+                                            {opt.icon}
+                                        </div>
+                                        <span className="text-[9px] font-medium text-white/70">
+                                            {opt.key === "going" && isFull ? "Full" : opt.label}
+                                        </span>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </StoryCardPreview>
                 </div>
 
                 {/* Host info */}
@@ -375,49 +407,9 @@ export default function EventPageClient({ event }) {
                     </div>
                 )}
 
-                {/* ── RSVP Section ── */}
-                {!isCancelled && (
+                {/* ── RSVP Form / Confirmation (outside card) ── */}
+                {!isCancelled && rsvpState !== "idle" && (
                     <div className="mb-6">
-                        {/* RSVP Options — Going / Maybe / Can't Go */}
-                        {rsvpState === "idle" && (
-                            <div>
-                                <h3 className="mb-4 text-center text-sm font-medium text-white/60">
-                                    RSVP
-                                </h3>
-                                <div className="flex justify-center gap-4">
-                                    {[
-                                        { key: "going", icon: "✓", label: "Going" },
-                                        { key: "maybe", icon: "?", label: "Maybe" },
-                                        { key: "cantgo", icon: "✕", label: "Can\u0027t Go" },
-                                    ].map((opt) => (
-                                        <button
-                                            key={opt.key}
-                                            onClick={() => {
-                                                setRsvpResponse(opt.key);
-                                                setRsvpState("form");
-                                            }}
-                                            disabled={opt.key === "going" && isFull}
-                                            className={`flex flex-col items-center gap-2 ${opt.key === "going" && isFull
-                                                ? "cursor-not-allowed opacity-40"
-                                                : "hover:scale-105"
-                                                } transition-transform`}
-                                        >
-                                            <div className="flex h-20 w-20 items-center justify-center rounded-full border border-white/20 bg-white/10 text-2xl font-bold text-white backdrop-blur-sm">
-                                                {opt.icon}
-                                            </div>
-                                            <span className="text-xs font-medium text-white/70">
-                                                {opt.key === "going" && isFull ? "Full" : opt.label}
-                                            </span>
-                                        </button>
-                                    ))}
-                                </div>
-                                {isFull && (
-                                    <p className="mt-3 text-center text-xs text-white/40">
-                                        Event is full — select Maybe to join the waitlist
-                                    </p>
-                                )}
-                            </div>
-                        )}
 
                         {/* RSVP Form */}
                         {rsvpState === "form" && (
