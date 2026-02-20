@@ -308,9 +308,9 @@ export default function EventPageClient({ event }) {
                         {!isCancelled && rsvpState === "idle" && (
                             <div className="flex flex-col items-center gap-2">
                                 {[
-                                    { key: "going", icon: "✓", label: "Going" },
-                                    { key: "maybe", icon: "?", label: "Maybe" },
-                                    { key: "cantgo", icon: "✕", label: "Can't Go" },
+                                    { key: "going", icon: "🌿", label: "Going" },
+                                    { key: "maybe", icon: "🌤", label: "Maybe" },
+                                    { key: "cantgo", icon: "🍂", label: "Can't Go" },
                                 ].map((opt) => (
                                     <button
                                         key={opt.key}

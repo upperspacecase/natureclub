@@ -71,7 +71,7 @@ export async function GET(req, { params }) {
                 : null,
             host: host
                 ? {
-                    name: host.name,
+                    name: host.name || host.username || "your host",
                     photoUrl: host.photoUrl,
                     bio: host.bio,
                     username: host.username,
