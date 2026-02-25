@@ -527,3 +527,34 @@ select option {
 .nc-map-container .mapboxgl-ctrl-attrib {
   display: none !important;
 }
+
+/* ── No-scrollbar utility ── */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ── Explore page map popups ── */
+.explore-popup .mapboxgl-popup-content {
+  background: #fff;
+  border-radius: 12px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.explore-popup .mapboxgl-popup-close-button {
+  color: #78716c;
+  font-size: 18px;
+  padding: 4px 8px;
+  right: 2px;
+  top: 2px;
+}
+
+.explore-popup .mapboxgl-popup-tip {
+  border-top-color: #fff;
+}

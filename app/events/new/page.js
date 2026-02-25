@@ -134,6 +134,7 @@ function EventCreatePageInner() {
     const [priceLink, setPriceLink] = useState("");
     const [coverPhotoUrl, setCoverPhotoUrl] = useState("");
     const [uploadingPhoto, setUploadingPhoto] = useState(false);
+    const [isPublic, setIsPublic] = useState(true);
 
     const [placeholder] = useState(
         () => TITLE_PLACEHOLDERS[Math.floor(Math.random() * TITLE_PLACEHOLDERS.length)]
@@ -185,6 +186,7 @@ function EventCreatePageInner() {
                     if (res.priceLink) setPriceLink(res.priceLink);
                     // accessibilityNotes removed
                     if (res.coverPhotoUrl) setCoverPhotoUrl(res.coverPhotoUrl);
+                    if (res.isPublic !== undefined) setIsPublic(res.isPublic);
                     if (res.slug) setSlug(res.slug);
                     if (res.status === "published") setPublished(true);
                 } catch (err) {
@@ -265,12 +267,13 @@ function EventCreatePageInner() {
             currency,
             priceLink,
             coverPhotoUrl,
+            isPublic,
         });
     }, [
         eventId, title, dateTime, durationMinutes, locationObj, activityType,
         activityTypeOther, difficulty, groupSize, description, whatToBring,
         weatherPolicy, price, currency, priceLink,
-        coverPhotoUrl, autoSave,
+        coverPhotoUrl, isPublic, autoSave,
     ]);
 
     // When activity type changes, set defaults
@@ -577,6 +580,31 @@ function EventCreatePageInner() {
                                     <span className="text-white">Uploading...</span>
                                 </div>
                             )}
+                        </div>
+
+                        {/* Public / Private toggle */}
+                        <div className="mb-6 flex items-center gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setIsPublic(!isPublic)}
+                                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${isPublic ? "bg-green-500" : "bg-white/20"
+                                    }`}
+                            >
+                                <span
+                                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isPublic ? "translate-x-5" : "translate-x-0"
+                                        }`}
+                                />
+                            </button>
+                            <div>
+                                <span className="text-sm font-medium text-white">
+                                    {isPublic ? "Public" : "Private"}
+                                </span>
+                                <p className="text-xs text-white/40">
+                                    {isPublic
+                                        ? "Visible on Explore page"
+                                        : "Only people with the link can see this"}
+                                </p>
+                            </div>
                         </div>
 
                         {/* Date & Time */}

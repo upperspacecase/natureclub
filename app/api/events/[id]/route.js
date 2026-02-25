@@ -68,6 +68,7 @@ export async function PATCH(req, { params }) {
             "priceLink",
             "coverPhotoUrl",
             "accessibilityNotes",
+            "isPublic",
         ];
 
         for (const field of allowedFields) {

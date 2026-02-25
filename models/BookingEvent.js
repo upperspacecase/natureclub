@@ -130,6 +130,10 @@ const bookingEventSchema = mongoose.Schema(
             trim: true,
             default: "",
         },
+        isPublic: {
+            type: Boolean,
+            default: true,
+        },
         sourceEventId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "BookingEvent",
