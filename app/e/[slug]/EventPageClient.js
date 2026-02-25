@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { generateIcs, googleCalendarUrl } from "@/libs/calendar";
 import StoryCardPreview from "@/components/StoryCardPreview";
+import { getActivityDefaults } from "@/libs/activityDefaults";
 
 const DIFFICULTY_LABELS = {
     easy: "Easy",
@@ -266,7 +267,7 @@ export default function EventPageClient({ event }) {
         event.activityType === "other"
             ? event.activityTypeOther
             : event.activityType
-                ? event.activityType.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+                ? (getActivityDefaults(event.activityType)?.label || event.activityType.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()))
                 : null;
 
     const inputClass =

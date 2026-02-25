@@ -1,36 +1,47 @@
 /**
  * Activity type → default difficulty + what-to-bring checklist + placeholder text.
- * Used during event creation to auto-populate fields when facilitator picks a type.
+ * Categories match the THEMES used in member onboarding ("What types of experiences
+ * are you most interested in?") from data/events.js.
  */
 
 const ACTIVITY_DEFAULTS = {
-    "nature-walk": {
-        label: "Nature Walk",
-        difficulty: "easy",
-        whatToBring: [
-            "Water bottle",
-            "Comfortable shoes",
-            "Sunscreen",
-            "Hat",
-        ],
-        placeholder:
-            "A relaxed walk through local nature. We'll take it slow, notice what's around us, and enjoy being outside together.",
-    },
-    hike: {
-        label: "Hike",
+    movement: {
+        label: "Movement",
         difficulty: "moderate",
         whatToBring: [
             "Water bottle",
-            "Snacks",
-            "Sunscreen",
-            "Comfortable hiking shoes",
+            "Athletic shoes",
+            "Towel",
             "Light layers",
         ],
         placeholder:
-            "We'll hit the trail together — expect some elevation and beautiful views. All fitness levels welcome with the right footwear.",
+            "Get moving outdoors — whether it's fitness, dance, surfing, or primal movement. All levels welcome.",
     },
-    "bird-walk": {
-        label: "Bird Walk",
+    wellness: {
+        label: "Wellness",
+        difficulty: "easy",
+        whatToBring: [
+            "Yoga mat",
+            "Comfortable clothing",
+            "Water bottle",
+            "Cushion or sit pad",
+        ],
+        placeholder:
+            "A restorative session in nature — yoga, breathwork, meditation, or sound bath. Come as you are.",
+    },
+    arts: {
+        label: "Arts",
+        difficulty: "easy",
+        whatToBring: [
+            "Sketchbook or notebook",
+            "Pencils/pens",
+            "Water bottle",
+        ],
+        placeholder:
+            "Create something outdoors — crafts, music, writing, or visual arts. No experience needed, just curiosity.",
+    },
+    wildlife: {
+        label: "Wildlife",
         difficulty: "easy",
         whatToBring: [
             "Binoculars (if you have them)",
@@ -40,54 +51,77 @@ const ACTIVITY_DEFAULTS = {
             "Sunscreen",
         ],
         placeholder:
-            "A quiet, slow walk focused on spotting and identifying birds. No experience necessary — just curiosity and patience.",
+            "Observe and connect with local wildlife — birdwatching, ecology walks, tracking, or citizen science.",
     },
-    "forest-bathing": {
-        label: "Forest Bathing",
+    social: {
+        label: "Social",
         difficulty: "easy",
         whatToBring: [
-            "Comfortable clothing",
             "Water bottle",
-            "Sit pad or small towel",
+            "Snacks to share (optional)",
         ],
         placeholder:
-            "A guided sensory experience in the forest. We'll slow down, breathe deeply, and let the woods in. No hiking involved.",
+            "Come together outdoors — tea ceremony, outdoor dining, or simply good company in a beautiful setting.",
     },
-    foraging: {
-        label: "Foraging",
+    cultivation: {
+        label: "Cultivation",
         difficulty: "moderate",
         whatToBring: [
-            "Basket or cloth bag",
-            "Comfortable shoes",
+            "Gloves",
+            "Comfortable clothes you don't mind getting dirty",
             "Water bottle",
             "Sunscreen",
-            "Small knife (optional)",
         ],
         placeholder:
-            "Learn to identify and gather wild edibles with a guide. We'll walk, forage, and maybe taste what we find.",
+            "Get your hands in the soil — gardening, farming, permaculture, or composting. Learn and grow together.",
     },
-    "outdoor-yoga": {
-        label: "Outdoor Yoga",
+    restoration: {
+        label: "Give Back",
+        difficulty: "moderate",
+        whatToBring: [
+            "Gloves",
+            "Water bottle",
+            "Sturdy shoes",
+            "Sunscreen",
+        ],
+        placeholder:
+            "Give back to the land — volunteering, conservation, clean-ups, or tree planting. Every hand counts.",
+    },
+    cultural: {
+        label: "Cultural",
         difficulty: "easy",
         whatToBring: [
-            "Yoga mat",
             "Water bottle",
-            "Comfortable clothing",
+            "Comfortable shoes",
+            "Blanket or chair (optional)",
+        ],
+        placeholder:
+            "Celebrate together — harvest festivals, music festivals, solstice events, or seasonal rites.",
+    },
+    skills: {
+        label: "Skills",
+        difficulty: "moderate",
+        whatToBring: [
+            "Water bottle",
+            "Sturdy shoes",
+            "Notebook (optional)",
+            "Sunscreen",
+        ],
+        placeholder:
+            "Learn a hands-on skill outdoors — foraging, natural building, sailing, navigation, or firecraft.",
+    },
+    adventure: {
+        label: "Exploration",
+        difficulty: "moderate",
+        whatToBring: [
+            "Water bottle",
+            "Snacks",
+            "Comfortable hiking shoes",
+            "Sunscreen",
             "Light layers",
         ],
         placeholder:
-            "Yoga in the open air. Bring your own mat, find your spot, and let nature do the rest. All levels welcome.",
-    },
-    meditation: {
-        label: "Meditation",
-        difficulty: "easy",
-        whatToBring: [
-            "Comfortable clothing",
-            "Cushion or sit pad (optional)",
-            "Water bottle",
-        ],
-        placeholder:
-            "A guided meditation outdoors. We'll find a quiet spot, settle in, and practice being present together.",
+            "Head out and explore — hiking, camping, or expeditions. Expect some terrain and beautiful discoveries.",
     },
     other: {
         label: "Other",
