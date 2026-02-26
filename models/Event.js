@@ -77,6 +77,15 @@ const eventSchema = mongoose.Schema(
       lowercase: true,
       default: "",
     },
+    description: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    location: {
+      lat: { type: Number, default: null },
+      lng: { type: Number, default: null },
+    },
     startsAt: {
       type: Date,
       default: null,

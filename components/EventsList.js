@@ -146,11 +146,11 @@ const PillsRow = ({ categoryTag, attributeTag, categoryStyle }) => {
 
   if (!categoryTag && attributeTag) {
     return (
-    <div className="flex min-w-0 flex-1 items-center gap-1.5 pr-1.5 sm:gap-2.5 sm:pr-3">
-      <span className="whitespace-nowrap rounded-full border border-white/60 bg-white/10 px-2.5 py-1 font-normal text-[0.68rem] text-white backdrop-blur sm:px-4 sm:py-1.5 sm:text-[0.86rem] md:text-[1.02rem]">
-        {formatTag(attributeTag)}
-      </span>
-    </div>
+      <div className="flex min-w-0 flex-1 items-center gap-1.5 pr-1.5 sm:gap-2.5 sm:pr-3">
+        <span className="whitespace-nowrap rounded-full border border-white/60 bg-white/10 px-2.5 py-1 font-normal text-[0.68rem] text-white backdrop-blur sm:px-4 sm:py-1.5 sm:text-[0.86rem] md:text-[1.02rem]">
+          {formatTag(attributeTag)}
+        </span>
+      </div>
     );
   }
 
@@ -294,117 +294,132 @@ const EventsList = ({ events }) => {
       <div ref={emblaRef} className="overflow-hidden px-6 pb-6 sm:px-10">
         <div className="flex -ml-6 sm:-ml-10">
           {orderedEvents.map((event, index) => {
-          const isCta = event.type === "cta";
-          const isLiked = likedSet.has(event.id);
-          const isBusy = activeEventId === event.id;
-          const categoryStyle = CATEGORY_STYLES[event.categoryTag] ||
-            "bg-white/15 text-white";
-          const eventImage = normalizeImagePath(event.image);
-          const isLocalImage = eventImage.startsWith("/");
-          return (
-            <div
-              key={`${event.id}-${index}`}
-              data-event-card
-              className="flex shrink-0 pl-6 sm:pl-10 flex-col items-center flex-[0_0_70vw] sm:flex-[0_0_360px] lg:flex-[0_0_380px]"
-            >
-              {isCta ? (
-                <article className="group relative w-full overflow-hidden rounded-[6px] bg-base-200/40 shadow-xl aspect-[3/4]">
-                  {eventImage && (
+            const isCta = event.type === "cta";
+            const isSpot = event.type === "spot";
+            const isLiked = likedSet.has(event.id);
+            const isBusy = activeEventId === event.id;
+            const categoryStyle = CATEGORY_STYLES[event.categoryTag] ||
+              "bg-white/15 text-white";
+            const eventImage = normalizeImagePath(event.image);
+            const isLocalImage = eventImage.startsWith("/");
+            return (
+              <div
+                key={`${event.id}-${index}`}
+                data-event-card
+                className="flex shrink-0 pl-6 sm:pl-10 flex-col items-center flex-[0_0_70vw] sm:flex-[0_0_360px] lg:flex-[0_0_380px]"
+              >
+                {isCta ? (
+                  <article className="group relative w-full overflow-hidden rounded-[6px] bg-base-200/40 shadow-xl aspect-[3/4]">
+                    {eventImage && (
+                      <Image
+                        src={eventImage}
+                        alt={event.headline || "Join now"}
+                        fill
+                        unoptimized={isLocalImage}
+                        className="object-cover"
+                        sizes="(max-width: 768px) 80vw, 420px"
+                      />
+                    )}
+
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 px-8 text-center">
+                      <p className="max-w-[18ch] text-3xl font-serif text-white drop-shadow sm:text-4xl">
+                        {emphasizeWord(
+                          event.headline ||
+                          "Join now to become a founding member or facilitator.",
+                          "founding"
+                        )}
+                      </p>
+                      <button
+                        type="button"
+                        className="btn"
+                        onClick={() =>
+                          window.dispatchEvent(new CustomEvent("nc:open-join"))
+                        }
+                      >
+                        Join now
+                      </button>
+                    </div>
+                  </article>
+                ) : isSpot ? (
+                  <article className="group relative w-full overflow-hidden rounded-[6px] shadow-xl aspect-[3/4]" style={{ background: 'linear-gradient(145deg, #1a2a1a 0%, #0d1f0d 50%, #0a160a 100%)' }}>
+                    <div className="absolute left-6 top-6 right-6">
+                      <p className="font-serif leading-tight text-white drop-shadow text-[clamp(1.6rem,4.6vw,2.6rem)] sm:text-[clamp(2rem,3.2vw,2.8rem)]">
+                        {event.title}
+                      </p>
+                    </div>
+                    <div className="absolute bottom-2.5 left-6 right-4 flex items-center justify-between">
+                      <PillsRow
+                        categoryTag="spot"
+                        attributeTag={null}
+                        categoryStyle="bg-[#2f6b59] text-white"
+                      />
+                    </div>
+                  </article>
+                ) : (
+                  <article className="group relative w-full overflow-hidden rounded-[6px] bg-base-200/40 shadow-xl aspect-[3/4]">
                     <Image
                       src={eventImage}
-                      alt={event.headline || "Join now"}
+                      alt={event.title}
                       fill
                       unoptimized={isLocalImage}
                       className="object-cover"
                       sizes="(max-width: 768px) 80vw, 420px"
                     />
-                  )}
-                  
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 px-8 text-center">
-                    <p className="max-w-[18ch] text-3xl font-serif text-white drop-shadow sm:text-4xl">
-                      {emphasizeWord(
-                        event.headline ||
-                          "Join now to become a founding member or facilitator.",
-                        "founding"
-                      )}
-                    </p>
-                    <button
-                      type="button"
-                      className="btn"
-                      onClick={() =>
-                        window.dispatchEvent(new CustomEvent("nc:open-join"))
-                      }
-                    >
-                      Join now
-                    </button>
-                  </div>
-                </article>
-              ) : (
-                <article className="group relative w-full overflow-hidden rounded-[6px] bg-base-200/40 shadow-xl aspect-[3/4]">
-                  <Image
-                    src={eventImage}
-                    alt={event.title}
-                    fill
-                    unoptimized={isLocalImage}
-                    className="object-cover"
-                    sizes="(max-width: 768px) 80vw, 420px"
-                  />
-                  
-                  <div className="absolute left-6 top-6 right-6">
-                    <p className="font-serif leading-tight text-white drop-shadow text-[clamp(1.6rem,4.6vw,2.6rem)] sm:text-[clamp(2rem,3.2vw,2.8rem)]">
-                      {event.title}
-                    </p>
-                  </div>
-                  <div className="absolute bottom-2.5 left-6 right-4 flex items-center justify-between">
-                    <PillsRow
-                      categoryTag={event.categoryTag}
-                      attributeTag={event.attributeTags?.[0]}
-                      categoryStyle={categoryStyle}
-                    />
-                    <div className="relative h-10 w-10 sm:h-16 sm:w-16">
-                      {burstEventId === event.id && (
-                        <div
-                          key={burstKey}
-                          className="pointer-events-none absolute inset-0"
-                        >
-                          {BURST_HEARTS.map((heart, index) => (
-                            <span
-                              key={index}
-                              className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 animate-heartBurst text-base-content sm:h-4 sm:w-4"
-                              style={{
-                                "--heart-x": `${heart.x}px`,
-                                "--heart-y": `${heart.y}px`,
-                                "--heart-rotate": heart.rotate,
-                                animationDelay: `${heart.delay}ms`,
-                              }}
-                            >
-                              <HeartIcon filled className="h-3 w-3 sm:h-4 sm:w-4" />
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                      <button
-                        type="button"
-                        aria-label={isLiked ? "Unlike event" : "Like event"}
-                        aria-pressed={isLiked}
-                        disabled={isLoading || isBusy}
-                        onClick={() => handleToggleLike(event.id, event)}
-                        className={`flex h-10 w-10 items-center justify-center bg-transparent disabled:opacity-50 sm:h-16 sm:w-16 ${
-                          isLiked ? "text-white" : "text-white"
-                        }`}
-                      >
-                        {isLiked ? (
-                          <HeartIcon filled className="h-4 w-4 sm:h-6 sm:w-6" />
-                        ) : (
-                          <HeartIcon className="h-4 w-4 sm:h-6 sm:w-6" />
-                        )}
-                      </button>
+
+                    <div className="absolute left-6 top-6 right-6">
+                      <p className="font-serif leading-tight text-white drop-shadow text-[clamp(1.6rem,4.6vw,2.6rem)] sm:text-[clamp(2rem,3.2vw,2.8rem)]">
+                        {event.title}
+                      </p>
                     </div>
-                  </div>
-                </article>
-              )}
-            </div>
-          );
+                    <div className="absolute bottom-2.5 left-6 right-4 flex items-center justify-between">
+                      <PillsRow
+                        categoryTag={event.categoryTag}
+                        attributeTag={event.attributeTags?.[0]}
+                        categoryStyle={categoryStyle}
+                      />
+                      <div className="relative h-10 w-10 sm:h-16 sm:w-16">
+                        {burstEventId === event.id && (
+                          <div
+                            key={burstKey}
+                            className="pointer-events-none absolute inset-0"
+                          >
+                            {BURST_HEARTS.map((heart, index) => (
+                              <span
+                                key={index}
+                                className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 animate-heartBurst text-base-content sm:h-4 sm:w-4"
+                                style={{
+                                  "--heart-x": `${heart.x}px`,
+                                  "--heart-y": `${heart.y}px`,
+                                  "--heart-rotate": heart.rotate,
+                                  animationDelay: `${heart.delay}ms`,
+                                }}
+                              >
+                                <HeartIcon filled className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        <button
+                          type="button"
+                          aria-label={isLiked ? "Unlike event" : "Like event"}
+                          aria-pressed={isLiked}
+                          disabled={isLoading || isBusy}
+                          onClick={() => handleToggleLike(event.id, event)}
+                          className={`flex h-10 w-10 items-center justify-center bg-transparent disabled:opacity-50 sm:h-16 sm:w-16 ${isLiked ? "text-white" : "text-white"
+                            }`}
+                        >
+                          {isLiked ? (
+                            <HeartIcon filled className="h-4 w-4 sm:h-6 sm:w-6" />
+                          ) : (
+                            <HeartIcon className="h-4 w-4 sm:h-6 sm:w-6" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                )}
+              </div>
+            );
           })}
         </div>
       </div>

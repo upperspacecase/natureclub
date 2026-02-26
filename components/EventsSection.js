@@ -15,6 +15,9 @@ const normalizeEvents = (items) =>
     type: event.type || "experience",
     headline: event.headline || "",
     buttonText: event.buttonText || "",
+    description: event.description || "",
+    region: event.region || "",
+    location: event.location || null,
   }));
 
 const EventsSection = async () => {
@@ -40,6 +43,10 @@ const EventsSection = async () => {
                 type: event.type || "experience",
                 headline: event.headline || "",
                 buttonText: event.buttonText || "",
+                description: event.description || "",
+                region: event.region || "",
+                regionKey: event.regionKey || "",
+                location: event.location || { lat: null, lng: null },
               },
             },
             upsert: true,
@@ -71,7 +78,7 @@ const EventsSection = async () => {
           id="events-heading"
           className="text-center font-serif text-2xl leading-tight text-base-content sm:text-3xl"
         >
-          Want access to experiences like these?
+          Experiences & spots to explore
         </h2>
         <div id="events-carousel">
           <EventsList events={normalizedEvents} />
