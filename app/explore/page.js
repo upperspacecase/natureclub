@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo, useCallback } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import DayStrip from "@/components/DayStrip";
 import ExploreEventCard from "@/components/ExploreEventCard";
 
@@ -87,7 +88,7 @@ export default function ExplorePage() {
             {/* Top bar */}
             <header className="shrink-0 border-b border-white/10 bg-black/80 backdrop-blur-md">
                 <div className="flex items-center justify-between px-4 pt-3 pb-1">
-                    <a
+                    <Link
                         href="/"
                         className="flex items-center gap-2 text-white/60 transition hover:text-white"
                     >
@@ -97,7 +98,7 @@ export default function ExplorePage() {
                             alt="Nature Club"
                             className="h-6 w-auto"
                         />
-                    </a>
+                    </Link>
                     <h1 className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
                         Explore
                     </h1>
