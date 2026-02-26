@@ -341,7 +341,18 @@ const EventsList = ({ events }) => {
                     </div>
                   </article>
                 ) : isSpot ? (
-                  <article className="group relative w-full overflow-hidden rounded-[6px] shadow-xl aspect-[3/4]" style={{ background: 'linear-gradient(145deg, #1a2a1a 0%, #0d1f0d 50%, #0a160a 100%)' }}>
+                  <article className="group relative w-full overflow-hidden rounded-[6px] bg-base-200/40 shadow-xl aspect-[3/4]" style={{ background: 'linear-gradient(145deg, #1a2a1a 0%, #0d1f0d 50%, #0a160a 100%)' }}>
+                    {eventImage && eventImage !== "/logo-light.svg" && (
+                      <Image
+                        src={eventImage}
+                        alt={event.title}
+                        fill
+                        unoptimized={isLocalImage}
+                        className="object-cover"
+                        sizes="(max-width: 768px) 80vw, 420px"
+                      />
+                    )}
+
                     <div className="absolute left-6 top-6 right-6">
                       <p className="font-serif leading-tight text-white drop-shadow text-[clamp(1.6rem,4.6vw,2.6rem)] sm:text-[clamp(2rem,3.2vw,2.8rem)]">
                         {event.title}
@@ -353,6 +364,7 @@ const EventsList = ({ events }) => {
                         attributeTag={null}
                         categoryStyle="bg-[#2f6b59] text-white"
                       />
+                      <div className="h-10 w-10 sm:h-16 sm:w-16" />
                     </div>
                   </article>
                 ) : (

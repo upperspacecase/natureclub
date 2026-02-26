@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import Map, { Marker, Popup } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { SPOT_CATEGORIES, SPOT_CATEGORY_STYLES } from "@/data/events";
+import apiClient from "@/libs/api";
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
@@ -30,6 +31,14 @@ const MARKER_COLORS = {
     "rice-terrace": "#65a30d",
 };
 
+const EXPERIENCE_COLOR = "#c26b3a";
+
+const FILTER_TYPES = [
+    { id: "all", label: "All", emoji: "" },
+    { id: "experiences", label: "Experiences", emoji: "🎯" },
+    { id: "spots", label: "Spots", emoji: "📍" },
+];
+
 const formatTag = (value = "") =>
     value
         .split("-")
@@ -38,14 +47,39 @@ const formatTag = (value = "") =>
 
 const DiscoverSection = ({ spots }) => {
     const [activeFilter, setActiveFilter] = useState("all");
-    const [selectedSpot, setSelectedSpot] = useState(null);
+    const [activeCategory, setActiveCategory] = useState("all");
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [experiences, setExperiences] = useState([]);
 
+    // Fetch experiences from API
+    useEffect(() => {
+        const fetchExperiences = async () => {
+            try {
+                const res = await apiClient.get("/events/explore");
+                if (res?.events) {
+                    setExperiences(res.events);
+                }
+            } catch (err) {
+                console.error("Failed to load experiences:", err);
+            }
+        };
+        fetchExperiences();
+    }, []);
+
+    // Filter spots by category
     const filteredSpots = useMemo(() => {
-        if (activeFilter === "all") return spots;
-        return spots.filter((spot) => spot.categoryTag === activeFilter);
-    }, [spots, activeFilter]);
+        if (activeFilter === "experiences") return [];
+        if (activeCategory === "all") return spots;
+        return spots.filter((spot) => spot.categoryTag === activeCategory);
+    }, [spots, activeFilter, activeCategory]);
 
-    // Only spots with lat/lng
+    // Filter experiences (show/hide)
+    const filteredExperiences = useMemo(() => {
+        if (activeFilter === "spots") return [];
+        return experiences.filter((e) => e.meetingPoint?.lat && e.meetingPoint?.lng);
+    }, [experiences, activeFilter]);
+
+    // Mappable spots
     const mappableSpots = useMemo(
         () => filteredSpots.filter((s) => s.location?.lat && s.location?.lng),
         [filteredSpots]
@@ -64,11 +98,14 @@ const DiscoverSection = ({ spots }) => {
         [categoryCounts]
     );
 
-    const handleMarkerClick = useCallback((spot) => {
-        setSelectedSpot(spot);
+    const totalCount = spots.length + experiences.length;
+    const visibleCount = mappableSpots.length + filteredExperiences.length;
+
+    const handleMarkerClick = useCallback((item) => {
+        setSelectedItem(item);
     }, []);
 
-    if (!spots?.length) return null;
+    if (!spots?.length && !experiences?.length) return null;
 
     return (
         <section className="bg-black px-6 py-16 text-white md:px-10 md:py-20">
@@ -76,41 +113,65 @@ const DiscoverSection = ({ spots }) => {
                 {/* Header */}
                 <div className="mb-8 text-center md:mb-10">
                     <h2 className="font-serif text-2xl leading-tight sm:text-3xl">
-                        Discover nature spots
+                        Discover Bali
                     </h2>
                     <p className="mt-2 text-sm text-white/50">
-                        {spots.length} curated spots in Bali
+                        {spots.length} spots · {experiences.length} upcoming experiences
                     </p>
                 </div>
 
-                {/* Category filter pills */}
-                <div className="mb-6 flex flex-wrap justify-center gap-2">
-                    <button
-                        type="button"
-                        onClick={() => setActiveFilter("all")}
-                        className={`rounded-full px-4 py-2 text-sm font-medium transition ${activeFilter === "all"
+                {/* Type filter (All / Experiences / Spots) */}
+                <div className="mb-3 flex flex-wrap justify-center gap-2">
+                    {FILTER_TYPES.map((ft) => (
+                        <button
+                            key={ft.id}
+                            type="button"
+                            onClick={() => {
+                                setActiveFilter(ft.id);
+                                if (ft.id === "experiences") setActiveCategory("all");
+                            }}
+                            className={`rounded-full px-4 py-2 text-sm font-medium transition ${activeFilter === ft.id
                                 ? "bg-white text-black"
                                 : "border border-white/20 bg-white/[0.04] text-white/70 hover:border-white/40 hover:text-white"
-                            }`}
-                    >
-                        All ({spots.length})
-                    </button>
-                    {activeCategories.map((cat) => (
-                        <button
-                            key={cat.id}
-                            type="button"
-                            onClick={() =>
-                                setActiveFilter(activeFilter === cat.id ? "all" : cat.id)
-                            }
-                            className={`rounded-full px-4 py-2 text-sm font-medium transition ${activeFilter === cat.id
-                                    ? "bg-white text-black"
-                                    : "border border-white/20 bg-white/[0.04] text-white/70 hover:border-white/40 hover:text-white"
                                 }`}
                         >
-                            {cat.emoji} {cat.label} ({categoryCounts[cat.id]})
+                            {ft.emoji} {ft.label}
                         </button>
                     ))}
                 </div>
+
+                {/* Category filter pills (only when spots are visible) */}
+                {activeFilter !== "experiences" && (
+                    <div className="mb-6 flex flex-wrap justify-center gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setActiveCategory("all")}
+                            className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${activeCategory === "all"
+                                ? "bg-white/20 text-white"
+                                : "border border-white/10 bg-white/[0.02] text-white/50 hover:border-white/30 hover:text-white/70"
+                                }`}
+                        >
+                            All spots
+                        </button>
+                        {activeCategories.map((cat) => (
+                            <button
+                                key={cat.id}
+                                type="button"
+                                onClick={() =>
+                                    setActiveCategory(
+                                        activeCategory === cat.id ? "all" : cat.id
+                                    )
+                                }
+                                className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${activeCategory === cat.id
+                                    ? "bg-white/20 text-white"
+                                    : "border border-white/10 bg-white/[0.02] text-white/50 hover:border-white/30 hover:text-white/70"
+                                    }`}
+                            >
+                                {cat.emoji} {cat.label}
+                            </button>
+                        ))}
+                    </div>
+                )}
 
                 {/* Map */}
                 <div className="overflow-hidden rounded-2xl border border-white/10">
@@ -127,19 +188,25 @@ const DiscoverSection = ({ spots }) => {
                                 mapboxAccessToken={MAPBOX_TOKEN}
                                 attributionControl={false}
                             >
+                                {/* Spot markers */}
                                 {mappableSpots.map((spot) => {
-                                    const color = MARKER_COLORS[spot.categoryTag] || "#22c55e";
-                                    const emoji = SPOT_EMOJI[spot.categoryTag] || "📍";
+                                    const color =
+                                        MARKER_COLORS[spot.categoryTag] || "#22c55e";
+                                    const emoji =
+                                        SPOT_EMOJI[spot.categoryTag] || "📍";
 
                                     return (
                                         <Marker
-                                            key={spot.id}
+                                            key={`spot-${spot.id}`}
                                             longitude={spot.location.lng}
                                             latitude={spot.location.lat}
                                             anchor="bottom"
                                             onClick={(e) => {
                                                 e.originalEvent.stopPropagation();
-                                                handleMarkerClick(spot);
+                                                handleMarkerClick({
+                                                    ...spot,
+                                                    _type: "spot",
+                                                });
                                             }}
                                         >
                                             <div
@@ -161,44 +228,136 @@ const DiscoverSection = ({ spots }) => {
                                     );
                                 })}
 
-                                {/* Popup for selected spot */}
-                                {selectedSpot && selectedSpot.location && (
-                                    <Popup
-                                        longitude={selectedSpot.location.lng}
-                                        latitude={selectedSpot.location.lat}
-                                        anchor="bottom"
-                                        offset={24}
-                                        closeOnClick={false}
-                                        onClose={() => setSelectedSpot(null)}
-                                        className="explore-popup"
-                                    >
-                                        <div className="w-52 p-3">
-                                            <h4 className="font-serif text-sm font-semibold leading-tight text-stone-900">
-                                                {selectedSpot.title}
-                                            </h4>
-                                            {selectedSpot.region && (
-                                                <p className="mt-1 text-xs text-stone-500">
-                                                    📍 {selectedSpot.region}
-                                                </p>
-                                            )}
-                                            {selectedSpot.description && (
-                                                <p className="mt-2 text-xs leading-relaxed text-stone-600">
-                                                    {selectedSpot.description}
-                                                </p>
-                                            )}
-                                            <div className="mt-2">
-                                                <span
-                                                    className={`inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-[10px] font-medium ${SPOT_CATEGORY_STYLES[selectedSpot.categoryTag] ||
-                                                        "bg-stone-200 text-stone-800"
-                                                        }`}
+                                {/* Experience markers */}
+                                {filteredExperiences.map((exp) => {
+                                    const time = new Date(exp.dateTime).toLocaleTimeString(
+                                        "en-US",
+                                        { hour: "numeric", minute: "2-digit" }
+                                    );
+
+                                    return (
+                                        <Marker
+                                            key={`exp-${exp.id}`}
+                                            longitude={exp.meetingPoint.lng}
+                                            latitude={exp.meetingPoint.lat}
+                                            anchor="bottom"
+                                            onClick={(e) => {
+                                                e.originalEvent.stopPropagation();
+                                                handleMarkerClick({ ...exp, _type: "experience" });
+                                            }}
+                                        >
+                                            <div
+                                                className="flex cursor-pointer flex-col items-center transition-transform hover:scale-110"
+                                                title={exp.title}
+                                            >
+                                                <div
+                                                    className="rounded-full px-2 py-0.5 text-[10px] font-bold text-white shadow-lg"
+                                                    style={{ backgroundColor: EXPERIENCE_COLOR }}
                                                 >
-                                                    {SPOT_EMOJI[selectedSpot.categoryTag]}{" "}
-                                                    {formatTag(selectedSpot.categoryTag)}
-                                                </span>
+                                                    {time}
+                                                </div>
+                                                <div
+                                                    className="mt-0.5 h-0 w-0 border-l-[5px] border-r-[5px] border-t-[6px] border-l-transparent border-r-transparent"
+                                                    style={{ borderTopColor: EXPERIENCE_COLOR }}
+                                                />
                                             </div>
-                                        </div>
-                                    </Popup>
-                                )}
+                                        </Marker>
+                                    );
+                                })}
+
+                                {/* Popup */}
+                                {selectedItem &&
+                                    (selectedItem._type === "spot"
+                                        ? selectedItem.location
+                                        : selectedItem.meetingPoint) && (
+                                        <Popup
+                                            longitude={
+                                                selectedItem._type === "spot"
+                                                    ? selectedItem.location.lng
+                                                    : selectedItem.meetingPoint.lng
+                                            }
+                                            latitude={
+                                                selectedItem._type === "spot"
+                                                    ? selectedItem.location.lat
+                                                    : selectedItem.meetingPoint.lat
+                                            }
+                                            anchor="bottom"
+                                            offset={24}
+                                            closeOnClick={false}
+                                            onClose={() => setSelectedItem(null)}
+                                            className="explore-popup"
+                                        >
+                                            <div className="w-56 p-3">
+                                                <h4 className="font-serif text-sm font-semibold leading-tight text-stone-900">
+                                                    {selectedItem.title}
+                                                </h4>
+
+                                                {selectedItem._type === "spot" ? (
+                                                    <>
+                                                        {selectedItem.region && (
+                                                            <p className="mt-1 text-xs text-stone-500">
+                                                                📍 {selectedItem.region}
+                                                            </p>
+                                                        )}
+                                                        {selectedItem.description && (
+                                                            <p className="mt-2 text-xs leading-relaxed text-stone-600">
+                                                                {selectedItem.description}
+                                                            </p>
+                                                        )}
+                                                        <div className="mt-2">
+                                                            <span
+                                                                className={`inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-[10px] font-medium ${SPOT_CATEGORY_STYLES[
+                                                                    selectedItem.categoryTag
+                                                                ] || "bg-stone-200 text-stone-800"
+                                                                    }`}
+                                                            >
+                                                                {SPOT_EMOJI[selectedItem.categoryTag]}{" "}
+                                                                {formatTag(selectedItem.categoryTag)}
+                                                            </span>
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <p className="mt-1 text-xs text-stone-500">
+                                                            {new Date(
+                                                                selectedItem.dateTime
+                                                            ).toLocaleDateString("en-US", {
+                                                                weekday: "short",
+                                                                month: "short",
+                                                                day: "numeric",
+                                                            })}{" "}
+                                                            ·{" "}
+                                                            {new Date(
+                                                                selectedItem.dateTime
+                                                            ).toLocaleTimeString("en-US", {
+                                                                hour: "numeric",
+                                                                minute: "2-digit",
+                                                            })}
+                                                        </p>
+                                                        {selectedItem.activityType && (
+                                                            <p className="mt-1 text-xs text-stone-400">
+                                                                {formatTag(selectedItem.activityType)}
+                                                            </p>
+                                                        )}
+                                                        <div className="mt-2 flex items-center justify-between">
+                                                            <span className="text-xs text-stone-400">
+                                                                {selectedItem.spotsLeft}/
+                                                                {selectedItem.groupSize} spots
+                                                            </span>
+                                                            {selectedItem.slug && (
+                                                                <a
+                                                                    href={`/e/${selectedItem.slug}`}
+                                                                    className="rounded-full bg-stone-900 px-3 py-1 text-[10px] font-semibold text-white transition hover:bg-stone-700"
+                                                                >
+                                                                    View →
+                                                                </a>
+                                                            )}
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </Popup>
+                                    )}
                             </Map>
                         </div>
                     ) : (
@@ -216,9 +375,9 @@ const DiscoverSection = ({ spots }) => {
                     )}
                 </div>
 
-                {/* Spot count below map */}
+                {/* Count below map */}
                 <p className="mt-4 text-center text-xs text-white/30">
-                    Showing {filteredSpots.length} of {spots.length} spots
+                    Showing {visibleCount} of {totalCount} items
                 </p>
             </div>
         </section>

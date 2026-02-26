@@ -1,5 +1,6 @@
 import EventsSection from "@/components/EventsSection";
 import DiscoverSection from "@/components/DiscoverSection";
+import EventCalendarSection from "@/components/EventCalendarSection";
 import Footer from "@/components/Footer";
 import HeroVideo from "@/components/HeroVideo";
 import RecordVisit from "@/components/RecordVisit";
@@ -65,6 +66,7 @@ export default function Page() {
         <EventsSection />
       </div>
       <DiscoverSection spots={spots} />
+      <EventCalendarSection />
       <Footer />
     </div>
   );
