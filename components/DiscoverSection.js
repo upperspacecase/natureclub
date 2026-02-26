@@ -287,74 +287,84 @@ const DiscoverSection = ({ spots }) => {
                                             onClose={() => setSelectedItem(null)}
                                             className="explore-popup"
                                         >
-                                            <div className="w-56 p-3">
-                                                <h4 className="font-serif text-sm font-semibold leading-tight text-stone-900">
-                                                    {selectedItem.title}
-                                                </h4>
-
-                                                {selectedItem._type === "spot" ? (
-                                                    <>
-                                                        {selectedItem.region && (
-                                                            <p className="mt-1 text-xs text-stone-500">
-                                                                📍 {selectedItem.region}
-                                                            </p>
-                                                        )}
-                                                        {selectedItem.description && (
-                                                            <p className="mt-2 text-xs leading-relaxed text-stone-600">
-                                                                {selectedItem.description}
-                                                            </p>
-                                                        )}
-                                                        <div className="mt-2">
-                                                            <span
-                                                                className={`inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-[10px] font-medium ${SPOT_CATEGORY_STYLES[
-                                                                    selectedItem.categoryTag
-                                                                ] || "bg-stone-200 text-stone-800"
-                                                                    }`}
-                                                            >
-                                                                {SPOT_EMOJI[selectedItem.categoryTag]}{" "}
-                                                                {formatTag(selectedItem.categoryTag)}
-                                                            </span>
-                                                        </div>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <p className="mt-1 text-xs text-stone-500">
-                                                            {new Date(
-                                                                selectedItem.dateTime
-                                                            ).toLocaleDateString("en-US", {
-                                                                weekday: "short",
-                                                                month: "short",
-                                                                day: "numeric",
-                                                            })}{" "}
-                                                            ·{" "}
-                                                            {new Date(
-                                                                selectedItem.dateTime
-                                                            ).toLocaleTimeString("en-US", {
-                                                                hour: "numeric",
-                                                                minute: "2-digit",
-                                                            })}
-                                                        </p>
-                                                        {selectedItem.activityType && (
-                                                            <p className="mt-1 text-xs text-stone-400">
-                                                                {formatTag(selectedItem.activityType)}
-                                                            </p>
-                                                        )}
-                                                        <div className="mt-2 flex items-center justify-between">
-                                                            <span className="text-xs text-stone-400">
-                                                                {selectedItem.spotsLeft}/
-                                                                {selectedItem.groupSize} spots
-                                                            </span>
-                                                            {selectedItem.slug && (
-                                                                <a
-                                                                    href={`/e/${selectedItem.slug}`}
-                                                                    className="rounded-full bg-stone-900 px-3 py-1 text-[10px] font-semibold text-white transition hover:bg-stone-700"
-                                                                >
-                                                                    View →
-                                                                </a>
-                                                            )}
-                                                        </div>
-                                                    </>
+                                            <div className="w-56">
+                                                {/* Spot image */}
+                                                {selectedItem._type === "spot" && selectedItem.image && (
+                                                    <img
+                                                        src={selectedItem.image}
+                                                        alt={selectedItem.title}
+                                                        className="h-28 w-full rounded-t object-cover"
+                                                    />
                                                 )}
+                                                <div className="p-3">
+                                                    <h4 className="font-serif text-sm font-semibold leading-tight text-stone-900">
+                                                        {selectedItem.title}
+                                                    </h4>
+
+                                                    {selectedItem._type === "spot" ? (
+                                                        <>
+                                                            {selectedItem.region && (
+                                                                <p className="mt-1 text-xs text-stone-500">
+                                                                    📍 {selectedItem.region}
+                                                                </p>
+                                                            )}
+                                                            {selectedItem.description && (
+                                                                <p className="mt-2 text-xs leading-relaxed text-stone-600">
+                                                                    {selectedItem.description}
+                                                                </p>
+                                                            )}
+                                                            <div className="mt-2">
+                                                                <span
+                                                                    className={`inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-[10px] font-medium ${SPOT_CATEGORY_STYLES[
+                                                                        selectedItem.categoryTag
+                                                                    ] || "bg-stone-200 text-stone-800"
+                                                                        }`}
+                                                                >
+                                                                    {SPOT_EMOJI[selectedItem.categoryTag]}{" "}
+                                                                    {formatTag(selectedItem.categoryTag)}
+                                                                </span>
+                                                            </div>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <p className="mt-1 text-xs text-stone-500">
+                                                                {new Date(
+                                                                    selectedItem.dateTime
+                                                                ).toLocaleDateString("en-US", {
+                                                                    weekday: "short",
+                                                                    month: "short",
+                                                                    day: "numeric",
+                                                                })}{" "}
+                                                                ·{" "}
+                                                                {new Date(
+                                                                    selectedItem.dateTime
+                                                                ).toLocaleTimeString("en-US", {
+                                                                    hour: "numeric",
+                                                                    minute: "2-digit",
+                                                                })}
+                                                            </p>
+                                                            {selectedItem.activityType && (
+                                                                <p className="mt-1 text-xs text-stone-400">
+                                                                    {formatTag(selectedItem.activityType)}
+                                                                </p>
+                                                            )}
+                                                            <div className="mt-2 flex items-center justify-between">
+                                                                <span className="text-xs text-stone-400">
+                                                                    {selectedItem.spotsLeft}/
+                                                                    {selectedItem.groupSize} spots
+                                                                </span>
+                                                                {selectedItem.slug && (
+                                                                    <a
+                                                                        href={`/e/${selectedItem.slug}`}
+                                                                        className="rounded-full bg-stone-900 px-3 py-1 text-[10px] font-semibold text-white transition hover:bg-stone-700"
+                                                                    >
+                                                                        View →
+                                                                    </a>
+                                                                )}
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                </div>
                                             </div>
                                         </Popup>
                                     )}
