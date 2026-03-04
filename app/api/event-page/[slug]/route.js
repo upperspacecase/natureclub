@@ -2,6 +2,7 @@ import connectMongo from "@/libs/mongoose";
 import BookingEvent from "@/models/BookingEvent";
 import User from "@/models/User";
 import Rsvp from "@/models/Rsvp";
+import { searchPhoto } from "@/libs/unsplash";
 
 // GET — Public event data by slug (no auth required)
 export async function GET(req, { params }) {
@@ -81,6 +82,26 @@ export async function GET(req, { params }) {
             maybeCount,
             attendeeNames,
         };
+
+        // Auto-fetch Unsplash image if no cover photo
+        if (!publicEvent.coverPhotoUrl && process.env.UNSPLASH_ACCESS_KEY) {
+            try {
+                const parts = [event.title];
+                if (event.activityType && event.activityType !== "other") {
+                    parts.push(event.activityType.replace(/-/g, " "));
+                }
+                const photo = await searchPhoto(parts.join(" ") || "nature outdoor");
+                if (photo?.url) {
+                    publicEvent.coverPhotoUrl = photo.url;
+                    await BookingEvent.updateOne(
+                        { _id: event._id },
+                        { $set: { coverPhotoUrl: photo.url } }
+                    );
+                }
+            } catch (err) {
+                console.error("Unsplash fallback failed:", err.message);
+            }
+        }
 
         return Response.json(publicEvent);
     } catch (error) {

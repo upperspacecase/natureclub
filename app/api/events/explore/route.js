@@ -1,6 +1,18 @@
 import connectMongo from "@/libs/mongoose";
 import BookingEvent from "@/models/BookingEvent";
 import Rsvp from "@/models/Rsvp";
+import { searchPhoto } from "@/libs/unsplash";
+
+// Build a search query from event data for Unsplash
+function buildImageQuery(event) {
+    const parts = [];
+    if (event.title) parts.push(event.title);
+    if (event.activityType && event.activityType !== "other") {
+        parts.push(event.activityType.replace(/-/g, " "));
+    }
+    if (!parts.length) parts.push("nature outdoor");
+    return parts.join(" ");
+}
 
 // GET — Public endpoint: list published, public, upcoming events with coordinates
 export async function GET() {
@@ -29,6 +41,25 @@ export async function GET() {
                     status: "confirmed",
                 });
 
+                // Auto-fetch Unsplash image if no cover photo
+                let coverUrl = event.coverPhotoUrl || "";
+                if (!coverUrl && process.env.UNSPLASH_ACCESS_KEY) {
+                    try {
+                        const query = buildImageQuery(event);
+                        const photo = await searchPhoto(query);
+                        if (photo?.url) {
+                            coverUrl = photo.url;
+                            // Persist so we don't re-fetch next time
+                            await BookingEvent.updateOne(
+                                { _id: event._id },
+                                { $set: { coverPhotoUrl: coverUrl } }
+                            );
+                        }
+                    } catch (err) {
+                        console.error("Unsplash fallback failed for", event.title, err.message);
+                    }
+                }
+
                 return {
                     id: event._id.toString(),
                     title: event.title,
@@ -39,7 +70,7 @@ export async function GET() {
                         event.activityType === "other"
                             ? event.activityTypeOther || "Other"
                             : event.activityType || "",
-                    coverPhotoUrl: event.coverPhotoUrl || "",
+                    coverPhotoUrl: coverUrl,
                     meetingPoint: {
                         lat: event.meetingPoint.lat,
                         lng: event.meetingPoint.lng,
@@ -63,3 +94,4 @@ export async function GET() {
         );
     }
 }
+

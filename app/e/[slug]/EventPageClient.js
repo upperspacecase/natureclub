@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { generateIcs, googleCalendarUrl } from "@/libs/calendar";
 import StoryCardPreview from "@/components/StoryCardPreview";
 import { getActivityDefaults } from "@/libs/activityDefaults";
+import { formatPrice } from "@/libs/formatPrice";
 
 const DIFFICULTY_LABELS = {
     easy: "Easy",
@@ -232,12 +233,7 @@ export default function EventPageClient({ event }) {
     const isFull = event.groupSize && rsvpCount >= event.groupSize;
     const spotsLeft = event.groupSize ? event.groupSize - rsvpCount : null;
 
-    const currencySymbol = {
-        USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$",
-        NZD: "NZ$", BRL: "R$", MXN: "MX$", JPY: "¥", INR: "₹",
-        ZAR: "R", CHF: "CHF", SEK: "kr", NOK: "kr", DKK: "kr",
-        COP: "COL$", ARS: "AR$", CLP: "CL$",
-    }[event.currency] || "$";
+    const formattedPrice = event.price > 0 ? formatPrice(event.price, event.currency) : "Free";
 
     function formatDuration(mins) {
         if (!mins) return "";
@@ -578,7 +574,7 @@ export default function EventPageClient({ event }) {
                                 <span>{formatDuration(event.durationMinutes)}</span>
                             )}
                             {event.price > 0 ? (
-                                <span>{currencySymbol}{event.price}</span>
+                                <span>{formattedPrice}</span>
                             ) : (
                                 <span>Free</span>
                             )}
@@ -644,7 +640,7 @@ export default function EventPageClient({ event }) {
                                 <span className="text-sm">
                                     {event.price > 0 ? (
                                         <>
-                                            {currencySymbol}{event.price}
+                                            {formattedPrice}
                                             {event.priceLink && (
                                                 <>
                                                     {" · "}

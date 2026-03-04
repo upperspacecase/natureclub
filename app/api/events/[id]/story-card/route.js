@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 import connectMongo from "@/libs/mongoose";
 import BookingEvent from "@/models/BookingEvent";
 import User from "@/models/User";
+import { formatPrice } from "@/libs/formatPrice";
 
 export const runtime = "nodejs";
 
@@ -103,12 +104,7 @@ export async function GET(req, { params }) {
                             <span>{event.groupSize} spots</span>
                         )}
                         {event.price != null && (
-                            <span>{event.price === 0 ? "Free" : `${({
-                                USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$",
-                                NZD: "NZ$", BRL: "R$", MXN: "MX$", JPY: "¥", INR: "₹",
-                                ZAR: "R", CHF: "CHF", SEK: "kr", NOK: "kr", DKK: "kr",
-                                COP: "COL$", ARS: "AR$", CLP: "CL$",
-                            })[event.currency] || "$"}${event.price}`}</span>
+                            <span>{formatPrice(event.price, event.currency)}</span>
                         )}
                     </div>
                 </div>

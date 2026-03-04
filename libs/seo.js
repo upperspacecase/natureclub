@@ -103,7 +103,7 @@ export const renderSchemaTags = () => {
             {
               "@type": "Offer",
               price: "9.00",
-              priceCurrency: "USD",
+              priceCurrency: "EUR",
             },
           ],
         }),

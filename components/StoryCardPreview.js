@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import html2canvas from "html2canvas";
+import { formatPrice } from "@/libs/formatPrice";
 
 /**
  * Live story card preview — single source of truth.
@@ -43,19 +44,12 @@ export default function StoryCardPreview({
         })
         : "";
 
-    const currencySymbol = {
-        USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$",
-        NZD: "NZ$", BRL: "R$", MXN: "MX$", JPY: "¥", INR: "₹",
-        ZAR: "R", CHF: "CHF", SEK: "kr", NOK: "kr", DKK: "kr",
-        COP: "COL$", ARS: "AR$", CLP: "CL$",
-    }[currency] || "$";
-
     const priceLabel =
         price === undefined || price === null
             ? null
             : price === 0
                 ? "Free"
-                : `${currencySymbol}${price}`;
+                : formatPrice(price, currency);
 
     function formatDuration(mins) {
         if (!mins) return "";
