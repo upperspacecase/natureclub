@@ -2,6 +2,7 @@ import connectMongo from "@/libs/mongoose";
 import User from "@/models/User";
 import BookingEvent from "@/models/BookingEvent";
 import Rsvp from "@/models/Rsvp";
+import { searchPhoto } from "@/libs/unsplash";
 import { notFound } from "next/navigation";
 import { getSEOTags } from "@/libs/seo";
 import Link from "next/link";
@@ -60,6 +61,30 @@ export default async function ProfilePage({ params }) {
         counts.forEach((c) => {
             rsvpCounts[c._id.toString()] = c.count;
         });
+    }
+
+    // Auto-fetch Unsplash images for events missing cover photos
+    if (process.env.UNSPLASH_ACCESS_KEY) {
+        for (const event of [...upcoming, ...past]) {
+            if (!event.coverPhotoUrl) {
+                try {
+                    const parts = [event.title];
+                    if (event.activityType && event.activityType !== "other") {
+                        parts.push(event.activityType.replace(/-/g, " "));
+                    }
+                    const photo = await searchPhoto(parts.join(" ") || "nature outdoor");
+                    if (photo?.url) {
+                        event.coverPhotoUrl = photo.url;
+                        await BookingEvent.updateOne(
+                            { _id: event._id },
+                            { $set: { coverPhotoUrl: photo.url } }
+                        );
+                    }
+                } catch (err) {
+                    console.error("Unsplash fallback failed:", err.message);
+                }
+            }
+        }
     }
 
     function formatDate(d) {
