@@ -142,28 +142,28 @@ export default function StoryCardPreview({
                         >
                             {dateStr ? (
                                 <span>
-                                    📅 {dateStr}
+                                    {dateStr}
                                     {timeStr ? ` at ${timeStr}` : ""}
                                 </span>
                             ) : (
                                 <span style={{ opacity: 0.4 }}>
-                                    📅 Date & time
+                                    Date & time
                                 </span>
                             )}
                             {durationMinutes > 0 && (
-                                <span>⏱ {formatDuration(durationMinutes)}</span>
+                                <span>{formatDuration(durationMinutes)}</span>
                             )}
                             {location && (
-                                <span>📍 {location}</span>
+                                <span>{location}</span>
                             )}
                             {hostName && (
-                                <span>🌿 with {hostName}</span>
+                                <span>with {hostName}</span>
                             )}
                             {groupSize ? (
-                                <span>👥 {groupSize} spots</span>
+                                <span>{groupSize} spots</span>
                             ) : null}
                             {priceLabel !== null && (
-                                <span>💵 {priceLabel}</span>
+                                <span>{priceLabel}</span>
                             )}
                         </div>
                         {/* Bottom-right: overlay children (RSVP buttons, etc.) */}
@@ -189,8 +189,8 @@ export default function StoryCardPreview({
                     {saving
                         ? "Saving..."
                         : published
-                            ? "📱 Download story card"
-                            : "📱 Download available after publishing"}
+                            ? "Download story card"
+                            : "Download available after publishing"}
                 </button>
             )}
         </div>

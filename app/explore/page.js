@@ -146,7 +146,7 @@ export default function ExplorePage() {
                 <div className="overflow-y-auto p-4" style={{ maxHeight: "50vh" }}>
                     {filteredEvents.length === 0 ? (
                         <div className="py-8 text-center">
-                            <p className="text-2xl">🌿</p>
+                            <p className="text-sm font-medium text-white/40">No events</p>
                             <p className="mt-2 text-sm text-white/40">
                                 Nothing happening this day — check another date!
                             </p>

@@ -76,7 +76,7 @@ export default function ExploreMap({ events, userLocation }) {
         return (
             <div className="flex h-full items-center justify-center bg-black text-white/40">
                 <div className="text-center">
-                    <p className="text-lg">🗺️</p>
+                    <p className="text-sm font-medium text-white/40">Map</p>
                     <p className="mt-2 text-sm">
                         Mapbox token not configured. Add{" "}
                         <code className="text-white/60">

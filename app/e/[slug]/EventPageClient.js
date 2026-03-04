@@ -28,26 +28,26 @@ export default function EventPageClient({ event }) {
 
     // Common country codes
     const countryCodes = [
-        { code: "+1", flag: "🇺🇸", label: "US" },
-        { code: "+1", flag: "🇨🇦", label: "CA" },
-        { code: "+44", flag: "🇬🇧", label: "UK" },
-        { code: "+61", flag: "🇦🇺", label: "AU" },
-        { code: "+64", flag: "🇳🇿", label: "NZ" },
-        { code: "+353", flag: "🇮🇪", label: "IE" },
-        { code: "+49", flag: "🇩🇪", label: "DE" },
-        { code: "+33", flag: "🇫🇷", label: "FR" },
-        { code: "+34", flag: "🇪🇸", label: "ES" },
-        { code: "+39", flag: "🇮🇹", label: "IT" },
-        { code: "+31", flag: "🇳🇱", label: "NL" },
-        { code: "+46", flag: "🇸🇪", label: "SE" },
-        { code: "+47", flag: "🇳🇴", label: "NO" },
-        { code: "+45", flag: "🇩🇰", label: "DK" },
-        { code: "+55", flag: "🇧🇷", label: "BR" },
-        { code: "+52", flag: "🇲🇽", label: "MX" },
-        { code: "+81", flag: "🇯🇵", label: "JP" },
-        { code: "+82", flag: "🇰🇷", label: "KR" },
-        { code: "+91", flag: "🇮🇳", label: "IN" },
-        { code: "+27", flag: "🇿🇦", label: "ZA" },
+        { code: "+1", label: "US" },
+        { code: "+1", label: "CA" },
+        { code: "+44", label: "UK" },
+        { code: "+61", label: "AU" },
+        { code: "+64", label: "NZ" },
+        { code: "+353", label: "IE" },
+        { code: "+49", label: "DE" },
+        { code: "+33", label: "FR" },
+        { code: "+34", label: "ES" },
+        { code: "+39", label: "IT" },
+        { code: "+31", label: "NL" },
+        { code: "+46", label: "SE" },
+        { code: "+47", label: "NO" },
+        { code: "+45", label: "DK" },
+        { code: "+55", label: "BR" },
+        { code: "+52", label: "MX" },
+        { code: "+81", label: "JP" },
+        { code: "+82", label: "KR" },
+        { code: "+91", label: "IN" },
+        { code: "+27", label: "ZA" },
     ];
 
     // Load current RSVP data
@@ -309,9 +309,9 @@ export default function EventPageClient({ event }) {
                         {!isCancelled && rsvpState === "idle" && (
                             <div className="flex flex-col items-center gap-2">
                                 {[
-                                    { key: "going", icon: "🌿", label: "Going" },
-                                    { key: "maybe", icon: "🌤", label: "Maybe" },
-                                    { key: "cantgo", icon: "🍂", label: "Can't Go" },
+                                    { key: "going", label: "Going" },
+                                    { key: "maybe", label: "Maybe" },
+                                    { key: "cantgo", label: "Can't Go" },
                                 ].map((opt) => (
                                     <button
                                         key={opt.key}
@@ -326,8 +326,8 @@ export default function EventPageClient({ event }) {
                                             : "hover:scale-110"
                                             } transition-transform`}
                                     >
-                                        <div className="flex h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-black/40 text-base font-bold text-white backdrop-blur-md">
-                                            {opt.icon}
+                                        <div className="flex h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-black/40 text-sm font-bold text-white backdrop-blur-md">
+                                            {opt.label.charAt(0)}
                                         </div>
                                         <span className="text-[9px] font-medium text-white/70">
                                             {opt.key === "going" && isFull ? "Full" : opt.label}
@@ -350,8 +350,8 @@ export default function EventPageClient({ event }) {
                                 className="h-9 w-9 rounded-full object-cover"
                             />
                         ) : (
-                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-base">
-                                🌿
+                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-sm font-medium text-white/60">
+                                {event.host?.name?.charAt(0)?.toUpperCase() || "H"}
                             </div>
                         )}
                         <div>
@@ -408,142 +408,162 @@ export default function EventPageClient({ event }) {
                     </div>
                 )}
 
-                {/* ── RSVP Form / Confirmation (outside card) ── */}
+                {/* ── RSVP Modal Overlay ── */}
                 {!isCancelled && rsvpState !== "idle" && (
-                    <div className="mb-6">
+                    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm">
+                        <div className="w-full max-w-lg rounded-t-2xl sm:rounded-2xl border border-white/15 bg-[#1a1917] p-6 sm:p-8 shadow-2xl">
 
-                        {/* RSVP Form */}
-                        {rsvpState === "form" && (
-                            <form onSubmit={handleRsvp} className="space-y-3">
-                                <p className="mb-2 text-center text-sm text-white/60">
-                                    {rsvpResponse === "going" ? "You're going! 🌱" : rsvpResponse === "maybe" ? "Maybe — we'll save you a spot" : "Can't make it"}
-                                </p>
-                                <input
-                                    type="text"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    placeholder="Your name"
-                                    required
-                                    maxLength={50}
-                                    className="w-full rounded-xl border border-white/25 bg-white/[0.04] px-4 py-4 text-base text-white placeholder-white/35 outline-none focus:border-white/50"
-                                />
-                                {/* Combined phone row */}
-                                <div className="flex overflow-hidden rounded-xl border border-white/25">
-                                    <div className="relative flex items-center border-r border-white/25 bg-white/[0.04]">
-                                        <select
-                                            value={countryCode}
-                                            onChange={(e) => setCountryCode(e.target.value)}
-                                            className="h-full appearance-none border-0 bg-transparent py-4 pl-4 pr-10 text-base outline-none"
-                                            style={{ paddingRight: "40px" }}
+                            {/* RSVP Form */}
+                            {rsvpState === "form" && (
+                                <form onSubmit={handleRsvp} className="space-y-3">
+                                    <p className="mb-2 text-center text-sm text-white/60">
+                                        {rsvpResponse === "going" ? "You're going!" : rsvpResponse === "maybe" ? "Maybe — we'll save you a spot" : "Can't make it"}
+                                    </p>
+                                    <input
+                                        type="text"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        placeholder="Your name"
+                                        required
+                                        maxLength={50}
+                                        className="w-full rounded-xl border border-white/25 bg-white/[0.04] px-4 py-4 text-base text-white placeholder-white/35 outline-none focus:border-white/50"
+                                    />
+                                    {/* Combined phone row */}
+                                    <div className="flex overflow-hidden rounded-xl border border-white/25">
+                                        <div className="relative flex items-center border-r border-white/25 bg-white/[0.04]">
+                                            <select
+                                                value={countryCode}
+                                                onChange={(e) => setCountryCode(e.target.value)}
+                                                className="h-full appearance-none border-0 bg-transparent py-4 pl-4 pr-10 text-base outline-none"
+                                                style={{ paddingRight: "40px" }}
+                                            >
+                                                {countryCodes.map((c, i) => (
+                                                    <option key={`${c.code}-${c.label}-${i}`} value={c.code}>
+                                                        {c.label} {c.code}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="relative flex flex-1 items-center bg-white/[0.04]">
+                                            <input
+                                                type="tel"
+                                                value={phone}
+                                                onChange={(e) => setPhone(e.target.value)}
+                                                placeholder="Phone number"
+                                                required
+                                                className="w-full border-0 bg-transparent px-4 py-4 text-base text-white placeholder-white/35 outline-none"
+                                            />
+                                            {phone.replace(/\D/g, "").length >= 7 && (
+                                                <span className="absolute right-4 text-base text-white/50">✓</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                    {error && (
+                                        <p className="text-sm text-red-400">{error}</p>
+                                    )}
+                                    <div className="flex gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => { setRsvpState("idle"); setRsvpResponse(null); }}
+                                            className="rounded-xl border border-white/25 px-4 py-4 text-sm text-white/60 hover:border-white hover:text-white"
                                         >
-                                            {countryCodes.map((c, i) => (
-                                                <option key={`${c.code}-${c.label}-${i}`} value={c.code}>
-                                                    {c.flag} {c.code}
-                                                </option>
-                                            ))}
-                                        </select>
+                                            Back
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            disabled={submitting || !name.trim() || !phone.trim()}
+                                            className={`flex-1 rounded-xl py-4 text-base font-semibold transition-all ${name.trim() && phone.trim()
+                                                ? "bg-white text-black hover:bg-white/90"
+                                                : "cursor-not-allowed bg-white/15 text-white/30"
+                                                }`}
+                                        >
+                                            {submitting ? "Saving..." : "Confirm"}
+                                        </button>
                                     </div>
-                                    <div className="relative flex flex-1 items-center bg-white/[0.04]">
-                                        <input
-                                            type="tel"
-                                            value={phone}
-                                            onChange={(e) => setPhone(e.target.value)}
-                                            placeholder="Phone number"
-                                            required
-                                            className="w-full border-0 bg-transparent px-4 py-4 text-base text-white placeholder-white/35 outline-none"
-                                        />
-                                        {phone.replace(/\D/g, "").length >= 7 && (
-                                            <span className="absolute right-4 text-base text-white/50">✓</span>
-                                        )}
-                                    </div>
-                                </div>
-                                {error && (
-                                    <p className="text-sm text-red-400">{error}</p>
-                                )}
-                                <div className="flex gap-2">
+                                </form>
+                            )}
+
+                            {/* Confirmed */}
+                            {rsvpState === "confirmed" && (
+                                <div className="text-center">
+                                    <h3 className="mt-2 font-serif text-xl italic text-white">
+                                        You&apos;re in!
+                                    </h3>
+                                    <p className="mt-1 text-sm text-white/70">
+                                        See you there. Here&apos;s what you need to know:
+                                    </p>
+
+                                    {event.dateTime && (
+                                        <div className="mt-4 flex gap-2 justify-center">
+                                            <button
+                                                onClick={() => handleCalendar("google")}
+                                                className="rounded-[5px] border border-white/30 bg-white/10 px-3 py-2 text-xs font-medium text-white/80 hover:bg-white/20"
+                                            >
+                                                Google Calendar
+                                            </button>
+                                            <button
+                                                onClick={() => handleCalendar("ics")}
+                                                className="rounded-[5px] border border-white/30 bg-white/10 px-3 py-2 text-xs font-medium text-white/80 hover:bg-white/20"
+                                            >
+                                                Download .ics
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    <button onClick={handleShare} className="btn mt-4">
+                                        Bring a friend →
+                                    </button>
                                     <button
                                         type="button"
                                         onClick={() => { setRsvpState("idle"); setRsvpResponse(null); }}
-                                        className="rounded-xl border border-white/25 px-4 py-4 text-sm text-white/60 hover:border-white hover:text-white"
+                                        className="mt-3 block w-full text-center text-sm text-white/40 hover:text-white/70"
                                     >
-                                        Back
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        disabled={submitting || !name.trim() || !phone.trim()}
-                                        className={`flex-1 rounded-xl py-4 text-base font-semibold transition-all ${name.trim() && phone.trim()
-                                            ? "bg-white text-black hover:bg-white/90"
-                                            : "cursor-not-allowed bg-white/15 text-white/30"
-                                            }`}
-                                    >
-                                        {submitting ? "Saving..." : "Confirm"}
+                                        Close
                                     </button>
                                 </div>
-                            </form>
-                        )}
+                            )}
 
-                        {/* Confirmed */}
-                        {rsvpState === "confirmed" && (
-                            <div className="rounded-3xl border border-white/15 bg-white/10 p-6 text-center backdrop-blur-sm">
-                                <p className="text-3xl">🌿</p>
-                                <h3 className="mt-2 font-serif text-xl italic text-white">
-                                    You&apos;re in!
-                                </h3>
-                                <p className="mt-1 text-sm text-white/70">
-                                    See you there. Here&apos;s what you need to know:
-                                </p>
+                            {/* Maybe */}
+                            {rsvpState === "maybe" && (
+                                <div className="text-center">
+                                    <h3 className="mt-2 font-serif text-xl italic text-white">
+                                        Noted — maybe!
+                                    </h3>
+                                    <p className="mt-1 text-sm text-white/70">
+                                        We&apos;ll keep a spot warm for you.
+                                    </p>
+                                    <button onClick={handleShare} className="btn mt-4">
+                                        Share with a friend →
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => { setRsvpState("idle"); setRsvpResponse(null); }}
+                                        className="mt-3 block w-full text-center text-sm text-white/40 hover:text-white/70"
+                                    >
+                                        Close
+                                    </button>
+                                </div>
+                            )}
 
-                                {event.dateTime && (
-                                    <div className="mt-4 flex gap-2 justify-center">
-                                        <button
-                                            onClick={() => handleCalendar("google")}
-                                            className="rounded-[5px] border border-white/30 bg-white/10 px-3 py-2 text-xs font-medium text-white/80 hover:bg-white/20"
-                                        >
-                                            📅 Google Calendar
-                                        </button>
-                                        <button
-                                            onClick={() => handleCalendar("ics")}
-                                            className="rounded-[5px] border border-white/30 bg-white/10 px-3 py-2 text-xs font-medium text-white/80 hover:bg-white/20"
-                                        >
-                                            📅 Download .ics
-                                        </button>
-                                    </div>
-                                )}
-
-                                <button onClick={handleShare} className="btn mt-4">
-                                    Bring a friend →
-                                </button>
-                            </div>
-                        )}
-
-                        {/* Maybe */}
-                        {rsvpState === "maybe" && (
-                            <div className="rounded-3xl border border-white/15 bg-white/10 p-6 text-center backdrop-blur-sm">
-                                <p className="text-3xl">🤔</p>
-                                <h3 className="mt-2 font-serif text-xl italic text-white">
-                                    Noted — maybe!
-                                </h3>
-                                <p className="mt-1 text-sm text-white/70">
-                                    We&apos;ll keep a spot warm for you.
-                                </p>
-                                <button onClick={handleShare} className="btn mt-4">
-                                    Share with a friend →
-                                </button>
-                            </div>
-                        )}
-
-                        {/* Waitlisted */}
-                        {rsvpState === "waitlisted" && (
-                            <div className="rounded-3xl border border-white/15 bg-white/10 p-6 text-center backdrop-blur-sm">
-                                <p className="text-3xl">⏳</p>
-                                <h3 className="mt-2 font-serif text-xl italic text-white">
-                                    You&apos;re on the waitlist
-                                </h3>
-                                <p className="mt-1 text-sm text-white/70">
-                                    We&apos;ll let you know if a spot opens up.
-                                </p>
-                            </div>
-                        )}
+                            {/* Waitlisted */}
+                            {rsvpState === "waitlisted" && (
+                                <div className="text-center">
+                                    <h3 className="mt-2 font-serif text-xl italic text-white">
+                                        You&apos;re on the waitlist
+                                    </h3>
+                                    <p className="mt-1 text-sm text-white/70">
+                                        We&apos;ll let you know if a spot opens up.
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={() => { setRsvpState("idle"); setRsvpResponse(null); }}
+                                        className="mt-3 block w-full text-center text-sm text-white/40 hover:text-white/70"
+                                    >
+                                        Close
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 )}
 
@@ -555,15 +575,15 @@ export default function EventPageClient({ event }) {
                     >
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-white/70">
                             {event.durationMinutes > 0 && (
-                                <span>⏱ {formatDuration(event.durationMinutes)}</span>
+                                <span>{formatDuration(event.durationMinutes)}</span>
                             )}
                             {event.price > 0 ? (
-                                <span>💵 {currencySymbol}{event.price}</span>
+                                <span>{currencySymbol}{event.price}</span>
                             ) : (
-                                <span>💵 Free</span>
+                                <span>Free</span>
                             )}
                             {event.difficulty && (
-                                <span>📊 {DIFFICULTY_LABELS[event.difficulty] || event.difficulty}</span>
+                                <span>{DIFFICULTY_LABELS[event.difficulty] || event.difficulty}</span>
                             )}
                         </div>
                         {event.description && (
@@ -586,25 +606,21 @@ export default function EventPageClient({ event }) {
                         <div className="mt-4 space-y-3">
                             {formattedDate && (
                                 <div className="flex items-center gap-2 text-white/80">
-                                    <span className="w-5 text-center">📅</span>
                                     <span className="text-sm">{formattedDate} at {formattedTime}</span>
                                 </div>
                             )}
                             {event.durationMinutes > 0 && (
                                 <div className="flex items-center gap-2 text-white/80">
-                                    <span className="w-5 text-center">⏱</span>
                                     <span className="text-sm">{formatDuration(event.durationMinutes)}</span>
                                 </div>
                             )}
                             {activityLabel && (
                                 <div className="flex items-center gap-2 text-white/80">
-                                    <span className="w-5 text-center">🥾</span>
                                     <span className="text-sm">{activityLabel}</span>
                                 </div>
                             )}
                             {event.difficulty && (
                                 <div className="flex items-center gap-2 text-white/80">
-                                    <span className="w-5 text-center">📊</span>
                                     <span className="text-sm">
                                         {DIFFICULTY_LABELS[event.difficulty] || event.difficulty}
                                     </span>
@@ -612,7 +628,6 @@ export default function EventPageClient({ event }) {
                             )}
                             {event.hasLocation && !meetingPoint && (
                                 <div className="flex items-center gap-2 text-white/50">
-                                    <span className="w-5 text-center">📍</span>
                                     <span className="text-sm italic">
                                         Exact meeting point revealed after RSVP
                                     </span>
@@ -620,14 +635,12 @@ export default function EventPageClient({ event }) {
                             )}
                             {meetingPoint && (
                                 <div className="flex items-center gap-2 text-white/80">
-                                    <span className="w-5 text-center">📍</span>
                                     <span className="text-sm">
                                         {meetingPoint.description || `${meetingPoint.lat}, ${meetingPoint.lng}`}
                                     </span>
                                 </div>
                             )}
                             <div className="flex items-center gap-2 text-white/80">
-                                <span className="w-5 text-center">💵</span>
                                 <span className="text-sm">
                                     {event.price > 0 ? (
                                         <>
@@ -664,8 +677,7 @@ export default function EventPageClient({ event }) {
                                     <ul className="space-y-1">
                                         {event.whatToBring.map((item, i) => (
                                             <li key={i} className="flex items-center gap-2 text-sm text-white/70">
-                                                <span>☐</span>
-                                                {item}
+                                                <span>• {item}</span>
                                             </li>
                                         ))}
                                     </ul>
@@ -674,7 +686,7 @@ export default function EventPageClient({ event }) {
                             {event.weatherPolicy && (
                                 <div className="mt-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
                                     <p className="text-sm text-white/80">
-                                        <span className="font-medium text-white/90">🌧 Weather: </span>
+                                        <span className="font-medium text-white/90">Weather: </span>
                                         {event.weatherPolicy}
                                     </p>
                                 </div>

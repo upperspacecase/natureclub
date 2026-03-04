@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getSEOTags } from "@/libs/seo";
 import config from "@/config";
 
-// CHATGPT PROMPT TO GENERATE YOUR PRIVACY POLICY — replace with your own data 👇
+// CHATGPT PROMPT TO GENERATE YOUR PRIVACY POLICY — replace with your own data
 
 // 1. Go to https://chat.openai.com/
 // 2. Copy paste bellow

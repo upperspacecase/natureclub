@@ -166,7 +166,7 @@ export default function FacilitatorEventsPage() {
                                 onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                                 className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-sm text-white/70 transition hover:bg-white/20"
                             >
-                                {profile?.name?.[0]?.toUpperCase() || "⚙"}
+                                {profile?.name?.[0]?.toUpperCase() || "?"}
                             </button>
                             {profileMenuOpen && (
                                 <div className="absolute right-0 z-50 mt-2 w-44 overflow-hidden rounded-xl border border-white/15 bg-[#1c1917] shadow-xl">
@@ -212,7 +212,7 @@ export default function FacilitatorEventsPage() {
                     </div>
                 ) : sorted.length === 0 ? (
                     <div className="rounded-3xl border border-white/15 bg-white/10 p-10 text-center backdrop-blur-sm">
-                        <p className="text-3xl">🌿</p>
+                        <p className="text-lg font-medium text-white/40">No events</p>
                         <p className="mt-3 text-sm text-white/60">
                             No events yet — create your first one!
                         </p>
@@ -246,8 +246,8 @@ export default function FacilitatorEventsPage() {
                                                     className="h-full w-full object-cover"
                                                 />
                                             ) : (
-                                                <div className="flex h-full w-full items-center justify-center text-xl">
-                                                    🌿
+                                                <div className="flex h-full w-full items-center justify-center text-sm font-medium text-white/40">
+                                                    NC
                                                 </div>
                                             )}
                                         </div>
@@ -293,7 +293,7 @@ export default function FacilitatorEventsPage() {
                                                     rel="noopener noreferrer"
                                                     className="block rounded-lg px-3 py-2 text-sm text-white/70 hover:bg-white/10"
                                                 >
-                                                    🔗 View event page
+                                                    View event page
                                                 </a>
                                             )}
                                             {event.status === "published" && (
@@ -303,7 +303,7 @@ export default function FacilitatorEventsPage() {
                                                         disabled={duplicating === eid}
                                                         className="block w-full rounded-lg px-3 py-2 text-left text-sm text-white/70 hover:bg-white/10"
                                                     >
-                                                        {duplicating === eid ? "..." : "🔄 Run again"}
+                                                        {duplicating === eid ? "..." : "Run again"}
                                                     </button>
                                                     {event.dateTime && new Date(event.dateTime) >= now && (
                                                         <>
@@ -311,7 +311,7 @@ export default function FacilitatorEventsPage() {
                                                                 onClick={() => rainCheck(eid, "on")}
                                                                 className="block w-full rounded-lg px-3 py-2 text-left text-sm text-white/70 hover:bg-white/10"
                                                             >
-                                                                ✅ We&apos;re ON
+                                                                We&apos;re ON
                                                             </button>
                                                             <button
                                                                 onClick={() => {
@@ -320,7 +320,7 @@ export default function FacilitatorEventsPage() {
                                                                 }}
                                                                 className="block w-full rounded-lg px-3 py-2 text-left text-sm text-white/70 hover:bg-white/10"
                                                             >
-                                                                📅 Reschedule
+                                                                Reschedule
                                                             </button>
                                                             <button
                                                                 onClick={() => {
@@ -329,7 +329,7 @@ export default function FacilitatorEventsPage() {
                                                                 }}
                                                                 className="block w-full rounded-lg px-3 py-2 text-left text-sm text-red-400/70 hover:bg-white/10"
                                                             >
-                                                                ❌ Cancel event
+                                                                Cancel event
                                                             </button>
                                                         </>
                                                     )}
@@ -340,7 +340,7 @@ export default function FacilitatorEventsPage() {
                                                 onClick={() => deleteEvent(eid)}
                                                 className="block w-full rounded-lg px-3 py-2 text-left text-sm text-red-400/70 hover:bg-white/10"
                                             >
-                                                🗑 Delete
+                                                Delete
                                             </button>
                                         </div>
                                     )}

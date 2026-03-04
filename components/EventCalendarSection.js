@@ -81,14 +81,18 @@ const EventCalendarSection = () => {
         [eventsByDate]
     );
 
-    // Build flat card array: [date-header, card, card, date-header, card, ...]
+    // Build flat card array with first-of-date flag
     const cards = useMemo(() => {
         const sorted = Object.keys(eventsByDate).sort();
         const result = [];
         sorted.forEach((dateKey) => {
-            result.push({ _type: "date-header", dateKey });
-            eventsByDate[dateKey].forEach((exp) => {
-                result.push({ ...exp, _type: "event", _dateKey: dateKey });
+            eventsByDate[dateKey].forEach((exp, idx) => {
+                result.push({
+                    ...exp,
+                    _type: "event",
+                    _dateKey: dateKey,
+                    _isFirstOfDate: idx === 0,
+                });
             });
         });
         return result;
@@ -100,7 +104,7 @@ const EventCalendarSection = () => {
             setSelectedDate(date);
             const key = toDateKey(date);
             const index = cards.findIndex(
-                (c) => c._type === "date-header" && c.dateKey === key
+                (c) => c._isFirstOfDate && c._dateKey === key
             );
             if (index >= 0 && emblaApi) {
                 isScrollingRef.current = true;
@@ -119,16 +123,12 @@ const EventCalendarSection = () => {
         const onScroll = () => {
             if (isScrollingRef.current) return;
             const idx = emblaApi.selectedScrollSnap();
-            // Find the nearest date-header at or before the current index
-            for (let i = idx; i >= 0; i--) {
-                if (cards[i]?._type === "date-header") {
-                    const key = cards[i].dateKey;
-                    const current = toDateKey(selectedDate);
-                    if (key !== current) {
-                        const [y, m, d] = key.split("-").map(Number);
-                        setSelectedDate(new Date(y, m - 1, d));
-                    }
-                    break;
+            const card = cards[idx];
+            if (card?._dateKey) {
+                const current = toDateKey(selectedDate);
+                if (card._dateKey !== current) {
+                    const [y, m, d] = card._dateKey.split("-").map(Number);
+                    setSelectedDate(new Date(y, m - 1, d));
                 }
             }
         };
@@ -145,7 +145,7 @@ const EventCalendarSection = () => {
                     Upcoming experiences
                 </h2>
                 <p className="mt-2 text-center text-sm text-white/50">
-                    {experiences.length} events in the next 2 weeks
+                    {experiences.length} upcoming events
                 </p>
             </div>
 
@@ -160,34 +160,8 @@ const EventCalendarSection = () => {
 
             {/* Horizontal cards carousel */}
             <div ref={emblaRef} className="mt-4 overflow-hidden px-6 sm:px-10">
-                <div className="flex -ml-4">
+                <div className="flex -ml-6 sm:-ml-10">
                     {cards.map((card, i) => {
-                        if (card._type === "date-header") {
-                            const [y, m, d] = card.dateKey.split("-").map(Number);
-                            const dt = new Date(y, m - 1, d);
-                            const isToday =
-                                toDateKey(dt) === toDateKey(new Date());
-                            const label = isToday
-                                ? "Today"
-                                : dt.toLocaleDateString("en-US", {
-                                    weekday: "short",
-                                    month: "short",
-                                    day: "numeric",
-                                });
-
-                            return (
-                                <div
-                                    key={`header-${card.dateKey}`}
-                                    className="flex shrink-0 items-center pl-4"
-                                    style={{ minWidth: 80 }}
-                                >
-                                    <span className="whitespace-nowrap text-xs font-semibold uppercase tracking-wider text-white/40">
-                                        {label}
-                                    </span>
-                                </div>
-                            );
-                        }
-
                         const exp = card;
                         const hasImage = exp.coverPhotoUrl && exp.coverPhotoUrl.startsWith("http");
                         const activityLabel =
@@ -195,14 +169,38 @@ const EventCalendarSection = () => {
                                 ? exp.activityTypeOther || ""
                                 : formatTag(exp.activityType || "");
 
+                        // Date label for first card of each date group
+                        const dateLabel = (() => {
+                            if (!card._isFirstOfDate) return null;
+                            const [y, m, d] = card._dateKey.split("-").map(Number);
+                            const dt = new Date(y, m - 1, d);
+                            const isToday = toDateKey(dt) === toDateKey(new Date());
+                            return isToday
+                                ? "Today"
+                                : dt.toLocaleDateString("en-US", {
+                                    weekday: "short",
+                                    month: "short",
+                                    day: "numeric",
+                                });
+                        })();
+
                         return (
                             <div
                                 key={`card-${exp.id}-${i}`}
-                                className="flex shrink-0 pl-4 flex-[0_0_260px] sm:flex-[0_0_280px]"
+                                className="flex shrink-0 flex-col pl-6 sm:pl-10 flex-[0_0_70vw] sm:flex-[0_0_360px] lg:flex-[0_0_380px]"
                             >
+                                {/* Date label above first card of the day */}
+                                {dateLabel ? (
+                                    <span className="mb-2 text-xs font-semibold uppercase tracking-wider text-white/40">
+                                        {dateLabel}
+                                    </span>
+                                ) : (
+                                    <span className="mb-2 h-4" aria-hidden="true" />
+                                )}
+
                                 <a
                                     href={exp.slug ? `/e/${exp.slug}` : "#"}
-                                    className="group relative w-full overflow-hidden rounded-xl bg-base-200/40 shadow-lg aspect-[4/3]"
+                                    className="group relative w-full overflow-hidden rounded-[6px] shadow-xl aspect-[3/4]"
                                     style={
                                         !hasImage
                                             ? {
@@ -218,29 +216,29 @@ const EventCalendarSection = () => {
                                             alt={exp.title}
                                             fill
                                             className="object-cover"
-                                            sizes="280px"
+                                            sizes="(max-width: 768px) 80vw, 420px"
                                         />
                                     )}
 
-                                    {/* Title */}
-                                    <div className="absolute left-4 top-3 right-4">
-                                        <p className="font-serif text-base leading-tight text-white drop-shadow sm:text-lg">
+                                    {/* Title — top-left, large serif */}
+                                    <div className="absolute left-6 top-6 right-6">
+                                        <p className="font-serif leading-tight text-white drop-shadow text-[clamp(1.6rem,4.6vw,2.6rem)] sm:text-[clamp(2rem,3.2vw,2.8rem)]">
                                             {exp.title}
                                         </p>
                                         {activityLabel && (
-                                            <p className="mt-0.5 text-[10px] text-white/50">
+                                            <p className="mt-1 text-xs text-white/50 drop-shadow">
                                                 {formatDuration(exp.durationMinutes)}
                                                 {activityLabel && ` · ${activityLabel}`}
                                             </p>
                                         )}
                                     </div>
 
-                                    {/* Time badge + spots */}
-                                    <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between">
+                                    {/* Bottom — time pill + spots */}
+                                    <div className="absolute bottom-2.5 left-6 right-6 flex items-center justify-between">
                                         <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-black shadow-md">
                                             {formatTime(exp.dateTime)}
                                         </span>
-                                        <span className="text-[10px] text-white/50">
+                                        <span className="text-xs text-white/60">
                                             {exp.spotsLeft}/{exp.groupSize} spots
                                         </span>
                                     </div>

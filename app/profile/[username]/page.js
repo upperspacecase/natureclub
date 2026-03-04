@@ -87,8 +87,8 @@ export default async function ProfilePage({ params }) {
                             className="h-full w-full object-cover"
                         />
                     ) : (
-                        <div className="flex h-full w-full items-center justify-center text-xl">
-                            🌿
+                        <div className="flex h-full w-full items-center justify-center text-sm font-medium text-white/40">
+                            NC
                         </div>
                     )}
                 </div>
@@ -118,8 +118,8 @@ export default async function ProfilePage({ params }) {
                             className="mx-auto mb-4 h-20 w-20 rounded-full object-cover"
                         />
                     ) : (
-                        <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-white/10 text-3xl">
-                            🌿
+                        <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-white/10 text-2xl font-medium text-white/60">
+                            {user.name?.charAt(0)?.toUpperCase() || "?"}
                         </div>
                     )}
                     <h1 className="font-serif text-2xl italic text-white">

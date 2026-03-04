@@ -3,7 +3,7 @@
 import { useRef, useEffect } from "react";
 
 /**
- * Horizontal scrollable date strip showing today + next 13 days.
+ * Horizontal scrollable date strip — extends to cover all event dates.
  *
  * Props:
  *  - selectedDate : Date (default: today)
@@ -16,8 +16,19 @@ export default function DayStrip({ selectedDate, onSelect, eventDates }) {
 
     const days = [];
     const now = new Date();
+    now.setHours(0, 0, 0, 0);
 
-    for (let i = 0; i < 14; i++) {
+    // Determine how many days to show: at least 30, or until the last event + 7 days
+    let totalDays = 30;
+    if (eventDates?.size) {
+        const sorted = [...eventDates].sort();
+        const lastEventDate = new Date(sorted[sorted.length - 1] + "T00:00:00");
+        const diffMs = lastEventDate - now;
+        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24)) + 7;
+        if (diffDays > totalDays) totalDays = diffDays;
+    }
+
+    for (let i = 0; i < totalDays; i++) {
         const d = new Date(now);
         d.setDate(d.getDate() + i);
         d.setHours(0, 0, 0, 0);
@@ -61,8 +72,8 @@ export default function DayStrip({ selectedDate, onSelect, eventDates }) {
                         ref={isToday ? todayRef : null}
                         onClick={() => onSelect(day)}
                         className={`relative flex shrink-0 flex-col items-center rounded-xl px-3 py-2 transition-all ${isSelected
-                                ? "bg-white text-black shadow-lg"
-                                : "bg-white/10 text-white/60 hover:bg-white/15"
+                            ? "bg-white text-black shadow-lg"
+                            : "bg-white/10 text-white/60 hover:bg-white/15"
                             }`}
                         style={{ minWidth: 52 }}
                     >

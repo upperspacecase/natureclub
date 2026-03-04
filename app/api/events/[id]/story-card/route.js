@@ -70,7 +70,7 @@ export async function GET(req, { params }) {
                             color: "#a8a29e",
                         }}
                     >
-                        🌿 Nature Club
+                        Nature Club
                     </div>
 
                     {/* Top: title */}
@@ -95,15 +95,15 @@ export async function GET(req, { params }) {
                             color: "#a8a29e",
                         }}
                     >
-                        <span>📅 {dateStr}{timeStr ? ` at ${timeStr}` : ""}</span>
-                        {durationStr && <span>⏱ {durationStr}</span>}
-                        {locationStr && <span>📍 {locationStr}</span>}
-                        {host?.name && <span>🌿 with {host.name}</span>}
+                        <span>{dateStr}{timeStr ? ` at ${timeStr}` : ""}</span>
+                        {durationStr && <span>{durationStr}</span>}
+                        {locationStr && <span>{locationStr}</span>}
+                        {host?.name && <span>with {host.name}</span>}
                         {event.groupSize > 0 && (
-                            <span>👥 {event.groupSize} spots</span>
+                            <span>{event.groupSize} spots</span>
                         )}
                         {event.price != null && (
-                            <span>💵 {event.price === 0 ? "Free" : `${({
+                            <span>{event.price === 0 ? "Free" : `${({
                                 USD: "$", EUR: "€", GBP: "£", CAD: "CA$", AUD: "A$",
                                 NZD: "NZ$", BRL: "R$", MXN: "MX$", JPY: "¥", INR: "₹",
                                 ZAR: "R", CHF: "CHF", SEK: "kr", NOK: "kr", DKK: "kr",

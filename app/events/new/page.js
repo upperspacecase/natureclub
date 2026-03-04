@@ -415,7 +415,7 @@ function EventCreatePageInner() {
                             onClick={() => setShareView(false)}
                             className="text-sm text-white/60 hover:text-white"
                         >
-                            ✏️ Edit
+                            Edit
                         </button>
                     </div>
 
@@ -445,14 +445,14 @@ function EventCreatePageInner() {
                             onClick={copyLink}
                             className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-medium text-stone-800 transition hover:bg-white/90"
                         >
-                            {copied ? "✓ Copied!" : "🔗 Copy Link"}
+                            {copied ? "Copied!" : "Copy Link"}
                         </button>
                         <button
                             onClick={downloadStoryCard}
                             disabled={downloading}
                             className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/15 disabled:opacity-50"
                         >
-                            {downloading ? "..." : "📱 Download Image"}
+                            {downloading ? "..." : "Download Image"}
                         </button>
                     </div>
 
@@ -553,7 +553,7 @@ function EventCreatePageInner() {
                             ) : (
                                 <div className="flex h-full items-center justify-center text-white/40">
                                     <label className="cursor-pointer text-center">
-                                        <span className="text-3xl">📷</span>
+                                        <span className="text-sm">Add photo</span>
                                         <p className="mt-2 text-sm">Add a cover photo</p>
                                         <input
                                             type="file"
@@ -760,7 +760,7 @@ function EventCreatePageInner() {
                                                 key={i}
                                                 className="flex items-center justify-between rounded-[5px] border border-white/15 bg-white/[0.06] px-3 py-1.5 text-sm text-white/80"
                                             >
-                                                <span>☑ {item}</span>
+                                                <span>• {item}</span>
                                                 <button
                                                     onClick={() => removeBringItem(i)}
                                                     className="text-white/40 hover:text-white"

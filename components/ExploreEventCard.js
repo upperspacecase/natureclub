@@ -31,8 +31,8 @@ export default function ExploreEventCard({ event }) {
                         className="h-full w-full object-cover"
                     />
                 ) : (
-                    <div className="flex h-full w-full items-center justify-center text-xl">
-                        🌿
+                    <div className="flex h-full w-full items-center justify-center text-sm font-medium text-white/40">
+                        NC
                     </div>
                 )}
             </div>

@@ -139,7 +139,7 @@ export default function Error({ error, reset }) {
         </div>
 
         <p className="font-medium md:text-xl md:font-semibold">
-          Something went wrong 🥲
+          Something went wrong
         </p>
 
         <p className="text-error">{error?.message}</p>

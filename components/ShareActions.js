@@ -65,14 +65,14 @@ export default function ShareActions({ slug, eventId, title }) {
                 onClick={copyLink}
                 className="flex items-center gap-1.5 rounded-lg bg-white px-3 py-2 text-xs font-medium text-stone-700 shadow-sm transition-colors hover:bg-stone-50"
             >
-                {copied ? "✓ Copied!" : "🔗 Copy link"}
+                {copied ? "Copied!" : "Copy link"}
             </button>
             <button
                 onClick={downloadStoryCard}
                 disabled={downloading}
                 className="flex items-center gap-1.5 rounded-lg bg-white px-3 py-2 text-xs font-medium text-stone-700 shadow-sm transition-colors hover:bg-stone-50 disabled:opacity-50"
             >
-                {downloading ? "..." : "📱 Story card"}
+                {downloading ? "..." : "Story card"}
             </button>
             <button
                 onClick={nativeShare}

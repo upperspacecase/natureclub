@@ -4,26 +4,26 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 const COUNTRY_CODES = [
-    { code: "+1", flag: "🇺🇸", label: "US" },
-    { code: "+1", flag: "🇨🇦", label: "CA" },
-    { code: "+44", flag: "🇬🇧", label: "UK" },
-    { code: "+61", flag: "🇦🇺", label: "AU" },
-    { code: "+64", flag: "🇳🇿", label: "NZ" },
-    { code: "+353", flag: "🇮🇪", label: "IE" },
-    { code: "+49", flag: "🇩🇪", label: "DE" },
-    { code: "+33", flag: "🇫🇷", label: "FR" },
-    { code: "+34", flag: "🇪🇸", label: "ES" },
-    { code: "+39", flag: "🇮🇹", label: "IT" },
-    { code: "+31", flag: "🇳🇱", label: "NL" },
-    { code: "+46", flag: "🇸🇪", label: "SE" },
-    { code: "+47", flag: "🇳🇴", label: "NO" },
-    { code: "+45", flag: "🇩🇰", label: "DK" },
-    { code: "+55", flag: "🇧🇷", label: "BR" },
-    { code: "+52", flag: "🇲🇽", label: "MX" },
-    { code: "+81", flag: "🇯🇵", label: "JP" },
-    { code: "+82", flag: "🇰🇷", label: "KR" },
-    { code: "+91", flag: "🇮🇳", label: "IN" },
-    { code: "+27", flag: "🇿🇦", label: "ZA" },
+    { code: "+1", label: "US" },
+    { code: "+1", label: "CA" },
+    { code: "+44", label: "UK" },
+    { code: "+61", label: "AU" },
+    { code: "+64", label: "NZ" },
+    { code: "+353", label: "IE" },
+    { code: "+49", label: "DE" },
+    { code: "+33", label: "FR" },
+    { code: "+34", label: "ES" },
+    { code: "+39", label: "IT" },
+    { code: "+31", label: "NL" },
+    { code: "+46", label: "SE" },
+    { code: "+47", label: "NO" },
+    { code: "+45", label: "DK" },
+    { code: "+55", label: "BR" },
+    { code: "+52", label: "MX" },
+    { code: "+81", label: "JP" },
+    { code: "+82", label: "KR" },
+    { code: "+91", label: "IN" },
+    { code: "+27", label: "ZA" },
 ];
 
 function detectCountryCode() {
@@ -176,7 +176,7 @@ export default function SignInPage() {
                                 >
                                     {COUNTRY_CODES.map((c, i) => (
                                         <option key={`${c.code}-${c.label}-${i}`} value={c.code}>
-                                            {c.flag} {c.code}
+                                            {c.label} {c.code}
                                         </option>
                                     ))}
                                 </select>
@@ -220,7 +220,7 @@ export default function SignInPage() {
                         {/* Phone row (locked) */}
                         <div className="flex overflow-hidden rounded-xl border border-white/25 opacity-50">
                             <div className="flex items-center border-r border-white/25 bg-white/[0.04] px-4 py-4 text-lg">
-                                {selectedCountry.flag}
+                                {selectedCountry.label}
                             </div>
                             <div className="flex flex-1 items-center bg-white/[0.04] px-4 py-4">
                                 <span className="text-lg text-white/70">{phone}</span>
@@ -249,7 +249,7 @@ export default function SignInPage() {
                                     disabled
                                     className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] py-4 text-base font-medium text-white/25 cursor-not-allowed"
                                 >
-                                    💬 Send with WhatsApp
+                                    Send with WhatsApp
                                     <span className="ml-1 text-xs text-white/20">(coming soon)</span>
                                 </button>
                                 {/* SMS */}
@@ -258,7 +258,7 @@ export default function SignInPage() {
                                     disabled={loading}
                                     className="w-full rounded-xl border border-white/25 bg-white/[0.06] py-4 text-base font-medium text-white hover:bg-white/10 disabled:opacity-50"
                                 >
-                                    {loading ? "Sending..." : "📱 Send with SMS"}
+                                    {loading ? "Sending..." : "Send with SMS"}
                                 </button>
                             </div>
                         </div>
@@ -271,7 +271,7 @@ export default function SignInPage() {
                         {/* Phone row (locked) */}
                         <div className="flex overflow-hidden rounded-xl border border-white/25 opacity-50">
                             <div className="flex items-center border-r border-white/25 bg-white/[0.04] px-4 py-4 text-lg">
-                                {selectedCountry.flag}
+                                {selectedCountry.label}
                             </div>
                             <div className="flex flex-1 items-center bg-white/[0.04] px-4 py-4">
                                 <span className="text-lg text-white/70">{phone}</span>

@@ -92,7 +92,7 @@ const list = [
   {
     username: "imgyf",
     name: "Yifan Goh",
-    text: "It's a game changer  🚀 Comes with easy to follow tutorial, and saves you a ton of time. What's not to love?",
+    text: "It's a game changer. Comes with easy to follow tutorial, and saves you a ton of time. What's not to love?",
     type: refTypes.twitter,
     link: "https://twitter.com/imgyf/status/1697549891080532236?s=20",
   },
@@ -124,11 +124,11 @@ const list = [
     type: refTypes.productHunt,
     link: "https://www.producthunt.com/posts/shipfast-2?comment=2706763",
   },
-  // The last testimonial is featured on big devices (span 2 columns + big font) 👇
+  // The last testimonial is featured on big devices (span 2 columns + big font)
   {
     username: "VicPivots",
     name: "Victor Abeledo",
-    text: "Marc, I got your boilerplate and having the payments setup with Stripe + user auth is a blessing. This will save me like a week of work for each new side project I spin up. I appreciate that is well documented, as well. 100% worth it 🚀🚀🚀",
+    text: "Marc, I got your boilerplate and having the payments setup with Stripe + user auth is a blessing. This will save me like a week of work for each new side project I spin up. I appreciate that is well documented, as well. 100% worth it",
     type: refTypes.twitter,
     link: "https://twitter.com/VicPivots/status/1697352442986250413?s=20",
   },
@@ -375,9 +375,8 @@ const Testimonials11 = () => {
                         <Image
                           className="w-12 h-12 rounded-full object-cover"
                           src={list[list.length - 1].img}
-                          alt={`${
-                            list[list.length - 1].name
-                          }'s testimonial for ${config.appName}`}
+                          alt={`${list[list.length - 1].name
+                            }'s testimonial for ${config.appName}`}
                           width={48}
                           height={48}
                         />

@@ -3,7 +3,7 @@ import marcImg from "@/app/blog/_assets/images/authors/marc.png";
 import introducingSupabaseImg from "@/public/Nature_Club_Message_Image.png";
 
 // ==================================================================================================================================================================
-// BLOG CATEGORIES 🏷️
+// BLOG CATEGORIES
 // ==================================================================================================================================================================
 
 // These slugs are used to generate pages in the /blog/category/[categoryI].js. It's a way to group articles by category.
@@ -39,7 +39,7 @@ export const categories = [
 ];
 
 // ==================================================================================================================================================================
-// BLOG AUTHORS 📝
+// BLOG AUTHORS
 // ==================================================================================================================================================================
 
 // Social icons used in the author's bio.
@@ -54,7 +54,7 @@ const socialIcons = {
         y="0px"
         viewBox="0 0 1668.56 1221.19"
         className="w-9 h-9"
-        // Using a dark theme? ->  className="w-9 h-9 fill-white"
+      // Using a dark theme? ->  className="w-9 h-9 fill-white"
       >
         <g id="layer1" transform="translate(52.390088,-25.058597)">
           <path
@@ -134,7 +134,7 @@ export const authors = [
 ];
 
 // ==================================================================================================================================================================
-// BLOG ARTICLES 📚
+// BLOG ARTICLES
 // ==================================================================================================================================================================
 
 // These styles are used in the content of the articles. When you update them, all articles will be updated.

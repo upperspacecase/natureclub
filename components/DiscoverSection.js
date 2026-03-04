@@ -12,13 +12,13 @@ const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 const BALI_CENTER = { lat: -8.42, lng: 115.23 };
 
 const SPOT_EMOJI = {
-    beach: "🏖️",
-    waterfall: "💧",
-    viewpoint: "🏔️",
-    trail: "🥾",
-    lake: "🌊",
-    "hot-spring": "♨️",
-    "rice-terrace": "🌾",
+    beach: "",
+    waterfall: "",
+    viewpoint: "",
+    trail: "",
+    lake: "",
+    "hot-spring": "",
+    "rice-terrace": "",
 };
 
 const MARKER_COLORS = {
@@ -35,8 +35,8 @@ const EXPERIENCE_COLOR = "#c26b3a";
 
 const FILTER_TYPES = [
     { id: "all", label: "All", emoji: "" },
-    { id: "experiences", label: "Experiences", emoji: "🎯" },
-    { id: "spots", label: "Spots", emoji: "📍" },
+    { id: "experiences", label: "Experiences", emoji: "" },
+    { id: "spots", label: "Spots", emoji: "" },
 ];
 
 const formatTag = (value = "") =>
@@ -192,8 +192,8 @@ const DiscoverSection = ({ spots }) => {
                                 {mappableSpots.map((spot) => {
                                     const color =
                                         MARKER_COLORS[spot.categoryTag] || "#22c55e";
-                                    const emoji =
-                                        SPOT_EMOJI[spot.categoryTag] || "📍";
+                                    const label =
+                                        spot.categoryTag ? formatTag(spot.categoryTag).charAt(0) : "S";
 
                                     return (
                                         <Marker
@@ -217,7 +217,7 @@ const DiscoverSection = ({ spots }) => {
                                                     className="rounded-full px-2 py-0.5 text-xs font-semibold text-white shadow-lg"
                                                     style={{ backgroundColor: color }}
                                                 >
-                                                    {emoji}
+                                                    {label}
                                                 </div>
                                                 <div
                                                     className="mt-0.5 h-0 w-0 border-l-[5px] border-r-[5px] border-t-[6px] border-l-transparent border-r-transparent"
@@ -305,7 +305,7 @@ const DiscoverSection = ({ spots }) => {
                                                         <>
                                                             {selectedItem.region && (
                                                                 <p className="mt-1 text-xs text-stone-500">
-                                                                    📍 {selectedItem.region}
+                                                                    {selectedItem.region}
                                                                 </p>
                                                             )}
                                                             {selectedItem.description && (
@@ -320,7 +320,6 @@ const DiscoverSection = ({ spots }) => {
                                                                     ] || "bg-stone-200 text-stone-800"
                                                                         }`}
                                                                 >
-                                                                    {SPOT_EMOJI[selectedItem.categoryTag]}{" "}
                                                                     {formatTag(selectedItem.categoryTag)}
                                                                 </span>
                                                             </div>
@@ -373,7 +372,7 @@ const DiscoverSection = ({ spots }) => {
                     ) : (
                         <div className="flex h-[420px] items-center justify-center bg-white/[0.02] sm:h-[500px] lg:h-[560px]">
                             <div className="text-center">
-                                <p className="text-4xl">🗺️</p>
+                                <p className="text-sm font-medium text-white/40">Map</p>
                                 <p className="mt-3 text-sm text-white/40">
                                     Map requires{" "}
                                     <code className="text-white/60">

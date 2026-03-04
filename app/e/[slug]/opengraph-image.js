@@ -127,7 +127,7 @@ export default async function Image({ params }) {
                         gap: "8px",
                     }}
                 >
-                    🌿 Nature Club
+                    Nature Club
                 </div>
             </div>
         ),

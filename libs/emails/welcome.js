@@ -156,7 +156,7 @@ const emailShell = ({ bodyHtml }) => `<!DOCTYPE html>
 </html>`;
 
 export const getMemberWelcomeEmail = ({ responses } = {}) => {
-  const subject = "Welcome to Nature Club 🌿";
+  const subject = "Welcome to Nature Club";
   const highlight = withQuotes(getMemberHighlight(responses));
   const safeHighlight = escapeHtml(highlight);
 
@@ -176,7 +176,7 @@ export const getMemberWelcomeEmail = ({ responses } = {}) => {
 };
 
 export const getHostWelcomeEmail = ({ responses } = {}) => {
-  const subject = "Welcome to Nature Club 🌿";
+  const subject = "Welcome to Nature Club";
   const highlight = withQuotes(getHostHighlight(responses));
   const safeHighlight = escapeHtml(highlight);
 

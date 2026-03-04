@@ -47,7 +47,7 @@ export async function POST(req) {
     switch (eventType) {
       case "checkout.session.completed": {
         // First payment is successful and a subscription is created (if mode was set to "subscription" in ButtonCheckout)
-        // ✅ Grant access to the product
+        // Grant access to the product
 
         const session = await findCheckoutSession(data.object.id);
 
@@ -139,7 +139,7 @@ export async function POST(req) {
 
       case "customer.subscription.deleted": {
         // The customer subscription stopped
-        // ❌ Revoke access to the product
+        // Revoke access to the product
         // The customer might have changed the plan (higher or lower plan, cancel soon etc...)
         const subscription = await stripe.subscriptions.retrieve(
           data.object.id
@@ -169,7 +169,7 @@ export async function POST(req) {
 
       case "invoice.paid": {
         // Customer just paid an invoice (for instance, a recurring payment for a subscription)
-        // ✅ Grant access to the product
+        // Grant access to the product
         const priceId = data.object.lines.data[0].price.id;
         const customerId = data.object.customer;
 
@@ -187,8 +187,8 @@ export async function POST(req) {
 
       case "invoice.payment_failed":
         // A payment failed (for instance the customer does not have a valid payment method)
-        // ❌ Revoke access to the product
-        // ⏳ OR wait for the customer to pay (more friendly):
+        // Revoke access to the product
+        // OR wait for the customer to pay (more friendly):
         //      - Stripe will automatically email the customer (Smart Retries)
         //      - We will receive a "customer.subscription.deleted" when all retries were made and the subscription has expired
 

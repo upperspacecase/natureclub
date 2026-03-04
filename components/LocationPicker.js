@@ -159,8 +159,8 @@ export default function LocationPicker({ value, onChange }) {
                     className={inputClass}
                 />
                 {/* Search icon */}
-                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-white/30">
-                    🔍
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-white/30 text-sm">
+                    Search
                 </span>
             </div>
 
@@ -174,7 +174,7 @@ export default function LocationPicker({ value, onChange }) {
                                 onClick={() => handleSelectSuggestion(s)}
                                 className="flex w-full items-start gap-2 px-4 py-3 text-left text-sm transition-colors hover:bg-white/10"
                             >
-                                <span className="mt-0.5 shrink-0 text-white/40">📍</span>
+                                <span className="mt-0.5 shrink-0 text-xs text-white/40">•</span>
                                 <div>
                                     <p className="font-medium text-white">{s.name}</p>
                                     {s.fullAddress !== s.name && (
@@ -194,7 +194,7 @@ export default function LocationPicker({ value, onChange }) {
                 className="mt-2 flex items-center gap-1.5 text-xs text-white/50 transition-colors hover:text-white/80"
             >
                 <span>{mapOpen ? "▾" : "▸"}</span>
-                <span>📍 {mapOpen ? "Hide map" : "Drop a pin on map"}</span>
+                <span>{mapOpen ? "Hide map" : "Drop a pin on map"}</span>
             </button>
 
             {/* Expandable map */}
@@ -221,7 +221,7 @@ export default function LocationPicker({ value, onChange }) {
                                 anchor="bottom"
                             >
                                 <div className="flex flex-col items-center">
-                                    <div className="text-2xl drop-shadow-lg">📍</div>
+                                    <div className="text-2xl drop-shadow-lg text-red-500">●</div>
                                     <div className="h-1 w-3 rounded-full bg-black/30 blur-[2px]" />
                                 </div>
                             </Marker>

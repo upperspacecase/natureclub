@@ -45,18 +45,18 @@ const features = [
         {[
           {
             text: "Add LemonSqueezy integration to the boilerplate",
-            secondaryText: "Yes, ship this! ✅",
+            secondaryText: "Yes, ship this!",
             votes: 48,
             transition: "group-hover:-mt-36 group-hover:md:-mt-28 duration-500",
           },
           {
             text: "A new pricing table for metered billing",
-            secondaryText: "Maybe ship this 🤔",
+            secondaryText: "Maybe ship this",
             votes: 12,
           },
           {
             text: "A new UI library for the dashboard",
-            secondaryText: "But don't ship that ❌",
+            secondaryText: "But don't ship that",
             votes: 1,
           },
         ].map((feature, i) => (
@@ -202,7 +202,7 @@ const features = [
           },
           {
             id: 2,
-            text: "I'd definitelly pay for that 🤩",
+            text: "I'd definitelly pay for that",
             userImg:
               "https://pbs.twimg.com/profile_images/1778434561556320256/knBJT1OR_400x400.jpg",
             userName: "Dan K.",

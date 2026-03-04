@@ -86,13 +86,13 @@ export const THEMES = [
 ];
 
 export const SPOT_CATEGORIES = [
-  { id: "beach", label: "Beach", emoji: "🏖️" },
-  { id: "waterfall", label: "Waterfall", emoji: "💧" },
-  { id: "viewpoint", label: "Viewpoint", emoji: "🏔️" },
-  { id: "trail", label: "Trail", emoji: "🥾" },
-  { id: "lake", label: "Lake", emoji: "🌊" },
-  { id: "hot-spring", label: "Hot Spring", emoji: "♨️" },
-  { id: "rice-terrace", label: "Rice Terrace", emoji: "🌾" },
+  { id: "beach", label: "Beach", emoji: "" },
+  { id: "waterfall", label: "Waterfall", emoji: "" },
+  { id: "viewpoint", label: "Viewpoint", emoji: "" },
+  { id: "trail", label: "Trail", emoji: "" },
+  { id: "lake", label: "Lake", emoji: "" },
+  { id: "hot-spring", label: "Hot Spring", emoji: "" },
+  { id: "rice-terrace", label: "Rice Terrace", emoji: "" },
 ];
 
 export const SPOT_CATEGORY_STYLES = {
