@@ -5,6 +5,10 @@ import { generateIcs, googleCalendarUrl } from "@/libs/calendar";
 import StoryCardPreview from "@/components/StoryCardPreview";
 import { getActivityDefaults } from "@/libs/activityDefaults";
 import { formatPrice } from "@/libs/formatPrice";
+import Map, { Marker } from "react-map-gl/mapbox";
+import "mapbox-gl/dist/mapbox-gl.css";
+
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
 const DIFFICULTY_LABELS = {
     easy: "Easy",
@@ -690,6 +694,56 @@ export default function EventPageClient({ event }) {
                         </div>
                     )}
                 </div>
+
+                {/* ── Location Map ── */}
+                {event.approximateLocation && MAPBOX_TOKEN && (
+                    <div className="mb-6">
+                        <h3 className="mb-3 text-sm font-medium text-white/60">Location</h3>
+                        <div className="overflow-hidden rounded-2xl border border-white/10">
+                            <Map
+                                initialViewState={{
+                                    latitude: event.approximateLocation.lat,
+                                    longitude: event.approximateLocation.lng,
+                                    zoom: 13,
+                                }}
+                                style={{ width: "100%", height: 200 }}
+                                mapStyle="mapbox://styles/mapbox/dark-v11"
+                                mapboxAccessToken={MAPBOX_TOKEN}
+                                interactive={false}
+                                attributionControl={false}
+                            >
+                                <Marker
+                                    latitude={event.approximateLocation.lat}
+                                    longitude={event.approximateLocation.lng}
+                                    anchor="bottom"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24"
+                                        fill="white"
+                                        className="h-7 w-7 drop-shadow-lg"
+                                    >
+                                        <path
+                                            fillRule="evenodd"
+                                            d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z"
+                                            clipRule="evenodd"
+                                        />
+                                    </svg>
+                                </Marker>
+                            </Map>
+                        </div>
+                        {meetingPoint?.description && (
+                            <p className="mt-2 text-xs text-white/50">
+                                {meetingPoint.description}
+                            </p>
+                        )}
+                        {!meetingPoint && (
+                            <p className="mt-2 text-xs text-white/40 italic">
+                                Approximate area — exact point shared after RSVP
+                            </p>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );
