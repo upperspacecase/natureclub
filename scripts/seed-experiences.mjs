@@ -239,11 +239,13 @@ for (let dayOffset = 0; dayOffset < 30; dayOffset++) {
 
     experiences.push({
         ...morning,
+        title: `[mock data] ${morning.title}`,
         slug: `${morning.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-$/, "")}-day-${dayOffset + 1}`,
         dateTime: makeDate(dayOffset, morning.hour),
     });
     experiences.push({
         ...afternoon,
+        title: `[mock data] ${afternoon.title}`,
         slug: `${afternoon.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-$/, "")}-day-${dayOffset + 1}`,
         dateTime: makeDate(dayOffset, afternoon.hour),
     });
