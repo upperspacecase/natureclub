@@ -5,18 +5,12 @@ import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
 import posthog from "posthog-js";
 import apiClient from "@/libs/api";
+import { categoryColors } from "@/libs/emails/styles";
 
 const CLIENT_ID_KEY = "nc-client-id";
 const SESSION_ID_KEY = "nc-session-id";
 const CTA_INSERT_EVERY = 6;
-const CATEGORY_STYLES = {
-  gather: "bg-[#4f6b3e] text-white",
-  move: "bg-[#c26b3a] text-white",
-  restore: "bg-[#2f6b59] text-white",
-  learn: "bg-[#3c5a86] text-white",
-  explore: "bg-[#b5842d] text-white",
-  make: "bg-[#8a5b3a] text-white",
-};
+const CATEGORY_HEX = categoryColors;
 const HEART_PATH =
   "M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35Z";
 const BURST_HEARTS = [
@@ -124,7 +118,7 @@ const HeartIcon = ({ filled, className }) => (
   </svg>
 );
 
-const PillsRow = ({ categoryTag, attributeTag, categoryStyle }) => {
+const PillsRow = ({ categoryTag, attributeTag, categoryHex }) => {
   const [showSecondary, setShowSecondary] = useState(Boolean(attributeTag));
 
   useEffect(() => {
@@ -157,7 +151,8 @@ const PillsRow = ({ categoryTag, attributeTag, categoryStyle }) => {
   return (
     <div className="flex min-w-0 flex-1 items-center gap-1.5 pr-1.5 sm:gap-2.5 sm:pr-3">
       <span
-        className={`whitespace-nowrap rounded-full px-2.5 py-1 font-normal tracking-wide text-[0.68rem] sm:px-4 sm:py-1.5 sm:text-[0.86rem] md:text-[1.02rem] ${categoryStyle}`}
+        className="whitespace-nowrap rounded-full px-2.5 py-1 font-normal tracking-wide text-[0.68rem] text-white sm:px-4 sm:py-1.5 sm:text-[0.86rem] md:text-[1.02rem]"
+        style={{ backgroundColor: categoryHex }}
       >
         {formatTag(categoryTag)}
       </span>
@@ -298,8 +293,7 @@ const EventsList = ({ events }) => {
             const isSpot = event.type === "spot";
             const isLiked = likedSet.has(event.id);
             const isBusy = activeEventId === event.id;
-            const categoryStyle = CATEGORY_STYLES[event.categoryTag] ||
-              "bg-white/15 text-white";
+            const categoryHex = CATEGORY_HEX[event.categoryTag] || "rgba(255,255,255,0.15)";
             const eventImage = normalizeImagePath(event.image);
             const isLocalImage = eventImage.startsWith("/");
             return (
@@ -362,7 +356,7 @@ const EventsList = ({ events }) => {
                       <PillsRow
                         categoryTag="spot"
                         attributeTag={null}
-                        categoryStyle="bg-[#2f6b59] text-white"
+                        categoryHex={CATEGORY_HEX.restore}
                       />
                       <div className="h-10 w-10 sm:h-16 sm:w-16" />
                     </div>
@@ -387,7 +381,7 @@ const EventsList = ({ events }) => {
                       <PillsRow
                         categoryTag={event.categoryTag}
                         attributeTag={event.attributeTags?.[0]}
-                        categoryStyle={categoryStyle}
+                        categoryHex={categoryHex}
                       />
                       <div className="relative h-10 w-10 sm:h-16 sm:w-16">
                         {burstEventId === event.id && (
