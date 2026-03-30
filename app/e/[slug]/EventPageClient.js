@@ -415,7 +415,7 @@ export default function EventPageClient({ event, weather }) {
                 )}
 
                 {/* ── RSVP Modal Overlay ── */}
-                {!isCancelled && rsvpState !== "idle" && (
+                {!isCancelled && rsvpState !== "idle" && rsvpState !== "confirmed" && (
                     <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm">
                         <div className="w-full max-w-lg rounded-t-2xl sm:rounded-2xl border border-white/15 bg-[#1a1917] p-6 sm:p-8 shadow-2xl">
 
