@@ -1,4 +1,4 @@
-import { Inter, Libre_Baskerville } from "next/font/google";
+import { Inter, Libre_Baskerville, Playfair_Display } from "next/font/google";
 import { headers } from "next/headers";
 import { getSEOTags } from "@/libs/seo";
 import { getSiteUrl } from "@/libs/site-url";
@@ -12,6 +12,12 @@ const libre = Libre_Baskerville({
   weight: ["400", "700"],
   style: ["normal", "italic"],
   variable: "--font-libre",
+});
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "700", "900"],
+  style: ["normal", "italic"],
+  variable: "--font-playfair",
 });
 
 export const viewport = {
@@ -62,7 +68,7 @@ export default function RootLayout({ children }) {
     <html
       lang="en"
       data-theme={config.colors.theme}
-      className={`${inter.className} ${inter.variable} ${libre.variable}`}
+      className={`${inter.className} ${inter.variable} ${libre.variable} ${playfair.variable}`}
     >
       <body>
         <ClientLayout>{children}</ClientLayout>

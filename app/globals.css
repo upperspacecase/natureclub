@@ -3,6 +3,7 @@
 @theme {
   --font-sans: var(--font-inter);
   --font-serif: var(--font-libre);
+  --font-headline: var(--font-playfair);
 
   --animate-opacity: opacity 0.25s ease-in-out;
   --animate-appearFromRight: appearFromRight 300ms ease-in-out;
@@ -567,4 +568,27 @@ select option {
 
 .explore-popup .mapboxgl-popup-tip {
   border-top-color: #fff;
+}
+
+/* ── Profile home page ── */
+.text-all-caps-spacing {
+  letter-spacing: 0.1rem;
+  font-weight: 500;
+}
+
+.hero-gradient-overlay {
+  background: linear-gradient(
+    to bottom,
+    rgba(27, 58, 47, 0.4) 0%,
+    rgba(27, 58, 47, 0.7) 100%
+  );
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
