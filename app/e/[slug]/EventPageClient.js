@@ -308,40 +308,28 @@ export default function EventPageClient({ event }) {
                         currency={event.currency}
                         compact={true}
                     >
-                        {/* RSVP mini-buttons on card — vertical stack */}
+                        {/* RSVP button on card */}
                         {!isCancelled && rsvpState === "idle" && (
-                            <div className="flex flex-col items-center gap-2">
-                                {[
-                                    { key: "going", label: "Going" },
-                                    { key: "maybe", label: "Maybe" },
-                                    { key: "cantgo", label: "Can't Go" },
-                                ].map((opt) => (
-                                    <button
-                                        key={opt.key}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            if (!authUser) {
-                                                window.location.href = `/signin?returnUrl=${encodeURIComponent(`/e/${event.slug}`)}`;
-                                                return;
-                                            }
-                                            setRsvpResponse(opt.key);
-                                            setRsvpState("form");
-                                        }}
-                                        disabled={opt.key === "going" && isFull}
-                                        className={`flex flex-col items-center gap-0.5 ${opt.key === "going" && isFull
-                                            ? "cursor-not-allowed opacity-30"
-                                            : "hover:scale-110"
-                                            } transition-transform`}
-                                    >
-                                        <div className="flex h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-black/40 text-sm font-bold text-white backdrop-blur-md">
-                                            {opt.label.charAt(0)}
-                                        </div>
-                                        <span className="text-[9px] font-medium text-white/70">
-                                            {opt.key === "going" && isFull ? "Full" : opt.label}
-                                        </span>
-                                    </button>
-                                ))}
-                            </div>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (!authUser) {
+                                        window.location.href = `/signin?returnUrl=${encodeURIComponent(`/e/${event.slug}`)}`;
+                                        return;
+                                    }
+                                    setRsvpResponse("going");
+                                    setRsvpState("form");
+                                }}
+                                disabled={isFull}
+                                className={`flex flex-col items-center gap-0.5 ${isFull ? "cursor-not-allowed opacity-30" : "hover:scale-110"} transition-transform`}
+                            >
+                                <div className="flex h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-black/40 text-sm font-bold text-white backdrop-blur-md">
+                                    R
+                                </div>
+                                <span className="text-[9px] font-medium text-white/70">
+                                    {isFull ? "Full" : "RSVP"}
+                                </span>
+                            </button>
                         )}
                     </StoryCardPreview>
                 </div>
@@ -484,9 +472,6 @@ export default function EventPageClient({ event }) {
                                         </div>
                                     )}
 
-                                    <button onClick={handleShare} className="btn mt-4">
-                                        Bring a friend →
-                                    </button>
                                     <button
                                         type="button"
                                         onClick={() => { setRsvpState("idle"); setRsvpResponse(null); }}

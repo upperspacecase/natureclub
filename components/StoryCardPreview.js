@@ -135,29 +135,14 @@ export default function StoryCardPreview({
                             style={{ color: coverPhotoUrl ? "#e7e5e4" : "#a8a29e" }}
                         >
                             {dateStr ? (
-                                <span>
-                                    {dateStr}
-                                    {timeStr ? ` at ${timeStr}` : ""}
-                                </span>
+                                <>
+                                    <span>{dateStr}</span>
+                                    {timeStr && <span>{timeStr}</span>}
+                                </>
                             ) : (
                                 <span style={{ opacity: 0.4 }}>
                                     Date & time
                                 </span>
-                            )}
-                            {durationMinutes > 0 && (
-                                <span>{formatDuration(durationMinutes)}</span>
-                            )}
-                            {location && (
-                                <span>{location}</span>
-                            )}
-                            {hostName && (
-                                <span>with {hostName}</span>
-                            )}
-                            {groupSize ? (
-                                <span>{groupSize} spots</span>
-                            ) : null}
-                            {priceLabel !== null && (
-                                <span>{priceLabel}</span>
                             )}
                         </div>
                         {/* Bottom-right: overlay children (RSVP buttons, etc.) */}
