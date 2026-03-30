@@ -528,6 +528,16 @@ select option {
   display: none !important;
 }
 
+.mapboxgl-ctrl-logo {
+  width: 60px !important;
+  height: 16px !important;
+  opacity: 0.4 !important;
+}
+
+.mapboxgl-ctrl-bottom-left {
+  opacity: 0.3 !important;
+}
+
 /* ── No-scrollbar utility ── */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
