@@ -13,7 +13,6 @@ import {
 } from "@/libs/signup";
 import { normalizeRegionDisplay, toRegionKey } from "@/libs/regions";
 import { getMemberWelcomeEmail, getHostWelcomeEmail } from "@/libs/emails/welcome";
-import { getPostHogClient } from "@/libs/posthog-server";
 
 export async function POST(req) {
   await connectMongo();
@@ -119,25 +118,6 @@ export async function POST(req) {
           );
         }
 
-        try {
-          const posthogEmail = getPostHogClient();
-          posthogEmail.capture({
-            distinctId: body.email,
-            event: "welcome_email_sent",
-            properties: {
-              role: body.role,
-              lead_id: lead._id.toString(),
-              region: leadRegion,
-              country: country,
-              source: "api",
-            },
-          });
-        } catch (trackingError) {
-          console.error(
-            "Welcome email sent but PostHog tracking failed:",
-            trackingError?.message || "Unknown tracking error"
-          );
-        }
       } catch (emailError) {
         emailStatus = "failed";
         emailErrorMessage = emailError?.message || "Welcome email failed";
@@ -146,34 +126,6 @@ export async function POST(req) {
     } else {
       emailStatus = "already_sent";
     }
-
-    // Track lead submitted with PostHog (server-side)
-    const posthog = getPostHogClient();
-    posthog.capture({
-      distinctId: body.email,
-      event: "lead_submitted",
-      properties: {
-        role: body.role,
-        lead_id: lead._id.toString(),
-        region: leadRegion,
-        country: country,
-        source: source,
-        email_status: emailStatus,
-        is_draft_conversion: Boolean(draftId),
-      },
-    });
-
-    // Identify user in PostHog with lead data
-    posthog.identify({
-      distinctId: body.email,
-      properties: {
-        email: body.email,
-        role: body.role,
-        region: leadRegion,
-        country: country,
-        signup_source: source,
-      },
-    });
 
     return NextResponse.json({
       id: lead._id,

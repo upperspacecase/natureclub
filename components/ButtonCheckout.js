@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import posthog from "posthog-js";
 import apiClient from "@/libs/api";
 import config from "@/config";
 
@@ -15,13 +14,6 @@ const ButtonCheckout = ({ priceId, mode = "payment" }) => {
   const handlePayment = async () => {
     setIsLoading(true);
 
-    // Track checkout initiation with PostHog
-    posthog.capture("checkout_initiated", {
-      price_id: priceId,
-      mode: mode,
-      page_url: window.location.href,
-    });
-
     try {
       const res = await apiClient.post("/stripe/create-checkout", {
         priceId,
@@ -33,7 +25,6 @@ const ButtonCheckout = ({ priceId, mode = "payment" }) => {
       window.location.href = res.url;
     } catch (e) {
       console.error(e);
-      posthog.captureException(e);
     }
 
     setIsLoading(false);

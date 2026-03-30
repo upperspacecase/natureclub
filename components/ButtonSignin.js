@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import posthog from "posthog-js";
 import config from "@/config";
 import { useAuth } from "@/libs/useAuth";
 
@@ -14,11 +13,6 @@ const ButtonSignin = ({ text = "Get started", extraStyle }) => {
     if (user) {
       router.push(config.auth.callbackUrl);
     } else {
-      posthog.capture("signin_clicked", {
-        button_text: text,
-        page_url: typeof window !== "undefined" ? window.location.href : "",
-        is_already_authenticated: false,
-      });
       router.push("/signin");
     }
   };

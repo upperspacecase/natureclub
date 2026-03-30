@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
-import posthog from "posthog-js";
 import apiClient from "@/libs/api";
 import { categoryColors } from "@/libs/emails/styles";
 
@@ -234,26 +233,8 @@ const EventsList = ({ events }) => {
         return prev.filter((id) => id !== eventId);
       });
 
-      // Track event like/unlike with PostHog
-      if (data?.liked) {
-        posthog.capture("event_liked", {
-          event_id: eventId,
-          event_title: eventData?.title || "",
-          event_category: eventData?.categoryTag || "",
-          event_attributes: eventData?.attributeTags || [],
-          total_likes: likedIds.length + 1,
-        });
-      } else {
-        posthog.capture("event_unliked", {
-          event_id: eventId,
-          event_title: eventData?.title || "",
-          event_category: eventData?.categoryTag || "",
-          was_liked_duration_session: true,
-        });
-      }
     } catch (error) {
       console.error(error);
-      posthog.captureException(error);
     } finally {
       setActiveEventId(null);
     }

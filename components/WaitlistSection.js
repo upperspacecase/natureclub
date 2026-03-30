@@ -3,7 +3,6 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
-import posthog from "posthog-js";
 import apiClient from "@/libs/api";
 import {
   MEMBER_INTEREST_OPTIONS,
@@ -232,27 +231,6 @@ const WaitlistSection = () => {
         questionVersion: SIGNUP_QUESTION_VERSION,
       });
 
-      // Track waitlist signup completion with PostHog
-      posthog.capture("waitlist_signup_completed", {
-        role: "host",
-        location_city: hostResponses.host.locationCity,
-        has_location_coords: Boolean(hostResponses.host.locationCoords),
-        experience_type: hostResponses.host.experience,
-        sessions_per_month: hostResponses.host.sessionsPerMonth,
-        bookings_per_session: hostResponses.host.bookingsPerSession,
-        tools_count: hostResponses.host.tools.length,
-        features_count: hostResponses.host.features.length,
-        source: "modal",
-      });
-
-      // Identify user by email for future event correlation
-      posthog.identify(hostEmail, {
-        email: hostEmail,
-        role: "host",
-        signup_source: "modal",
-        location_city: hostResponses.host.locationCity,
-      });
-
       if (data?.emailStatus === "failed") {
         toast.error("Signup saved, but the welcome email could not be sent.");
       } else {
@@ -261,7 +239,6 @@ const WaitlistSection = () => {
       return true;
     } catch (error) {
       console.error(error);
-      posthog.captureException(error);
       toast.error("Something went wrong. Please try again.");
       return false;
     }
@@ -279,28 +256,6 @@ const WaitlistSection = () => {
         questionVersion: SIGNUP_QUESTION_VERSION,
       });
 
-      // Track waitlist signup completion with PostHog
-      posthog.capture("waitlist_signup_completed", {
-        role: "member",
-        location_city: memberResponses.member.locationCity,
-        has_location_coords: Boolean(memberResponses.member.locationCoords),
-        interests_count: memberResponses.member.interests.length,
-        interest_themes: memberResponses.member.interestThemes,
-        motivations_count: memberResponses.member.motivations.length,
-        experiences_per_month: memberResponses.member.experiencesPerMonth,
-        pricing_selection: memberResponses.member.pricingSelection,
-        source: "modal",
-      });
-
-      // Identify user by email for future event correlation
-      posthog.identify(memberEmail, {
-        email: memberEmail,
-        role: "member",
-        signup_source: "modal",
-        location_city: memberResponses.member.locationCity,
-        interest_themes: memberResponses.member.interestThemes,
-      });
-
       if (data?.emailStatus === "failed") {
         toast.error("Signup saved, but the welcome email could not be sent.");
       } else {
@@ -309,7 +264,6 @@ const WaitlistSection = () => {
       return true;
     } catch (error) {
       console.error(error);
-      posthog.captureException(error);
       toast.error("Something went wrong. Please try again.");
       return false;
     }
@@ -800,27 +754,14 @@ const WaitlistSection = () => {
 
   const openMemberFlow = () => {
     trackClick("member_click");
-    posthog.capture("member_flow_started", {
-      source: "join_modal",
-    });
     setIsJoinModalOpen(false);
     setIsMemberModalOpen(true);
   };
 
   const openHostFlow = () => {
     trackClick("host_click");
-    posthog.capture("host_flow_started", {
-      source: "join_modal",
-    });
     setIsJoinModalOpen(false);
     setIsHostModalOpen(true);
-  };
-
-  const handleJoinModalOpen = () => {
-    posthog.capture("waitlist_modal_opened", {
-      source: "join_now_button",
-    });
-    setIsJoinModalOpen(true);
   };
 
   return (
@@ -829,7 +770,7 @@ const WaitlistSection = () => {
         <button
           id="join-now-button"
           className="btn btn-primary"
-          onClick={handleJoinModalOpen}
+          onClick={() => setIsJoinModalOpen(true)}
         >
           Join now
         </button>
