@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 import { auth } from "@/libs/firebase";
@@ -10,6 +10,14 @@ import Image from "next/image";
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
 export default function SignInPage() {
+    return (
+        <Suspense>
+            <SignInContent />
+        </Suspense>
+    );
+}
+
+function SignInContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const returnUrl = searchParams.get("returnUrl") || "/events";
