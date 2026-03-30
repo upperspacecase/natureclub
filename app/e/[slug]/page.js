@@ -3,6 +3,7 @@ import connectMongo from "@/libs/mongoose";
 import BookingEvent from "@/models/BookingEvent";
 import User from "@/models/User";
 import { getSEOTags } from "@/libs/seo";
+import { getWeatherForDate } from "@/libs/weather";
 import EventPageClient from "./EventPageClient";
 
 export async function generateMetadata({ params }) {
@@ -82,5 +83,15 @@ export default async function EventPage({ params }) {
             : null,
     };
 
-    return <EventPageClient event={eventData} />;
+    // Fetch weather if event has a date and location
+    let weather = null;
+    if (event.dateTime && event.meetingPoint?.lat) {
+        weather = await getWeatherForDate(
+            event.meetingPoint.lat,
+            event.meetingPoint.lng,
+            event.dateTime.toISOString()
+        );
+    }
+
+    return <EventPageClient event={eventData} weather={weather} />;
 }

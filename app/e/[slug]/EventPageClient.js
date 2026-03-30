@@ -18,7 +18,7 @@ const DIFFICULTY_LABELS = {
     strenuous: "Crazy",
 };
 
-export default function EventPageClient({ event }) {
+export default function EventPageClient({ event, weather }) {
     const { user: authUser, loading: authLoading } = useAuth();
     const [rsvpState, setRsvpState] = useState("idle"); // idle | form | confirmed | maybe | waitlisted
     const [rsvpResponse, setRsvpResponse] = useState(null); // "going" | "maybe" | "cantgo"
@@ -331,6 +331,17 @@ export default function EventPageClient({ event }) {
                                 </span>
                             </button>
                         )}
+                        {/* Show Going status on card */}
+                        {rsvpState === "confirmed" && (
+                            <div className="flex flex-col items-center gap-0.5">
+                                <div className="flex h-11 w-11 items-center justify-center rounded-full border border-green-400/40 bg-green-500/20 text-sm font-bold text-green-400 backdrop-blur-md">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
+                                        <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clipRule="evenodd" />
+                                    </svg>
+                                </div>
+                                <span className="text-[9px] font-medium text-green-400/70">Going</span>
+                            </div>
+                        )}
                     </StoryCardPreview>
                 </div>
 
@@ -452,32 +463,14 @@ export default function EventPageClient({ event }) {
                                         You&apos;re in!
                                     </h3>
                                     <p className="mt-1 text-sm text-white/70">
-                                        See you there. Here&apos;s what you need to know:
+                                        See you there!
                                     </p>
-
-                                    {event.dateTime && (
-                                        <div className="mt-4 flex gap-2 justify-center">
-                                            <button
-                                                onClick={() => handleCalendar("google")}
-                                                className="rounded-[5px] border border-white/30 bg-white/10 px-3 py-2 text-xs font-medium text-white/80 hover:bg-white/20"
-                                            >
-                                                Google Calendar
-                                            </button>
-                                            <button
-                                                onClick={() => handleCalendar("ics")}
-                                                className="rounded-[5px] border border-white/30 bg-white/10 px-3 py-2 text-xs font-medium text-white/80 hover:bg-white/20"
-                                            >
-                                                Download .ics
-                                            </button>
-                                        </div>
-                                    )}
-
                                     <button
                                         type="button"
-                                        onClick={() => { setRsvpState("idle"); setRsvpResponse(null); }}
-                                        className="mt-3 block w-full text-center text-sm text-white/40 hover:text-white/70"
+                                        onClick={() => { setRsvpState("confirmed"); setRsvpResponse(null); }}
+                                        className="btn mt-4"
                                     >
-                                        Close
+                                        Done
                                     </button>
                                 </div>
                             )}
@@ -522,6 +515,20 @@ export default function EventPageClient({ event }) {
                                     </button>
                                 </div>
                             )}
+                        </div>
+                    </div>
+                )}
+
+                {/* Weather forecast */}
+                {weather && (
+                    <div className="mb-4 flex items-center gap-3 rounded-2xl border border-white/15 bg-white/5 px-4 py-3">
+                        <WeatherIcon type={weather.icon} />
+                        <div className="flex-1">
+                            <p className="text-sm text-white/80">{weather.description}</p>
+                            <p className="text-xs text-white/50">
+                                {weather.tempHigh}° / {weather.tempLow}°C
+                                {weather.precipChance > 0 && ` -- ${weather.precipChance}% chance of rain`}
+                            </p>
                         </div>
                     </div>
                 )}
@@ -706,4 +713,47 @@ export default function EventPageClient({ event }) {
             </div>
         </div>
     );
+}
+
+function WeatherIcon({ type }) {
+    const icons = {
+        sun: (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-8 w-8 text-yellow-400">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+            </svg>
+        ),
+        "cloud-sun": (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-8 w-8 text-white/60">
+                <circle cx="10" cy="8" r="3" />
+                <path d="M10 2v1M3.93 4.93l.71.71M2 10h1M3.93 15.07l.71-.71M15.07 4.93l-.71.71" />
+                <path d="M7 16a4 4 0 0 1 .68-7.96 5 5 0 0 1 9.64 1.21A3.5 3.5 0 0 1 17.5 16H7z" />
+            </svg>
+        ),
+        cloud: (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-8 w-8 text-white/50">
+                <path d="M6.5 19a4.5 4.5 0 0 1-.42-8.98 7 7 0 0 1 13.42 2.48A4 4 0 0 1 19.5 19H6.5z" />
+            </svg>
+        ),
+        "cloud-rain": (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-8 w-8 text-blue-400">
+                <path d="M6.5 14a4.5 4.5 0 0 1-.42-8.98 7 7 0 0 1 13.42 2.48A4 4 0 0 1 19.5 14H6.5z" />
+                <path d="M8 19v2M12 19v2M16 19v2" />
+            </svg>
+        ),
+        "cloud-snow": (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-8 w-8 text-blue-200">
+                <path d="M6.5 14a4.5 4.5 0 0 1-.42-8.98 7 7 0 0 1 13.42 2.48A4 4 0 0 1 19.5 14H6.5z" />
+                <circle cx="8" cy="20" r="0.5" fill="currentColor" /><circle cx="12" cy="18" r="0.5" fill="currentColor" /><circle cx="16" cy="20" r="0.5" fill="currentColor" />
+            </svg>
+        ),
+        "cloud-bolt": (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-8 w-8 text-yellow-300">
+                <path d="M6.5 14a4.5 4.5 0 0 1-.42-8.98 7 7 0 0 1 13.42 2.48A4 4 0 0 1 19.5 14H6.5z" />
+                <path d="M13 14l-2 4h3l-2 4" />
+            </svg>
+        ),
+    };
+
+    return icons[type] || icons.cloud;
 }
