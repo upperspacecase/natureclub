@@ -7,6 +7,7 @@ import { getActivityDefaults } from "@/libs/activityDefaults";
 import { formatPrice } from "@/libs/formatPrice";
 import Map, { Marker } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { useAuth } from "@/libs/useAuth";
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
@@ -18,6 +19,7 @@ const DIFFICULTY_LABELS = {
 };
 
 export default function EventPageClient({ event }) {
+    const { user: authUser, loading: authLoading } = useAuth();
     const [rsvpState, setRsvpState] = useState("idle"); // idle | form | confirmed | maybe | waitlisted
     const [rsvpResponse, setRsvpResponse] = useState(null); // "going" | "maybe" | "cantgo"
     const [phone, setPhone] = useState("");
@@ -107,11 +109,9 @@ export default function EventPageClient({ event }) {
         }
     }, []);
 
-    const checkExistingRsvp = useCallback(async (phoneNum) => {
+    const checkExistingRsvp = useCallback(async () => {
         try {
-            const res = await fetch(
-                `/api/rsvp?eventId=${event.id}&phone=${encodeURIComponent(phoneNum)}`
-            );
+            const res = await fetch(`/api/rsvp?eventId=${event.id}`);
             const data = await res.json();
             if (data.found) {
                 if (data.rsvp.status === "waitlisted") {
@@ -128,16 +128,13 @@ export default function EventPageClient({ event }) {
         }
     }, [event.id]);
 
-    // Check if returning user
+    // Check existing RSVP when user is authenticated
     useEffect(() => {
-        const savedPhone = localStorage.getItem("nc_phone");
-        const savedName = localStorage.getItem("nc_name");
-        if (savedPhone) {
-            setPhone(savedPhone.replace(/^\+\d+/, ""));
-            if (savedName) setName(savedName);
-            checkExistingRsvp(savedPhone);
+        if (authUser) {
+            setName(authUser.name || "");
+            checkExistingRsvp();
         }
-    }, [checkExistingRsvp]);
+    }, [authUser, checkExistingRsvp]);
 
     async function handleRsvp(e) {
         e.preventDefault();
@@ -145,7 +142,10 @@ export default function EventPageClient({ event }) {
         setSubmitting(true);
 
         try {
-            const fullPhone = phone.startsWith("+") ? phone : `${countryCode}${phone.replace(/^0+/, "")}`;
+            if (!authUser) {
+                window.location.href = `/signin?returnUrl=${encodeURIComponent(`/e/${event.slug}`)}`;
+                return;
+            }
 
             const rsvpStatus = rsvpResponse === "going" ? "confirmed"
                 : rsvpResponse === "maybe" ? "maybe"
@@ -156,8 +156,6 @@ export default function EventPageClient({ event }) {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     eventId: event.id,
-                    participantName: name,
-                    participantPhone: fullPhone,
                     status: rsvpStatus,
                 }),
             });
@@ -165,22 +163,27 @@ export default function EventPageClient({ event }) {
             const data = await res.json();
 
             if (!res.ok) {
+                if (res.status === 401) {
+                    window.location.href = `/signin?returnUrl=${encodeURIComponent(`/e/${event.slug}`)}`;
+                    return;
+                }
                 if (res.status === 409) {
                     if (data.status === "waitlisted") setRsvpState("waitlisted");
                     else if (data.status === "maybe") setRsvpState("maybe");
                     else setRsvpState("confirmed");
-                    if (data.rsvp?.meetingPoint) setMeetingPoint(data.rsvp.meetingPoint);
+                    if (data.meetingPoint) setMeetingPoint(data.meetingPoint);
                 } else {
                     setError(data.error || "Something went wrong");
                 }
                 return;
             }
 
-            localStorage.setItem("nc_phone", fullPhone);
-            localStorage.setItem("nc_name", name);
-
             if (rsvpStatus === "cancelled") {
+                // Decrement the appropriate count based on previous state
+                if (rsvpState === "confirmed") setRsvpCount((c) => Math.max(0, c - 1));
+                if (rsvpState === "maybe") setMaybeCount((c) => Math.max(0, c - 1));
                 setRsvpState("idle");
+                setRsvpResponse(null);
                 return;
             }
 
@@ -317,6 +320,10 @@ export default function EventPageClient({ event }) {
                                         key={opt.key}
                                         onClick={(e) => {
                                             e.stopPropagation();
+                                            if (!authUser) {
+                                                window.location.href = `/signin?returnUrl=${encodeURIComponent(`/e/${event.slug}`)}`;
+                                                return;
+                                            }
                                             setRsvpResponse(opt.key);
                                             setRsvpState("form");
                                         }}
@@ -417,47 +424,14 @@ export default function EventPageClient({ event }) {
                             {rsvpState === "form" && (
                                 <form onSubmit={handleRsvp} className="space-y-3">
                                     <p className="mb-2 text-center text-sm text-white/60">
-                                        {rsvpResponse === "going" ? "You're going!" : rsvpResponse === "maybe" ? "Maybe — we'll save you a spot" : "Can't make it"}
+                                        {rsvpResponse === "going" ? "You're going!" : rsvpResponse === "maybe" ? "Maybe -- we'll save you a spot" : "Can't make it"}
                                     </p>
-                                    <input
-                                        type="text"
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                        placeholder="Your name"
-                                        required
-                                        maxLength={50}
-                                        className="w-full rounded-xl border border-white/25 bg-white/[0.04] px-4 py-4 text-base text-white placeholder-white/35 outline-none focus:border-white/50"
-                                    />
-                                    {/* Combined phone row */}
-                                    <div className="flex overflow-hidden rounded-xl border border-white/25">
-                                        <div className="relative flex items-center border-r border-white/25 bg-white/[0.04]">
-                                            <select
-                                                value={countryCode}
-                                                onChange={(e) => setCountryCode(e.target.value)}
-                                                className="h-full appearance-none border-0 bg-transparent py-4 pl-4 pr-10 text-base outline-none"
-                                                style={{ paddingRight: "40px" }}
-                                            >
-                                                {countryCodes.map((c, i) => (
-                                                    <option key={`${c.code}-${c.label}-${i}`} value={c.code}>
-                                                        {c.label} {c.code}
-                                                    </option>
-                                                ))}
-                                            </select>
+                                    {authUser && (
+                                        <div className="rounded-xl border border-white/15 bg-white/[0.04] px-4 py-3">
+                                            <p className="text-sm text-white/90">{authUser.name || "Guest"}</p>
+                                            <p className="text-xs text-white/50">{authUser.email}</p>
                                         </div>
-                                        <div className="relative flex flex-1 items-center bg-white/[0.04]">
-                                            <input
-                                                type="tel"
-                                                value={phone}
-                                                onChange={(e) => setPhone(e.target.value)}
-                                                placeholder="Phone number"
-                                                required
-                                                className="w-full border-0 bg-transparent px-4 py-4 text-base text-white placeholder-white/35 outline-none"
-                                            />
-                                            {phone.replace(/\D/g, "").length >= 7 && (
-                                                <span className="absolute right-4 text-base text-white/50">✓</span>
-                                            )}
-                                        </div>
-                                    </div>
+                                    )}
                                     {error && (
                                         <p className="text-sm text-red-400">{error}</p>
                                     )}
@@ -471,8 +445,8 @@ export default function EventPageClient({ event }) {
                                         </button>
                                         <button
                                             type="submit"
-                                            disabled={submitting || !name.trim() || !phone.trim()}
-                                            className={`flex-1 rounded-xl py-4 text-base font-semibold transition-all ${name.trim() && phone.trim()
+                                            disabled={submitting}
+                                            className={`flex-1 rounded-xl py-4 text-base font-semibold transition-all ${!submitting
                                                 ? "bg-white text-black hover:bg-white/90"
                                                 : "cursor-not-allowed bg-white/15 text-white/30"
                                                 }`}

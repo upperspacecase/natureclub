@@ -7,6 +7,7 @@ import apiClient from "@/libs/api";
 export default function FacilitatorEventsPage() {
     const router = useRouter();
     const [events, setEvents] = useState([]);
+    const [attending, setAttending] = useState([]);
     const [loading, setLoading] = useState(true);
     const [profile, setProfile] = useState(null);
     const [menuOpen, setMenuOpen] = useState(null); // event id for overflow menu
@@ -16,6 +17,7 @@ export default function FacilitatorEventsPage() {
 
     useEffect(() => {
         loadEvents();
+        loadAttending();
         loadProfile();
     }, []);
 
@@ -38,6 +40,15 @@ export default function FacilitatorEventsPage() {
             console.error("Failed to load events:", _err);
         } finally {
             setLoading(false);
+        }
+    }
+
+    async function loadAttending() {
+        try {
+            const res = await apiClient.get("/rsvp/my-events");
+            setAttending(res.events || []);
+        } catch (_err) {
+            console.error("Failed to load attending:", _err);
         }
     }
 
@@ -347,6 +358,58 @@ export default function FacilitatorEventsPage() {
                                 </div>
                             );
                         })}
+                    </div>
+                )}
+
+                {/* Attending Section */}
+                {attending.length > 0 && (
+                    <div className="mt-10">
+                        <h2 className="font-serif text-xl italic text-white mb-4">
+                            Attending
+                        </h2>
+                        <div className="space-y-3">
+                            {attending.map((event) => (
+                                <a
+                                    key={event.id}
+                                    href={`/e/${event.slug}`}
+                                    className="flex items-center gap-4 rounded-[6px] border border-white/15 bg-white/10 p-4 backdrop-blur-sm hover:bg-white/[0.14] transition"
+                                >
+                                    <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-[6px] bg-white/10">
+                                        {event.coverPhotoUrl ? (
+                                            // eslint-disable-next-line @next/next/no-img-element
+                                            <img
+                                                src={event.coverPhotoUrl}
+                                                alt=""
+                                                className="h-full w-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="flex h-full w-full items-center justify-center text-sm font-medium text-white/40">
+                                                NC
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="font-serif font-medium text-white truncate">
+                                                {event.title || "Untitled"}
+                                            </h3>
+                                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                                                event.rsvpStatus === "confirmed"
+                                                    ? "bg-green-500/10 text-green-400/80"
+                                                    : event.rsvpStatus === "waitlisted"
+                                                        ? "bg-yellow-500/10 text-yellow-400/80"
+                                                        : "bg-white/10 text-white/50"
+                                            }`}>
+                                                {event.rsvpStatus === "confirmed" ? "Going" : event.rsvpStatus === "waitlisted" ? "Waitlisted" : "Maybe"}
+                                            </span>
+                                        </div>
+                                        <p className="text-sm text-white/60">
+                                            {formatDate(event.dateTime)}
+                                        </p>
+                                    </div>
+                                </a>
+                            ))}
+                        </div>
                     </div>
                 )}
             </div>

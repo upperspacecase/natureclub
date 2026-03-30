@@ -54,14 +54,14 @@ export async function POST(req, { params }) {
                 for (const a of attendees) {
                     try {
                         const msg = rainCheckOn({
-                            phone: a.participantPhone,
+                            email: a.participantEmail,
                             eventTitle: event.title,
                             eventDate: event.dateTime,
                             note,
                         });
                         await notify(msg);
                     } catch (err) {
-                        console.error(`Failed to notify ${a.participantPhone}:`, err);
+                        console.error(`Failed to notify ${a.participantEmail}:`, err);
                     }
                 }
                 return Response.json({
@@ -84,14 +84,14 @@ export async function POST(req, { params }) {
                 for (const a of attendees) {
                     try {
                         const msg = rainCheckReschedule({
-                            phone: a.participantPhone,
+                            email: a.participantEmail,
                             eventTitle: event.title,
                             newDate: event.dateTime,
                             eventUrl: url,
                         });
                         await notify(msg);
                     } catch (err) {
-                        console.error(`Failed to notify ${a.participantPhone}:`, err);
+                        console.error(`Failed to notify ${a.participantEmail}:`, err);
                     }
                 }
                 return Response.json({
@@ -109,14 +109,14 @@ export async function POST(req, { params }) {
                 for (const a of attendees) {
                     try {
                         const msg = rainCheckCancel({
-                            phone: a.participantPhone,
+                            email: a.participantEmail,
                             eventTitle: event.title,
                             eventDate: event.dateTime,
                             reason,
                         });
                         await notify(msg);
                     } catch (err) {
-                        console.error(`Failed to notify ${a.participantPhone}:`, err);
+                        console.error(`Failed to notify ${a.participantEmail}:`, err);
                     }
                 }
                 return Response.json({

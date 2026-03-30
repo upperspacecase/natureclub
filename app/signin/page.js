@@ -1,351 +1,135 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
+import { auth } from "@/libs/firebase";
+import Script from "next/script";
+import Image from "next/image";
 
-const COUNTRY_CODES = [
-    { code: "+1", label: "US" },
-    { code: "+1", label: "CA" },
-    { code: "+44", label: "UK" },
-    { code: "+61", label: "AU" },
-    { code: "+64", label: "NZ" },
-    { code: "+353", label: "IE" },
-    { code: "+49", label: "DE" },
-    { code: "+33", label: "FR" },
-    { code: "+34", label: "ES" },
-    { code: "+39", label: "IT" },
-    { code: "+31", label: "NL" },
-    { code: "+46", label: "SE" },
-    { code: "+47", label: "NO" },
-    { code: "+45", label: "DK" },
-    { code: "+55", label: "BR" },
-    { code: "+52", label: "MX" },
-    { code: "+81", label: "JP" },
-    { code: "+82", label: "KR" },
-    { code: "+91", label: "IN" },
-    { code: "+27", label: "ZA" },
-];
-
-function detectCountryCode() {
-    try {
-        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
-        const map = {
-            "America/": "+1", "US/": "+1", "Canada/": "+1",
-            "Europe/London": "+44", "GB": "+44",
-            "Australia/": "+61", "Pacific/Auckland": "+64",
-            "Europe/Dublin": "+353", "Europe/Berlin": "+49",
-            "Europe/Paris": "+33", "Europe/Madrid": "+34",
-            "Europe/Rome": "+39", "Europe/Amsterdam": "+31",
-            "Europe/Stockholm": "+46", "Europe/Oslo": "+47",
-            "Europe/Copenhagen": "+45", "America/Sao_Paulo": "+55",
-            "America/Mexico_City": "+52", "Asia/Tokyo": "+81",
-            "Asia/Seoul": "+82", "Asia/Kolkata": "+91",
-            "Asia/Calcutta": "+91", "Africa/Johannesburg": "+27",
-        };
-        for (const [prefix, code] of Object.entries(map)) {
-            if (tz.startsWith(prefix) || tz === prefix) return code;
-        }
-    } catch { /* best-effort */ }
-    return "+1";
-}
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
 export default function SignInPage() {
     const router = useRouter();
-    const [step, setStep] = useState("phone"); // "phone" | "method" | "code"
-    const [countryCode, setCountryCode] = useState(() => detectCountryCode());
-    const [phone, setPhone] = useState("");
-    const [code, setCode] = useState("");
-    const [error, setError] = useState("");
+    const searchParams = useSearchParams();
+    const returnUrl = searchParams.get("returnUrl") || "/events";
+
     const [loading, setLoading] = useState(false);
-    const [cleanPhone, setCleanPhone] = useState("");
-    const [countdown, setCountdown] = useState(0);
-    const codeInputRef = useRef(null);
+    const [error, setError] = useState("");
+    const initialized = useRef(false);
+    const buttonRef = useRef(null);
 
-    const phoneValid = phone.replace(/\D/g, "").length >= 7;
-    const selectedCountry = COUNTRY_CODES.find((c) => c.code === countryCode) || COUNTRY_CODES[0];
+    const handleCredentialResponse = useCallback(
+        async (response) => {
+            setError("");
+            setLoading(true);
 
-    // Resend countdown timer
-    useEffect(() => {
-        if (countdown <= 0) return;
-        const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
-        return () => clearTimeout(t);
-    }, [countdown]);
+            try {
+                // Step 1: Convert Google JWT to Firebase credential
+                const credential = GoogleAuthProvider.credential(response.credential);
+                console.log("[auth] Step 1: Google credential created");
 
-    function handlePhoneContinue(e) {
-        e.preventDefault();
-        if (!phoneValid) return;
-        setError("");
-        setStep("method");
-    }
+                // Step 2: Sign in to Firebase client
+                const result = await signInWithCredential(auth, credential);
+                console.log("[auth] Step 2: Firebase signIn success, uid:", result.user.uid);
 
-    async function handleSendViaSms() {
-        setError("");
-        setLoading(true);
-        try {
-            const fullPhone = phone.startsWith("+") ? phone : `${countryCode}${phone.replace(/^0+/, "")}`;
-            const res = await fetch("/api/auth/send-otp", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ phone: fullPhone }),
+                // Step 3: Get Firebase-issued ID token
+                const firebaseIdToken = await result.user.getIdToken();
+                console.log("[auth] Step 3: Got Firebase ID token, length:", firebaseIdToken.length);
+
+                // Step 4: Send to server to create session cookie
+                const res = await fetch("/api/auth/google", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ idToken: firebaseIdToken }),
+                });
+                console.log("[auth] Step 4: Server response status:", res.status);
+
+                if (!res.ok) {
+                    const text = await res.text();
+                    console.error("[auth] Server error response:", text.slice(0, 200));
+                    try {
+                        const data = JSON.parse(text);
+                        throw new Error(data.error || "Sign in failed");
+                    } catch (parseErr) {
+                        throw new Error("Server returned invalid response");
+                    }
+                }
+
+                router.push(returnUrl);
+            } catch (err) {
+                console.error("[auth] Error at:", err);
+                setError(err.message || "Sign in failed. Please try again.");
+                setLoading(false);
+            }
+        },
+        [router, returnUrl]
+    );
+
+    const initializeGSI = useCallback(() => {
+        if (initialized.current || !window.google?.accounts?.id) return;
+        initialized.current = true;
+
+        window.google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleCredentialResponse,
+            auto_select: false,
+            cancel_on_tap_outside: true,
+            use_fedcm_for_prompt: true,
+            context: "signin",
+        });
+
+        // Show One Tap prompt
+        window.google.accounts.id.prompt();
+
+        // Also render the button as a fallback
+        if (buttonRef.current) {
+            window.google.accounts.id.renderButton(buttonRef.current, {
+                type: "standard",
+                shape: "rectangular",
+                theme: "outline",
+                size: "large",
+                text: "continue_with",
+                width: 320,
             });
-            let data;
-            try { data = await res.json(); } catch { setError("Something went wrong."); return; }
-            if (!res.ok) { setError(data.error || "Failed to send code"); return; }
-            setCleanPhone(data.phone);
-            setStep("code");
-            setCountdown(30);
-            setTimeout(() => codeInputRef.current?.focus(), 100);
-        } catch {
-            setError("Something went wrong. Please try again.");
-        } finally {
-            setLoading(false);
         }
-    }
-
-    async function handleVerifyOtp(e) {
-        e.preventDefault();
-        setError("");
-        setLoading(true);
-        try {
-            const res = await fetch("/api/auth/verify-otp", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ phone: cleanPhone, code }),
-            });
-            let data;
-            try { data = await res.json(); } catch { setError("Something went wrong."); return; }
-            if (!res.ok) { setError(data.error || "Invalid code"); return; }
-            router.push("/events");
-        } catch {
-            setError("Something went wrong. Please try again.");
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    async function handleResend() {
-        if (countdown > 0) return;
-        setError("");
-        setLoading(true);
-        try {
-            const res = await fetch("/api/auth/send-otp", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ phone: cleanPhone }),
-            });
-            const data = await res.json();
-            if (!res.ok) { setError(data.error || "Failed to resend"); }
-            else { setCode(""); setCountdown(30); }
-        } catch {
-            setError("Failed to resend. Please try again.");
-        } finally {
-            setLoading(false);
-        }
-    }
+    }, [handleCredentialResponse]);
 
     return (
-        <div className="flex min-h-screen flex-col items-center justify-center bg-black px-5 text-white">
-            <div className="w-full max-w-sm">
-                {/* Logo */}
-                <div className="mb-4 flex justify-center">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+        <>
+            <Script
+                src="https://accounts.google.com/gsi/client"
+                strategy="afterInteractive"
+                onLoad={initializeGSI}
+            />
+            <main className="min-h-screen bg-black flex flex-col items-center justify-center px-6">
+                <div className="w-full max-w-sm flex flex-col items-center gap-8">
+                    <Image
                         src="/logo-light.svg"
                         alt="Nature Club"
-                        className="h-10 w-auto"
+                        width={48}
+                        height={48}
+                        className="opacity-90"
                     />
+
+                    <h1 className="font-serif italic text-white text-3xl text-center text-balance">
+                        Spend more time in Nature
+                    </h1>
+
+                    {loading ? (
+                        <div className="flex items-center gap-3 text-white/60">
+                            <span className="loading loading-spinner loading-sm" />
+                            Signing in...
+                        </div>
+                    ) : (
+                        <div ref={buttonRef} className="min-h-[44px]" />
+                    )}
+
+                    {error && (
+                        <p className="text-red-400 text-sm text-center">{error}</p>
+                    )}
                 </div>
-
-                {/* Title */}
-                <h1 className="mb-8 text-center font-serif text-3xl italic text-white">
-                    Sign in or sign up
-                </h1>
-
-                {/* ── Step 1: Phone ── */}
-                {step === "phone" && (
-                    <form onSubmit={handlePhoneContinue}>
-                        {/* Combined phone row */}
-                        <div className="flex overflow-hidden rounded-xl border border-white/25">
-                            {/* Country selector */}
-                            <div className="relative flex items-center border-r border-white/25 bg-white/[0.04]">
-                                <select
-                                    value={countryCode}
-                                    onChange={(e) => setCountryCode(e.target.value)}
-                                    className="h-full appearance-none border-0 bg-transparent py-4 pl-4 pr-10 text-lg outline-none"
-                                    style={{ paddingRight: "40px" }}
-                                >
-                                    {COUNTRY_CODES.map((c, i) => (
-                                        <option key={`${c.code}-${c.label}-${i}`} value={c.code}>
-                                            {c.label} {c.code}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            {/* Phone input */}
-                            <div className="relative flex flex-1 items-center bg-white/[0.04]">
-                                <input
-                                    type="tel"
-                                    value={phone}
-                                    onChange={(e) => setPhone(e.target.value)}
-                                    placeholder="Phone number"
-                                    autoFocus
-                                    autoComplete="tel"
-                                    className="w-full border-0 bg-transparent px-4 py-4 text-lg text-white placeholder-white/35 outline-none"
-                                />
-                                {phoneValid && (
-                                    <span className="absolute right-4 text-lg text-white/50">✓</span>
-                                )}
-                            </div>
-                        </div>
-
-                        {error && <p className="mt-3 text-center text-sm text-red-400">{error}</p>}
-
-                        {/* Login button */}
-                        <button
-                            type="submit"
-                            disabled={!phoneValid}
-                            className={`mt-4 w-full rounded-xl py-4 text-base font-semibold transition-all ${phoneValid
-                                ? "bg-white text-black hover:bg-white/90"
-                                : "cursor-not-allowed bg-white/15 text-white/30"
-                                }`}
-                        >
-                            Login
-                        </button>
-                    </form>
-                )}
-
-                {/* ── Step 2: Delivery Method ── */}
-                {step === "method" && (
-                    <div>
-                        {/* Phone row (locked) */}
-                        <div className="flex overflow-hidden rounded-xl border border-white/25 opacity-50">
-                            <div className="flex items-center border-r border-white/25 bg-white/[0.04] px-4 py-4 text-lg">
-                                {selectedCountry.label}
-                            </div>
-                            <div className="flex flex-1 items-center bg-white/[0.04] px-4 py-4">
-                                <span className="text-lg text-white/70">{phone}</span>
-                                <span className="ml-auto text-lg text-white/50">✓</span>
-                            </div>
-                        </div>
-
-                        {/* Method card */}
-                        <div className="mt-4 rounded-2xl border border-white/15 bg-white/[0.06] p-6">
-                            <button
-                                onClick={() => { setStep("phone"); setError(""); }}
-                                className="mb-4 text-xl text-white/70 hover:text-white"
-                            >
-                                ✕
-                            </button>
-                            <h2 className="text-center text-xl font-bold text-white">Get your code</h2>
-                            <p className="mt-2 text-center text-sm text-white/50">
-                                Choose to receive Nature Club notifications via SMS or WhatsApp
-                            </p>
-
-                            {error && <p className="mt-3 text-center text-sm text-red-400">{error}</p>}
-
-                            <div className="mt-6 space-y-3">
-                                {/* WhatsApp — greyed out */}
-                                <button
-                                    disabled
-                                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] py-4 text-base font-medium text-white/25 cursor-not-allowed"
-                                >
-                                    Send with WhatsApp
-                                    <span className="ml-1 text-xs text-white/20">(coming soon)</span>
-                                </button>
-                                {/* SMS */}
-                                <button
-                                    onClick={handleSendViaSms}
-                                    disabled={loading}
-                                    className="w-full rounded-xl border border-white/25 bg-white/[0.06] py-4 text-base font-medium text-white hover:bg-white/10 disabled:opacity-50"
-                                >
-                                    {loading ? "Sending..." : "Send with SMS"}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* ── Step 3: Verify Code ── */}
-                {step === "code" && (
-                    <form onSubmit={handleVerifyOtp}>
-                        {/* Phone row (locked) */}
-                        <div className="flex overflow-hidden rounded-xl border border-white/25 opacity-50">
-                            <div className="flex items-center border-r border-white/25 bg-white/[0.04] px-4 py-4 text-lg">
-                                {selectedCountry.label}
-                            </div>
-                            <div className="flex flex-1 items-center bg-white/[0.04] px-4 py-4">
-                                <span className="text-lg text-white/70">{phone}</span>
-                                <span className="ml-auto text-lg text-white/50">✓</span>
-                            </div>
-                        </div>
-
-                        <p className="mt-3 text-sm text-white/50">
-                            We sent {cleanPhone} a code via SMS
-                        </p>
-
-                        {/* Code input */}
-                        <label className="mt-5 block text-sm font-medium text-white/70">
-                            Verification Code
-                        </label>
-                        <input
-                            ref={codeInputRef}
-                            type="text"
-                            inputMode="numeric"
-                            maxLength={6}
-                            value={code}
-                            onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-                            placeholder="000000"
-                            autoComplete="one-time-code"
-                            className="mt-1 w-full rounded-xl border border-white/25 bg-white/[0.04] px-4 py-4 text-lg tracking-[0.3em] text-white placeholder-white/30 outline-none focus:border-white/50"
-                        />
-
-                        {/* Resend timer */}
-                        <p className="mt-2 text-sm text-white/40">
-                            Didn&apos;t receive your code?{" "}
-                            {countdown > 0 ? (
-                                <span>Resend it in {countdown}s</span>
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={handleResend}
-                                    disabled={loading}
-                                    className="text-white/70 hover:text-white underline"
-                                >
-                                    Resend
-                                </button>
-                            )}
-                        </p>
-
-                        {error && <p className="mt-3 text-center text-sm text-red-400">{error}</p>}
-
-                        <button
-                            type="submit"
-                            disabled={loading || code.length < 6}
-                            className={`mt-5 w-full rounded-xl py-4 text-base font-semibold transition-all ${code.length >= 6
-                                ? "bg-white text-black hover:bg-white/90"
-                                : "cursor-not-allowed bg-white/15 text-white/30"
-                                }`}
-                        >
-                            {loading ? "Verifying..." : "I agree"}
-                        </button>
-
-                        <p className="mt-3 text-center text-xs leading-relaxed text-white/30">
-                            By clicking &apos;I agree&apos;, you agree to our{" "}
-                            <a href="/tos" className="text-white/50 underline">Terms</a> and{" "}
-                            <a href="/privacy-policy" className="text-white/50 underline">Privacy Policy</a>
-                            {" "}and consent to receive event texts from Nature Club & hosts.
-                        </p>
-
-                        <button
-                            type="button"
-                            onClick={() => { setStep("phone"); setCode(""); setError(""); }}
-                            className="mt-4 block w-full text-center text-sm text-white/40 hover:text-white"
-                        >
-                            Change number
-                        </button>
-                    </form>
-                )}
-            </div>
-        </div>
+            </main>
+        </>
     );
 }

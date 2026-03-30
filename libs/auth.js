@@ -1,26 +1,30 @@
 import { cookies } from "next/headers";
-import { verifySessionToken } from "@/libs/jwt";
+import { adminAuth } from "@/libs/firebase-admin";
 import connectMongo from "@/libs/mongoose";
 import User from "@/models/User";
 
 /**
  * Get the authenticated user for the current request.
- * Reads the nc_session JWT cookie, verifies it, and looks up the User.
+ * Reads the nc_session Firebase session cookie, verifies it, and looks up the User.
  */
 export async function getAuthUser() {
     const cookieStore = await cookies();
     const token = cookieStore.get("nc_session")?.value;
     if (!token) return null;
 
-    const payload = verifySessionToken(token);
-    if (!payload?.phone) return null;
+    try {
+        const decoded = await adminAuth.verifySessionCookie(token, true);
+        if (!decoded?.uid) return null;
 
-    await connectMongo();
-    return User.findOne({ phone: payload.phone });
+        await connectMongo();
+        return User.findOne({ firebaseUid: decoded.uid });
+    } catch {
+        return null;
+    }
 }
 
 /**
- * Require auth — returns user or throws 401 Response.
+ * Require auth -- returns user or throws 401 Response.
  * Use in API route handlers.
  */
 export async function requireAuthUser() {

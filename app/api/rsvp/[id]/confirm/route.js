@@ -1,26 +1,22 @@
 import connectMongo from "@/libs/mongoose";
 import Rsvp from "@/models/Rsvp";
 import BookingEvent from "@/models/BookingEvent";
+import { getAuthUser } from "@/libs/auth";
 
-// POST — Confirm a waitlist promotion
+// POST -- Confirm a waitlist promotion (requires authentication)
 export async function POST(req, { params }) {
     try {
-        const { id } = await params;
-        const { phone } = await req.json();
-
-        if (!phone) {
-            return Response.json(
-                { error: "Phone verification required" },
-                { status: 400 }
-            );
+        const user = await getAuthUser();
+        if (!user) {
+            return Response.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const cleanPhone = phone.replace(/[\s\-()]/g, "");
+        const { id } = await params;
 
         await connectMongo();
 
         const rsvp = await Rsvp.findById(id);
-        if (!rsvp || rsvp.participantPhone !== cleanPhone) {
+        if (!rsvp || !rsvp.participantUserId.equals(user._id)) {
             return Response.json({ error: "RSVP not found" }, { status: 404 });
         }
 

@@ -1,26 +1,23 @@
 import connectMongo from "@/libs/mongoose";
 import Rsvp from "@/models/Rsvp";
+import { getAuthUser } from "@/libs/auth";
+import { notify, spotOpened, eventUrl as buildEventUrl } from "@/libs/notifications";
+import BookingEvent from "@/models/BookingEvent";
 
-// DELETE — Cancel an RSVP (verified by phone token in query)
+// DELETE -- Cancel an RSVP (requires authentication, must be RSVP owner)
 export async function DELETE(req, { params }) {
     try {
-        const { id } = await params;
-        const { searchParams } = new URL(req.url);
-        const phone = searchParams.get("phone");
-
-        if (!phone) {
-            return Response.json(
-                { error: "Phone verification required" },
-                { status: 400 }
-            );
+        const user = await getAuthUser();
+        if (!user) {
+            return Response.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const cleanPhone = phone.replace(/[\s\-()]/g, "");
+        const { id } = await params;
 
         await connectMongo();
 
         const rsvp = await Rsvp.findById(id);
-        if (!rsvp || rsvp.participantPhone !== cleanPhone) {
+        if (!rsvp || !rsvp.participantUserId.equals(user._id)) {
             return Response.json({ error: "RSVP not found" }, { status: 404 });
         }
 
@@ -44,7 +41,21 @@ export async function DELETE(req, { params }) {
                 Date.now() + 2 * 60 * 60 * 1000 // 2 hours
             );
             await nextWaitlisted.save();
-            // TODO: Wire notify() for waitlist-spot-opened template
+
+            // Notify promoted participant
+            if (nextWaitlisted.participantEmail) {
+                try {
+                    const event = await BookingEvent.findById(rsvp.eventId);
+                    const msg = spotOpened({
+                        email: nextWaitlisted.participantEmail,
+                        eventTitle: event?.title || "Event",
+                        confirmUrl: event?.slug ? buildEventUrl(event.slug) : "",
+                    });
+                    await notify(msg);
+                } catch (notifyErr) {
+                    console.error("Waitlist promotion notification error:", notifyErr);
+                }
+            }
         }
 
         return Response.json({ message: "RSVP cancelled" });

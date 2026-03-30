@@ -2,6 +2,7 @@ import connectMongo from "@/libs/mongoose";
 import BookingEvent from "@/models/BookingEvent";
 import Rsvp from "@/models/Rsvp";
 import User from "@/models/User";
+import { getAuthUser } from "@/libs/auth";
 import {
     notify,
     rsvpConfirmedParticipant,
@@ -10,33 +11,18 @@ import {
     eventUrl as buildEventUrl,
 } from "@/libs/notifications";
 
-// POST — Create RSVP or join waitlist
+// POST -- Create RSVP or join waitlist (requires authentication)
 export async function POST(req) {
     try {
-        const { eventId, participantName, participantPhone, status: requestedStatus } = await req.json();
-
-        if (!eventId || !participantName || !participantPhone) {
-            return Response.json(
-                { error: "Event ID, name, and phone are required" },
-                { status: 400 }
-            );
+        const user = await getAuthUser();
+        if (!user) {
+            return Response.json({ error: "Sign in to RSVP" }, { status: 401 });
         }
 
-        // Basic phone validation (E.164-ish)
-        const cleanPhone = participantPhone.replace(/[\s\-()]/g, "");
-        if (!/^\+?\d{7,15}$/.test(cleanPhone)) {
-            return Response.json(
-                { error: "Please enter a valid phone number" },
-                { status: 400 }
-            );
-        }
+        const { eventId, status: requestedStatus } = await req.json();
 
-        const trimmedName = participantName.trim().slice(0, 50);
-        if (trimmedName.length === 0) {
-            return Response.json(
-                { error: "Name is required" },
-                { status: 400 }
-            );
+        if (!eventId) {
+            return Response.json({ error: "Event ID is required" }, { status: 400 });
         }
 
         await connectMongo();
@@ -49,27 +35,26 @@ export async function POST(req) {
             );
         }
 
-        // Handle "Can't Go" — cancel any existing RSVP
+        // Handle "Can't Go" -- cancel any existing RSVP
         if (requestedStatus === "cancelled") {
             await Rsvp.updateMany(
-                { eventId: event._id, participantPhone: cleanPhone, status: { $ne: "cancelled" } },
+                { eventId: event._id, participantUserId: user._id, status: { $ne: "cancelled" } },
                 { $set: { status: "cancelled" } }
             );
             return Response.json({ message: "RSVP cancelled" }, { status: 200 });
         }
 
-        // Check for existing RSVP (deduplication)
+        // Check for existing RSVP (deduplication by userId)
         const existingRsvp = await Rsvp.findOne({
             eventId: event._id,
-            participantPhone: cleanPhone,
+            participantUserId: user._id,
             status: { $ne: "cancelled" },
         });
 
         if (existingRsvp) {
-            // If status is changing (e.g. maybe → confirmed), update it
             if (requestedStatus && requestedStatus !== existingRsvp.status) {
                 existingRsvp.status = requestedStatus;
-                existingRsvp.participantName = trimmedName;
+                existingRsvp.participantName = user.name || existingRsvp.participantName;
                 await existingRsvp.save();
                 return Response.json({
                     rsvp: existingRsvp.toJSON(),
@@ -81,6 +66,7 @@ export async function POST(req) {
                     error: "You're already signed up!",
                     status: existingRsvp.status,
                     rsvp: existingRsvp.toJSON(),
+                    meetingPoint: existingRsvp.status === "confirmed" ? event.meetingPoint : null,
                 },
                 { status: 409 }
             );
@@ -98,17 +84,17 @@ export async function POST(req) {
         const wantedStatus = requestedStatus || "confirmed";
 
         if (wantedStatus === "maybe") {
-            // Maybe doesn't count against group capacity
             const rsvp = await Rsvp.create({
                 eventId: event._id,
-                participantName: trimmedName,
-                participantPhone: cleanPhone,
+                participantUserId: user._id,
+                participantEmail: user.email || "",
+                participantName: user.name || "Guest",
                 status: "maybe",
             });
             return Response.json({ rsvp: rsvp.toJSON() }, { status: 201 });
         }
 
-        // Check group cap → waitlist
+        // Check group cap -> waitlist
         const confirmedCount = await Rsvp.countDocuments({
             eventId: event._id,
             status: "confirmed",
@@ -119,7 +105,6 @@ export async function POST(req) {
         let rsvp;
 
         if (isFull) {
-            // Add to waitlist
             const waitlistCount = await Rsvp.countDocuments({
                 eventId: event._id,
                 status: "waitlisted",
@@ -127,51 +112,50 @@ export async function POST(req) {
 
             rsvp = await Rsvp.create({
                 eventId: event._id,
-                participantName: trimmedName,
-                participantPhone: cleanPhone,
+                participantUserId: user._id,
+                participantEmail: user.email || "",
+                participantName: user.name || "Guest",
                 status: "waitlisted",
                 waitlistPosition: waitlistCount + 1,
             });
         } else {
-            // Confirm RSVP
             rsvp = await Rsvp.create({
                 eventId: event._id,
-                participantName: trimmedName,
-                participantPhone: cleanPhone,
+                participantUserId: user._id,
+                participantEmail: user.email || "",
+                participantName: user.name || "Guest",
                 status: "confirmed",
             });
         }
 
-        // Send notifications (non-blocking — don't fail the RSVP if SMS fails)
+        // Send notifications (non-blocking)
         try {
             const url = event.slug ? buildEventUrl(event.slug) : "";
 
-            if (rsvp.status === "confirmed") {
-                // Notify participant
+            if (rsvp.status === "confirmed" && user.email) {
                 const participantMsg = rsvpConfirmedParticipant({
-                    phone: cleanPhone,
+                    email: user.email,
                     eventTitle: event.title,
                     eventDate: event.dateTime,
                     eventUrl: url,
                 });
                 await notify(participantMsg);
 
-                // Notify host
                 const host = await User.findById(event.createdBy);
-                if (host?.phone) {
+                if (host?.email) {
                     const confirmedNow = confirmedCount + 1;
                     const hostMsg = rsvpConfirmedHost({
-                        hostPhone: host.phone,
-                        participantName: trimmedName,
+                        hostEmail: host.email,
+                        participantName: user.name || "Someone",
                         eventTitle: event.title,
                         rsvpCount: confirmedNow,
                         groupSize: event.groupSize,
                     });
                     await notify(hostMsg);
                 }
-            } else if (rsvp.status === "waitlisted") {
+            } else if (rsvp.status === "waitlisted" && user.email) {
                 const waitlistMsg = waitlistJoined({
-                    phone: cleanPhone,
+                    email: user.email,
                     eventTitle: event.title,
                     position: rsvp.waitlistPosition,
                 });
@@ -181,16 +165,13 @@ export async function POST(req) {
             console.error("RSVP notification error (non-fatal):", notifyErr);
         }
 
-        // Return the exact meeting point now that they're RSVP'd
         const response = {
             rsvp: rsvp.toJSON(),
-            // Reveal exact location post-RSVP
             meetingPoint: rsvp.status === "confirmed" ? event.meetingPoint : null,
         };
 
         return Response.json(response, { status: 201 });
     } catch (error) {
-        // Handle duplicate key error (race condition on compound index)
         if (error.code === 11000) {
             return Response.json(
                 { error: "You're already signed up!" },
@@ -202,27 +183,26 @@ export async function POST(req) {
     }
 }
 
-// GET — Check RSVP status by phone number for a given event
+// GET -- Check RSVP status by userId for a given event
 export async function GET(req) {
     try {
-        const { searchParams } = new URL(req.url);
-        const eventId = searchParams.get("eventId");
-        const phone = searchParams.get("phone");
-
-        if (!eventId || !phone) {
-            return Response.json(
-                { error: "eventId and phone are required" },
-                { status: 400 }
-            );
+        const user = await getAuthUser();
+        if (!user) {
+            return Response.json({ found: false });
         }
 
-        const cleanPhone = phone.replace(/[\s\-()]/g, "");
+        const { searchParams } = new URL(req.url);
+        const eventId = searchParams.get("eventId");
+
+        if (!eventId) {
+            return Response.json({ error: "eventId is required" }, { status: 400 });
+        }
 
         await connectMongo();
 
         const rsvp = await Rsvp.findOne({
             eventId,
-            participantPhone: cleanPhone,
+            participantUserId: user._id,
             status: { $ne: "cancelled" },
         });
 
@@ -230,7 +210,6 @@ export async function GET(req) {
             return Response.json({ found: false });
         }
 
-        // If confirmed, also return exact meeting point
         let meetingPoint = null;
         if (rsvp.status === "confirmed") {
             const event = await BookingEvent.findById(eventId).select("meetingPoint");

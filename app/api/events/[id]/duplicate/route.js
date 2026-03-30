@@ -60,7 +60,7 @@ export async function POST(req, { params }) {
             for (const rsvp of prevRsvps) {
                 try {
                     const msg = duplicateNotify({
-                        phone: rsvp.participantPhone,
+                        email: rsvp.participantEmail,
                         hostName: user.name || "Your host",
                         eventTitle: sourceEvent.title,
                         newDate: body.newDateTime,

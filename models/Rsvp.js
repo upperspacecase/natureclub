@@ -11,16 +11,27 @@ const rsvpSchema = mongoose.Schema(
             required: true,
             index: true,
         },
-        participantPhone: {
+        participantUserId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+            index: true,
+        },
+        participantEmail: {
             type: String,
             trim: true,
-            required: true,
+            default: "",
         },
         participantName: {
             type: String,
             trim: true,
             required: true,
             maxlength: 50,
+        },
+        participantPhone: {
+            type: String,
+            trim: true,
+            default: "",
         },
         status: {
             type: String,
@@ -47,9 +58,9 @@ const rsvpSchema = mongoose.Schema(
     }
 );
 
-// Prevent duplicate RSVPs: one phone per event
+// Prevent duplicate RSVPs: one user per event
 rsvpSchema.index(
-    { eventId: 1, participantPhone: 1 },
+    { eventId: 1, participantUserId: 1 },
     {
         unique: true,
         partialFilterExpression: { status: { $ne: "cancelled" } },

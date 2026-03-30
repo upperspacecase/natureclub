@@ -3,11 +3,23 @@ import toJSON from "./plugins/toJSON";
 
 const userSchema = mongoose.Schema(
   {
+    email: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      unique: true,
+      sparse: true,
+    },
+    firebaseUid: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
     phone: {
       type: String,
       trim: true,
-      required: true,
       unique: true,
+      sparse: true,
     },
     name: {
       type: String,
@@ -31,10 +43,6 @@ const userSchema = mongoose.Schema(
       type: String,
       trim: true,
       default: "",
-    },
-    hostingOn: {
-      type: Boolean,
-      default: false,
     },
     // Stripe fields (kept for future payment integration)
     customerId: {
