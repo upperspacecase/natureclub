@@ -46,7 +46,7 @@ export default function UserHome({
       <main className="bg-nc-surface py-12 px-0 space-y-14">
         {/* Hosting */}
         {hostedEvents.length > 0 && (
-          <HomeCarousel title="Your Events">
+          <HomeCarousel title="Your Events" viewAllHref="/events">
             {hostedEvents.map((event) => (
               <HomeEventCard
                 key={event._id}

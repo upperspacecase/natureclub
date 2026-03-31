@@ -77,7 +77,7 @@ export default function LocationBar({
 
   if (expanded) {
     return (
-      <div className="flex flex-col gap-0">
+      <div className="relative z-50 flex flex-col gap-0">
         <div className="flex items-center gap-2 rounded-t-xl bg-black/80 px-3 py-2.5 backdrop-blur-xl">
           {/* Search icon */}
           <svg

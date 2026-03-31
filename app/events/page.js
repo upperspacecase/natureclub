@@ -143,14 +143,6 @@ export default function FacilitatorEventsPage() {
                     <h1 className="font-serif text-2xl italic text-white">
                         Your Events
                     </h1>
-                    <div className="flex items-center gap-3">
-                        <button
-                            onClick={() => router.push("/events/new")}
-                            className="btn"
-                        >
-                            + New Event
-                        </button>
-                    </div>
                 </div>
 
                 {/* Event List */}
@@ -351,8 +343,16 @@ export default function FacilitatorEventsPage() {
                 )}
             </div>
 
-            {/* Hamburger Menu */}
-            <div className="absolute right-5 top-6 z-40">
+            {/* + New Event button and Hamburger Menu */}
+            <div className="absolute right-5 top-6 z-40 flex items-center gap-2">
+                <button
+                    onClick={() => router.push("/events/new")}
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-black/30 backdrop-blur-sm transition hover:bg-black/50 active:scale-95"
+                >
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-white drop-shadow-md">
+                        <path d="M9 2v14M2 9h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                    </svg>
+                </button>
                 <NavMenu user={profile} />
             </div>
         </div>

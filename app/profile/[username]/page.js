@@ -5,6 +5,7 @@ import Rsvp from "@/models/Rsvp";
 import { searchPhoto } from "@/libs/unsplash";
 import { notFound } from "next/navigation";
 import { getSEOTags } from "@/libs/seo";
+import { getAuthUser } from "@/libs/auth";
 import Link from "next/link";
 
 export async function generateMetadata({ params }) {
@@ -26,7 +27,16 @@ export default async function ProfilePage({ params }) {
     const { username } = await params;
     await connectMongo();
 
-    const user = await User.findOne({ username, hostingOn: true });
+    // Check if the viewer is the owner
+    const authUser = await getAuthUser();
+    const isOwner = authUser?.username === username;
+
+    // Owners can always see their own profile; public users need hostingOn
+    const query = isOwner
+        ? { username }
+        : { username, hostingOn: true };
+
+    const user = await User.findOne(query);
     if (!user) {
         notFound();
     }
@@ -153,6 +163,16 @@ export default async function ProfilePage({ params }) {
                     <p className="mt-1 text-sm text-white/50">@{user.username}</p>
                     {user.bio && (
                         <p className="mt-3 text-sm text-white/70">{user.bio}</p>
+                    )}
+
+                    {/* Owner-only: Edit Profile button */}
+                    {isOwner && (
+                        <Link
+                            href="/profile/setup"
+                            className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-2 text-xs font-medium text-white/60 transition hover:border-white/40 hover:text-white"
+                        >
+                            Edit Profile
+                        </Link>
                     )}
                 </div>
 

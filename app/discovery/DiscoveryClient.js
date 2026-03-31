@@ -231,7 +231,7 @@ export default function DiscoveryClient({ feedCards, user }) {
       </div>
 
       {/* ── Floating Action Buttons ── */}
-      <div className="absolute bottom-8 right-5 z-40 flex flex-col gap-4">
+      <div className={`absolute right-5 z-40 flex flex-col gap-4 transition-all duration-200 ${filterOpen ? "bottom-36" : "bottom-8"}`}>
         {/* Map / Feed toggle */}
         <button
           onClick={() => {
@@ -332,6 +332,15 @@ export default function DiscoveryClient({ feedCards, user }) {
       {/* ── Filter Panel ── */}
       {filterOpen && (
         <div className="absolute inset-x-0 bottom-0 z-50 bg-black/90 px-5 pb-8 pt-6 backdrop-blur-xl">
+          {/* Close filter panel */}
+          <button
+            onClick={() => setFilterOpen(false)}
+            className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-white/40 transition hover:bg-white/10 hover:text-white/70"
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path d="M2 2l12 12M14 2L2 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          </button>
           {/* Time filters */}
           <div className="hide-scrollbar mb-5 flex gap-2 overflow-x-auto">
             {TIME_FILTERS.map((f) => (

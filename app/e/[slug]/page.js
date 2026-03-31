@@ -81,6 +81,7 @@ export default async function EventPage({ params }) {
                 username: host.username,
             }
             : null,
+        createdBy: event.createdBy?.toString(),
     };
 
     // Fetch weather if event has a date and location

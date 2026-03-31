@@ -5,6 +5,7 @@ import { generateIcs, googleCalendarUrl } from "@/libs/calendar";
 import StoryCardPreview from "@/components/StoryCardPreview";
 import { getActivityDefaults } from "@/libs/activityDefaults";
 import { formatPrice } from "@/libs/formatPrice";
+import Link from "next/link";
 import Map, { Marker } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useAuth } from "@/libs/useAuth";
@@ -239,6 +240,7 @@ export default function EventPageClient({ event, weather }) {
     const isCancelled = event.status === "cancelled";
     const isFull = event.groupSize && rsvpCount >= event.groupSize;
     const spotsLeft = event.groupSize ? event.groupSize - rsvpCount : null;
+    const isCreator = authUser && (authUser.id === event.createdBy || authUser._id === event.createdBy);
 
     const formattedPrice = event.price > 0 ? formatPrice(event.price, event.currency) : "Free";
 
@@ -344,6 +346,18 @@ export default function EventPageClient({ event, weather }) {
                         )}
                     </StoryCardPreview>
                 </div>
+
+                {/* Creator: Edit button */}
+                {isCreator && (
+                    <div className="mb-4">
+                        <Link
+                            href={`/events/new?id=${event.id}`}
+                            className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/15"
+                        >
+                            Edit Event
+                        </Link>
+                    </div>
+                )}
 
                 {/* Host info */}
                 {event.host && (

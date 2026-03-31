@@ -19,7 +19,8 @@ export default function ProfileRedirect() {
     if (user?.username) {
       router.replace(`/profile/${user.username}`);
     } else {
-      router.replace(`/profile/${user._id || user.id}`);
+      // User hasn't set a username yet — send to setup
+      router.replace("/profile/setup");
     }
   }, [user, loading, isAuthenticated, router]);
 
@@ -29,3 +30,4 @@ export default function ProfileRedirect() {
     </div>
   );
 }
+

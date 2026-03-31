@@ -105,10 +105,9 @@ function EventCreatePageInner() {
 
     const [eventId, setEventId] = useState(null);
     const [publishing, setPublishing] = useState(false);
-    const [published, setPublished] = useState(initialView === "share");
+    const [published, setPublished] = useState(false);
     const [slug, setSlug] = useState("");
     const [detailsOpen, setDetailsOpen] = useState(false);
-    const [shareView, setShareView] = useState(initialView === "share");
     const [copied, setCopied] = useState(false);
     const [downloading, setDownloading] = useState(false);
     const [loadingExisting, setLoadingExisting] = useState(!!existingId);
@@ -297,9 +296,11 @@ function EventCreatePageInner() {
                 title,
                 status: "published",
             });
+            const newSlug = res.slug;
             setPublished(true);
-            setSlug(res.slug);
-            setShareView(true);
+            setSlug(newSlug);
+            // Redirect to the regular event page
+            router.push(`/e/${newSlug}`);
         } catch (err) {
             console.error("Publish failed:", err);
         } finally {
@@ -394,77 +395,6 @@ function EventCreatePageInner() {
         );
     }
 
-    // ── SHARE VIEW (post-publish) ──
-    if (shareView && published && slug) {
-        const eventUrl = typeof window !== "undefined"
-            ? `${window.location.origin}/e/${slug}`
-            : `/e/${slug}`;
-
-        return (
-            <div className="min-h-screen bg-black text-white">
-                <div className="mx-auto max-w-md px-4 py-8 sm:px-6">
-                    {/* Header */}
-                    <div className="mb-8 flex items-center justify-between">
-                        <button
-                            onClick={() => router.push("/events")}
-                            className="text-sm text-white/60 hover:text-white"
-                        >
-                            ← Events
-                        </button>
-                        <button
-                            onClick={() => setShareView(false)}
-                            className="text-sm text-white/60 hover:text-white"
-                        >
-                            Edit
-                        </button>
-                    </div>
-
-                    {/* Story card preview */}
-                    <div className="mx-auto max-w-[280px]">
-                        <StoryCardPreview
-                            title={title}
-                            dateTime={dateTime instanceof Date ? dateTime.toISOString() : dateTime}
-                            activityType={activityType === "other" ? activityTypeOther : activityType}
-                            groupSize={groupSize}
-                            hostName={hostName}
-                            slug={slug}
-                            published={true}
-                            eventId={eventId}
-                            coverPhotoUrl={coverPhotoUrl}
-                            price={price}
-                            hideDownload={true}
-                            location={locationObj.description}
-                            durationMinutes={durationMinutes}
-                            currency={currency}
-                        />
-                    </div>
-
-                    {/* Share actions */}
-                    <div className="mt-6 flex gap-3">
-                        <button
-                            onClick={copyLink}
-                            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-medium text-stone-800 transition hover:bg-white/90"
-                        >
-                            {copied ? "Copied!" : "Copy Link"}
-                        </button>
-                        <button
-                            onClick={downloadStoryCard}
-                            disabled={downloading}
-                            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/15 disabled:opacity-50"
-                        >
-                            {downloading ? "..." : "Download Image"}
-                        </button>
-                    </div>
-
-                    {/* Event URL display */}
-                    <p className="mt-4 text-center text-xs text-white/30">
-                        {eventUrl}
-                    </p>
-                </div>
-            </div>
-        );
-    }
-
     // ── CREATE / EDIT VIEW ──
     return (
         <div className="min-h-screen bg-black text-white">
@@ -513,10 +443,10 @@ function EventCreatePageInner() {
                         </div>
                     ) : (
                         <button
-                            onClick={() => setShareView(true)}
+                            onClick={() => slug ? router.push(`/e/${slug}`) : null}
                             className="btn"
                         >
-                            Save →
+                            View Event →
                         </button>
                     )}
                 </div>
