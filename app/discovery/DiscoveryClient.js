@@ -4,6 +4,10 @@ import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import NavMenu from "@/components/home/NavMenu";
+import LocationBar from "@/components/discovery/LocationBar";
+import TravelTimeLabel from "@/components/discovery/TravelTimeLabel";
+import useUserLocation from "@/hooks/useUserLocation";
+import useTravelTimes from "@/hooks/useTravelTimes";
 
 const ExploreMap = dynamic(() => import("@/components/ExploreMap"), {
   ssr: false,
@@ -74,6 +78,13 @@ export default function DiscoveryClient({ feedCards, user }) {
   const [timeFilter, setTimeFilter] = useState("all");
   const [activityFilter, setActivityFilter] = useState("all");
 
+  const {
+    location: userLocation,
+    loading: locationLoading,
+    setManualLocation,
+    requestGeolocation,
+  } = useUserLocation();
+
   const filtered = useMemo(() => {
     return feedCards.filter((card) => {
       if (timeFilter !== "all") {
@@ -106,6 +117,19 @@ export default function DiscoveryClient({ feedCards, user }) {
         spotsLeft: 10,
       }));
   }, [filtered]);
+
+  const destinations = useMemo(
+    () =>
+      filtered
+        .filter((c) => c.lat != null && c.lng != null)
+        .map((c) => ({ id: c.id, lat: c.lat, lng: c.lng })),
+    [filtered]
+  );
+
+  const { travelTimes, loading: timesLoading } = useTravelTimes(
+    userLocation,
+    destinations
+  );
 
   return (
     <div className="relative mx-auto h-[100dvh] w-full max-w-[430px] overflow-hidden bg-black">
@@ -150,6 +174,13 @@ export default function DiscoveryClient({ feedCards, user }) {
                       {card.subtitle}
                     </p>
                   )}
+                  {card.lat != null && card.lng != null && userLocation && (
+                    <TravelTimeLabel
+                      walkMin={travelTimes.get(card.id)?.walkMin}
+                      driveMin={travelTimes.get(card.id)?.driveMin}
+                      loading={timesLoading}
+                    />
+                  )}
                 </div>
               </section>
             ))
@@ -183,6 +214,16 @@ export default function DiscoveryClient({ feedCards, user }) {
           <ExploreMap events={mapEvents} userLocation={null} />
         </div>
       )}
+
+      {/* ── Location Bar ── */}
+      <div className="absolute left-5 top-6 z-30 right-16">
+        <LocationBar
+          location={userLocation}
+          loading={locationLoading}
+          onLocationChange={setManualLocation}
+          onRequestGeolocation={requestGeolocation}
+        />
+      </div>
 
       {/* ── Hamburger Menu ── */}
       <div className="absolute right-5 top-6 z-40">

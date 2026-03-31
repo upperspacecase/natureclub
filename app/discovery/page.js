@@ -90,8 +90,8 @@ export default async function DiscoveryPage() {
         image: s.image || "",
         href: null,
         slug: "",
-        lat: s.lat,
-        lng: s.lng,
+        lat: s.lat ?? null,
+        lng: s.lng ?? null,
       });
       si++;
     }
