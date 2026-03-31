@@ -47,7 +47,7 @@ export default async function DiscoveryPage() {
     lng: s.location?.lng ?? null,
   }));
 
-  // Interleave events and spots for the feed
+  // Build feed cards with raw data for client-side filtering
   const feedCards = [];
   let ei = 0;
   let si = 0;
@@ -57,7 +57,9 @@ export default async function DiscoveryPage() {
       const e = serializedEvents[ei];
       feedCards.push({
         id: e._id,
+        type: "event",
         category: (e.activityType || "EVENT").toUpperCase().replace(/-/g, " "),
+        activityType: e.activityType || "",
         title: e.title || "Untitled",
         subtitle: e.dateTime
           ? new Date(e.dateTime).toLocaleDateString("en-US", {
@@ -66,6 +68,7 @@ export default async function DiscoveryPage() {
               day: "numeric",
             })
           : "",
+        dateTime: e.dateTime,
         image: e.coverPhotoUrl || "",
         href: e.slug ? `/e/${e.slug}` : null,
       });
@@ -75,9 +78,12 @@ export default async function DiscoveryPage() {
       const s = serializedSpots[si];
       feedCards.push({
         id: s._id,
+        type: "spot",
         category: s.category || "SPOT",
+        activityType: s.category.toLowerCase(),
         title: s.title,
         subtitle: s.region,
+        dateTime: null,
         image: s.image || "",
         href: null,
       });
