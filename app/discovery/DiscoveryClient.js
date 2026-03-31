@@ -211,7 +211,7 @@ export default function DiscoveryClient({ feedCards, user }) {
       {/* ── Map View ── */}
       {view === "map" && (
         <div className="h-full w-full">
-          <ExploreMap events={mapEvents} userLocation={null} />
+          <ExploreMap events={mapEvents} userLocation={userLocation} />
         </div>
       )}
 
