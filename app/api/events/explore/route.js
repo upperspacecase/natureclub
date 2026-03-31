@@ -1,91 +1,10 @@
-import connectMongo from "@/libs/mongoose";
-import BookingEvent from "@/models/BookingEvent";
-import Rsvp from "@/models/Rsvp";
-import { searchPhoto } from "@/libs/unsplash";
-
-// Build a search query from event data for Unsplash
-function buildImageQuery(event) {
-    const parts = [];
-    if (event.title) parts.push(event.title);
-    if (event.activityType && event.activityType !== "other") {
-        parts.push(event.activityType.replace(/-/g, " "));
-    }
-    if (!parts.length) parts.push("nature outdoor");
-    return parts.join(" ");
-}
+import getUpcomingEvents from "@/libs/get-upcoming-events";
 
 // GET — Public endpoint: list published, public, upcoming events with coordinates
 export async function GET() {
     try {
-        await connectMongo();
-
-        const now = new Date();
-
-        const events = await BookingEvent.find({
-            status: "published",
-            isPublic: { $ne: false },
-            dateTime: { $gte: now },
-            "meetingPoint.lat": { $exists: true, $ne: null },
-            "meetingPoint.lng": { $exists: true, $ne: null },
-        })
-            .sort({ dateTime: 1 })
-            .select(
-                "title slug dateTime durationMinutes activityType activityTypeOther coverPhotoUrl meetingPoint groupSize"
-            )
-            .lean();
-
-        const enriched = await Promise.all(
-            events.map(async (event) => {
-                const confirmedCount = await Rsvp.countDocuments({
-                    eventId: event._id,
-                    status: "confirmed",
-                });
-
-                // Auto-fetch Unsplash image if no cover photo
-                let coverUrl = event.coverPhotoUrl || "";
-                if (!coverUrl && process.env.UNSPLASH_ACCESS_KEY) {
-                    try {
-                        const query = buildImageQuery(event);
-                        const photo = await searchPhoto(query);
-                        if (photo?.url) {
-                            coverUrl = photo.url;
-                            // Persist so we don't re-fetch next time
-                            await BookingEvent.updateOne(
-                                { _id: event._id },
-                                { $set: { coverPhotoUrl: coverUrl } }
-                            );
-                        }
-                    } catch (err) {
-                        console.error("Unsplash fallback failed for", event.title, err.message);
-                    }
-                }
-
-                return {
-                    id: event._id.toString(),
-                    title: event.title,
-                    slug: event.slug,
-                    dateTime: event.dateTime,
-                    durationMinutes: event.durationMinutes,
-                    activityType:
-                        event.activityType === "other"
-                            ? event.activityTypeOther || "Other"
-                            : event.activityType || "",
-                    coverPhotoUrl: coverUrl,
-                    meetingPoint: {
-                        lat: event.meetingPoint.lat,
-                        lng: event.meetingPoint.lng,
-                        description: event.meetingPoint.description || "",
-                    },
-                    groupSize: event.groupSize || 10,
-                    spotsLeft: Math.max(
-                        (event.groupSize || 10) - confirmedCount,
-                        0
-                    ),
-                };
-            })
-        );
-
-        return Response.json({ events: enriched });
+        const events = await getUpcomingEvents();
+        return Response.json({ events });
     } catch (error) {
         console.error("GET /api/events/explore error:", error);
         return Response.json(
@@ -94,4 +13,3 @@ export async function GET() {
         );
     }
 }
-

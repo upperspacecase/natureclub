@@ -1,25 +1,13 @@
 import EventsSection from "@/components/EventsSection";
-import DiscoverSection from "@/components/DiscoverSection";
+import LandingUpcomingSection from "@/components/LandingUpcomingSection";
 import EventCalendarSection from "@/components/EventCalendarSection";
 import Footer from "@/components/Footer";
 import HeroVideo from "@/components/HeroVideo";
 import RecordVisit from "@/components/RecordVisit";
 import ScrollToCarouselButton from "@/components/ScrollToCarouselButton";
-import eventsSeed from "@/data/events";
 
 export default function Page() {
   const heroVideoSrc = "/children_hero_vid.mp4";
-  const spots = eventsSeed
-    .filter((e) => e.type === "spot")
-    .map((s) => ({
-      id: s.id,
-      title: s.title,
-      categoryTag: s.categoryTag,
-      attributeTags: s.attributeTags || [],
-      description: s.description || "",
-      region: s.region || "",
-      location: s.location || null,
-    }));
 
   return (
     <div className="bg-black text-white">
@@ -65,7 +53,7 @@ export default function Page() {
       <div>
         <EventsSection />
       </div>
-      <DiscoverSection spots={spots} />
+      <LandingUpcomingSection />
       <EventCalendarSection />
       <Footer />
     </div>

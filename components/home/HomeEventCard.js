@@ -20,7 +20,7 @@ function formatCompletedDate(dateStr) {
   });
 }
 
-export default function HomeEventCard({ event, variant = "upcoming" }) {
+export default function HomeEventCard({ event, variant = "upcoming", dark }) {
   const slug = event.slug;
   const title = event.title || "Untitled Event";
   const coverUrl = event.coverPhotoUrl || event.image || "";
@@ -51,7 +51,7 @@ export default function HomeEventCard({ event, variant = "upcoming" }) {
       className={`flex-none ${cardWidth}`}
     >
       <div
-        className={`${aspect} relative overflow-hidden bg-nc-surface-container`}
+        className={`${aspect} relative overflow-hidden ${dark ? "bg-white/[0.06]" : "bg-nc-surface-container"}`}
       >
         {coverUrl ? (
           <Image
@@ -62,8 +62,8 @@ export default function HomeEventCard({ event, variant = "upcoming" }) {
             sizes={isSaved ? "240px" : "288px"}
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-nc-surface-container-high">
-            <span className="text-sm text-nc-outline">No image</span>
+          <div className={`flex h-full w-full items-center justify-center ${dark ? "bg-white/[0.04]" : "bg-nc-surface-container-high"}`}>
+            <span className={`text-sm ${dark ? "text-white/30" : "text-nc-outline"}`}>No image</span>
           </div>
         )}
 
@@ -84,22 +84,22 @@ export default function HomeEventCard({ event, variant = "upcoming" }) {
 
       <div className="mt-3">
         {isSaved ? (
-          <h4 className="text-sm font-medium uppercase tracking-wider text-nc-on-surface">
+          <h4 className={`text-sm font-medium uppercase tracking-wider ${dark ? "text-white" : "text-nc-on-surface"}`}>
             {title}
           </h4>
         ) : (
           <div>
-            <h4 className="text-base font-light text-nc-on-surface">
+            <h4 className={`text-base font-light ${dark ? "text-white" : "text-nc-on-surface"}`}>
               {title}
             </h4>
             {isUpcoming && dateTime && (
-              <p className="mt-1 text-[10px] text-all-caps-spacing uppercase text-nc-secondary">
+              <p className={`mt-1 text-[10px] text-all-caps-spacing uppercase ${dark ? "text-white/50" : "text-nc-secondary"}`}>
                 In {daysUntil(dateTime)} day
                 {daysUntil(dateTime) !== 1 ? "s" : ""}
               </p>
             )}
             {isPast && dateTime && (
-              <p className="mt-1 text-[10px] text-all-caps-spacing uppercase text-nc-on-surface-variant">
+              <p className={`mt-1 text-[10px] text-all-caps-spacing uppercase ${dark ? "text-white/40" : "text-nc-on-surface-variant"}`}>
                 Completed {formatCompletedDate(dateTime)}
               </p>
             )}
