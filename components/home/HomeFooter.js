@@ -4,7 +4,7 @@ export default function HomeFooter() {
       <span className="text-white/40 text-[10px] text-all-caps-spacing uppercase mb-4 tracking-[0.4em]">
         Est. 2024
       </span>
-      <h2 className="font-headline italic text-2xl text-white">NATURE CLUB</h2>
+      <h2 className="font-serif italic text-2xl text-white">NATURE CLUB</h2>
       <div className="w-12 h-[1px] bg-nc-secondary mt-6" />
     </footer>
   );

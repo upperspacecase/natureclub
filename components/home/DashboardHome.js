@@ -73,7 +73,7 @@ export default function UserHome({
           </HomeCarousel>
         ) : (
           <section className="px-6">
-            <h3 className="font-headline italic text-2xl mb-6">
+            <h3 className="font-serif italic text-2xl mb-6">
               Upcoming Bookings
             </h3>
             <p className="text-nc-on-surface-variant text-sm">
@@ -99,7 +99,7 @@ export default function UserHome({
           </HomeCarousel>
         ) : (
           <section className="px-6">
-            <h3 className="font-headline italic text-2xl mb-6">
+            <h3 className="font-serif italic text-2xl mb-6">
               Saved
             </h3>
             <p className="text-nc-on-surface-variant text-sm">

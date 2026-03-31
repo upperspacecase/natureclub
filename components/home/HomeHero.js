@@ -29,7 +29,7 @@ export default function HomeHero({ stats, user }) {
   );
 
   return (
-    <section className="relative flex h-[100svh] min-h-[700px] w-full flex-col justify-end overflow-hidden">
+    <section className="relative flex h-[100svh] min-h-[700px] w-full flex-col justify-between overflow-hidden bg-black">
       {/* Background */}
       <div className="absolute inset-0 z-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -38,64 +38,74 @@ export default function HomeHero({ stats, user }) {
           className="h-full w-full object-cover"
           src="/home-hero.jpg"
         />
-        <div className="absolute inset-0 hero-gradient-overlay" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/80" />
       </div>
 
-      {/* Menu */}
-      <div className="absolute right-5 top-14 z-20">
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm transition hover:bg-white/20"
-        >
-          <svg
-            width="18"
-            height="14"
-            viewBox="0 0 18 14"
-            fill="none"
-            className="text-white"
+      {/* Top bar */}
+      <div className="relative z-10 flex items-center justify-between px-6 pt-14">
+        <Link href="/">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo-light.svg"
+            alt="Nature Club"
+            className="h-7 w-auto"
+          />
+        </Link>
+        <div className="relative">
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm transition hover:bg-white/20"
           >
-            <path
-              d="M1 1h16M1 7h16M1 13h16"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-          </svg>
-        </button>
+            <svg
+              width="18"
+              height="14"
+              viewBox="0 0 18 14"
+              fill="none"
+              className="text-white"
+            >
+              <path
+                d="M1 1h16M1 7h16M1 13h16"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
 
-        {menuOpen && (
-          <div className="absolute right-0 top-12 z-30 min-w-[180px] bg-white py-2 text-nc-on-surface shadow-lg">
-            <Link
-              href="/events/new"
-              className="block px-5 py-3 text-sm transition-colors hover:bg-nc-surface-container"
-            >
-              New Event
-            </Link>
-            <Link
-              href={user?.username ? `/profile/${user.username}` : "#"}
-              className="block px-5 py-3 text-sm transition-colors hover:bg-nc-surface-container"
-            >
-              Public Profile
-            </Link>
-            <Link
-              href="/events"
-              className="block px-5 py-3 text-sm transition-colors hover:bg-nc-surface-container"
-            >
-              Profile Settings
-            </Link>
-            <button
-              onClick={handleSignOut}
-              className="block w-full px-5 py-3 text-left text-sm transition-colors hover:bg-nc-surface-container"
-            >
-              Sign Out
-            </button>
-          </div>
-        )}
+          {menuOpen && (
+            <div className="absolute right-0 top-12 z-30 min-w-[180px] bg-white py-2 text-nc-on-surface shadow-lg">
+              <Link
+                href="/events/new"
+                className="block px-5 py-3 text-sm transition-colors hover:bg-nc-surface-container"
+              >
+                New Event
+              </Link>
+              <Link
+                href={user?.username ? `/profile/${user.username}` : "#"}
+                className="block px-5 py-3 text-sm transition-colors hover:bg-nc-surface-container"
+              >
+                Public Profile
+              </Link>
+              <Link
+                href="/events"
+                className="block px-5 py-3 text-sm transition-colors hover:bg-nc-surface-container"
+              >
+                Profile Settings
+              </Link>
+              <button
+                onClick={handleSignOut}
+                className="block w-full px-5 py-3 text-left text-sm transition-colors hover:bg-nc-surface-container"
+              >
+                Sign Out
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Hero Content */}
       <div className="relative z-10 flex flex-col gap-8 px-6 pb-10">
-        <h1 className="font-headline text-5xl italic leading-[1.05] text-white">
+        <h1 className="font-serif text-5xl italic leading-[1.05] text-white">
           Your Nature Journey
         </h1>
 
@@ -103,7 +113,7 @@ export default function HomeHero({ stats, user }) {
           {/* Stats Row */}
           <div className="flex justify-between border-b border-white/15 pb-6">
             <div className="space-y-1">
-              <span className="block text-[10px] text-all-caps-spacing uppercase text-white/50">
+              <span className="block text-[10px] font-medium uppercase tracking-[0.1em] text-white/50">
                 Activity
               </span>
               <p className="text-lg font-light text-white">
@@ -111,7 +121,7 @@ export default function HomeHero({ stats, user }) {
               </p>
             </div>
             <div className="space-y-1">
-              <span className="block text-[10px] text-all-caps-spacing uppercase text-white/50">
+              <span className="block text-[10px] font-medium uppercase tracking-[0.1em] text-white/50">
                 Immersion
               </span>
               <p className="text-lg font-light text-white">
@@ -119,7 +129,7 @@ export default function HomeHero({ stats, user }) {
               </p>
             </div>
             <div className="space-y-1">
-              <span className="block text-[10px] text-all-caps-spacing uppercase text-white/50">
+              <span className="block text-[10px] font-medium uppercase tracking-[0.1em] text-white/50">
                 Consistency
               </span>
               <p className="text-lg font-light text-white">
@@ -134,10 +144,10 @@ export default function HomeHero({ stats, user }) {
           <div className="flex items-center gap-5">
             <ProgressRing percentage={percentage} />
             <div className="flex flex-col">
-              <span className="text-[10px] text-all-caps-spacing uppercase text-white/50">
+              <span className="text-[10px] font-medium uppercase tracking-[0.1em] text-white/50">
                 Yearly Milestone
               </span>
-              <h2 className="font-headline text-2xl italic text-white">
+              <h2 className="font-serif text-2xl italic text-white">
                 {YEARLY_GOAL} hour goal
               </h2>
             </div>
@@ -146,9 +156,9 @@ export default function HomeHero({ stats, user }) {
           {/* CTA */}
           <Link
             href="/discovery"
-            className="flex items-center justify-between bg-white/50 px-8 py-5 text-nc-primary backdrop-blur-sm transition-all active:scale-95"
+            className="flex items-center justify-between bg-white/50 px-8 py-5 text-black backdrop-blur-sm transition-all active:scale-95"
           >
-            <span className="text-xs text-all-caps-spacing uppercase tracking-[0.2em]">
+            <span className="text-xs font-medium uppercase tracking-[0.2em]">
               Explore
             </span>
             <svg
