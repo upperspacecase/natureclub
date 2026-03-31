@@ -46,7 +46,7 @@ export default function UserHome({
       <main className="bg-nc-surface py-12 px-0 space-y-14">
         {/* Hosting */}
         {hostedEvents.length > 0 && (
-          <HomeCarousel label="Hosting" title="Your Events">
+          <HomeCarousel title="Your Events">
             {hostedEvents.map((event) => (
               <HomeEventCard
                 key={event._id}
@@ -60,7 +60,6 @@ export default function UserHome({
         {/* Upcoming Bookings */}
         {upcomingEvents.length > 0 ? (
           <HomeCarousel
-            label="Schedule"
             title="Upcoming Bookings"
             viewAllHref="/events"
           >
@@ -74,14 +73,9 @@ export default function UserHome({
           </HomeCarousel>
         ) : (
           <section className="px-6">
-            <div className="space-y-2 mb-6">
-              <span className="text-nc-secondary text-[10px] text-all-caps-spacing uppercase">
-                Schedule
-              </span>
-              <h3 className="font-headline italic text-2xl">
-                Upcoming Bookings
-              </h3>
-            </div>
+            <h3 className="font-headline italic text-2xl mb-6">
+              Upcoming Bookings
+            </h3>
             <p className="text-nc-on-surface-variant text-sm">
               No upcoming events.{" "}
               <a href="/discovery" className="text-nc-secondary underline">
@@ -94,7 +88,7 @@ export default function UserHome({
 
         {/* Saved Experiences */}
         {savedEvents.length > 0 ? (
-          <HomeCarousel label="Archive" title="Saved">
+          <HomeCarousel title="Saved">
             {savedEvents.map((event) => (
               <HomeEventCard
                 key={event._id}
@@ -105,14 +99,9 @@ export default function UserHome({
           </HomeCarousel>
         ) : (
           <section className="px-6">
-            <div className="space-y-2 mb-6">
-              <span className="text-nc-secondary text-[10px] text-all-caps-spacing uppercase">
-                Archive
-              </span>
-              <h3 className="font-headline italic text-2xl">
-                Saved
-              </h3>
-            </div>
+            <h3 className="font-headline italic text-2xl mb-6">
+              Saved
+            </h3>
             <p className="text-nc-on-surface-variant text-sm">
               No saved experiences yet. Tap the heart on any event to save it
               here.
@@ -122,7 +111,7 @@ export default function UserHome({
 
         {/* Past Experiences */}
         {pastEvents.length > 0 && (
-          <HomeCarousel label="History" title="Past Experiences">
+          <HomeCarousel title="Past Experiences">
             {pastEvents.map((event) => (
               <HomeEventCard key={event._id} event={event} variant="past" />
             ))}
