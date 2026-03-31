@@ -42,7 +42,7 @@ export default function NavMenu({ user }) {
 
       {/* Full-page overlay */}
       {menuOpen && (
-        <div className="fixed inset-0 z-[60] flex flex-col bg-black/95 backdrop-blur-md">
+        <div className="fixed inset-0 z-[60] flex flex-col bg-black">
           {/* Close button */}
           <button
             onClick={() => setMenuOpen(false)}
