@@ -12,7 +12,7 @@ export default function middleware(req) {
   // Protect facilitator routes — redirect to signin if no session
   const isProtected =
     req.nextUrl.pathname.startsWith("/events") ||
-    req.nextUrl.pathname.startsWith("/dashboard");
+    req.nextUrl.pathname.startsWith("/home");
 
   if (isProtected) {
     const token = req.cookies.get("nc_session")?.value;

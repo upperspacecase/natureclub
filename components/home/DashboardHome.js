@@ -20,7 +20,7 @@ function getClientId() {
   return clientId;
 }
 
-export default function DashboardHome({
+export default function UserHome({
   user,
   stats,
   upcomingEvents,
@@ -79,7 +79,7 @@ export default function DashboardHome({
         )}
 
         {/* Saved Experiences */}
-        {savedEvents.length > 0 && (
+        {savedEvents.length > 0 ? (
           <HomeCarousel label="Archive" title="Saved">
             {savedEvents.map((event) => (
               <HomeEventCard
@@ -89,6 +89,19 @@ export default function DashboardHome({
               />
             ))}
           </HomeCarousel>
+        ) : (
+          <section className="px-8">
+            <div className="space-y-2 mb-6">
+              <span className="text-nc-secondary text-[10px] text-all-caps-spacing uppercase">
+                Archive
+              </span>
+              <h3 className="font-headline italic text-3xl">Saved</h3>
+            </div>
+            <p className="text-nc-on-surface-variant text-sm">
+              No saved experiences yet. Tap the heart on any event to save it
+              here.
+            </p>
+          </section>
         )}
 
         {/* Past Experiences */}

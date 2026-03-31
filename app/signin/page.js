@@ -20,7 +20,7 @@ export default function SignInPage() {
 function SignInContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const returnUrl = searchParams.get("returnUrl") || "/events";
+    const returnUrl = searchParams.get("returnUrl") || "/home";
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
