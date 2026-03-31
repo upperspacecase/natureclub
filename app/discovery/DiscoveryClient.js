@@ -1,93 +1,14 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import NavMenu from "@/components/home/NavMenu";
 
 export default function DiscoveryClient({ feedCards, user }) {
-  const router = useRouter();
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  const handleSignOut = useCallback(async () => {
-    try {
-      await fetch("/api/auth/signout", { method: "POST" });
-      router.push("/signin");
-    } catch (_err) {
-      // sign-out failed
-    }
-  }, [router]);
-
   return (
     <div className="relative mx-auto h-[100dvh] w-full max-w-[430px] snap-y snap-mandatory overflow-y-auto scrollbar-hide">
       {/* ── Hamburger Menu ── */}
       <div className="fixed right-5 top-6 z-50">
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-black/30 backdrop-blur-sm transition hover:bg-black/50 active:scale-95"
-        >
-          <svg
-            width="18"
-            height="14"
-            viewBox="0 0 18 14"
-            fill="none"
-            className="text-white drop-shadow-md"
-          >
-            <path
-              d="M1 1h16M1 7h16M1 13h16"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-          </svg>
-        </button>
-
-        {menuOpen && (
-          <div className="absolute right-0 top-12 z-30 min-w-[180px] bg-white py-2 text-nc-on-surface shadow-lg">
-            {user ? (
-              <>
-                <Link
-                  href="/home"
-                  className="block px-5 py-3 text-sm transition-colors hover:bg-nc-surface-container"
-                >
-                  Home
-                </Link>
-                <Link
-                  href="/events/new"
-                  className="block px-5 py-3 text-sm transition-colors hover:bg-nc-surface-container"
-                >
-                  New Event
-                </Link>
-                <Link
-                  href={user.username ? `/profile/${user.username}` : "#"}
-                  className="block px-5 py-3 text-sm transition-colors hover:bg-nc-surface-container"
-                >
-                  Public Profile
-                </Link>
-                <Link
-                  href="/events"
-                  className="block px-5 py-3 text-sm transition-colors hover:bg-nc-surface-container"
-                >
-                  Profile Settings
-                </Link>
-                <button
-                  onClick={handleSignOut}
-                  className="block w-full px-5 py-3 text-left text-sm transition-colors hover:bg-nc-surface-container"
-                >
-                  Sign Out
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/signin"
-                  className="block px-5 py-3 text-sm transition-colors hover:bg-nc-surface-container"
-                >
-                  Sign In
-                </Link>
-              </>
-            )}
-          </div>
-        )}
+        <NavMenu user={user} />
       </div>
 
       {/* ── Discovery Feed ── */}

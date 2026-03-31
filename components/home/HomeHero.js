@@ -1,25 +1,12 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ProgressRing from "./ProgressRing";
+import NavMenu from "./NavMenu";
 
 const YEARLY_GOAL = 200;
 
 export default function HomeHero({ stats, user }) {
-  const router = useRouter();
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  const handleSignOut = useCallback(async () => {
-    try {
-      await fetch("/api/auth/signout", { method: "POST" });
-      router.push("/signin");
-    } catch (_err) {
-      // sign-out failed
-    }
-  }, [router]);
-
   const totalHours = stats?.totalHours ?? 0;
   const eventCount = stats?.eventCount ?? 0;
   const streakWeeks = stats?.streakWeeks ?? 0;
@@ -51,56 +38,7 @@ export default function HomeHero({ stats, user }) {
             className="h-7 w-auto"
           />
         </Link>
-        <div className="relative">
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm transition hover:bg-white/20"
-          >
-            <svg
-              width="18"
-              height="14"
-              viewBox="0 0 18 14"
-              fill="none"
-              className="text-white"
-            >
-              <path
-                d="M1 1h16M1 7h16M1 13h16"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
-          </button>
-
-          {menuOpen && (
-            <div className="absolute right-0 top-12 z-30 min-w-[180px] bg-white py-2 text-nc-on-surface shadow-lg">
-              <Link
-                href="/events/new"
-                className="block px-5 py-3 text-sm transition-colors hover:bg-nc-surface-container"
-              >
-                New Event
-              </Link>
-              <Link
-                href={user?.username ? `/profile/${user.username}` : "#"}
-                className="block px-5 py-3 text-sm transition-colors hover:bg-nc-surface-container"
-              >
-                Public Profile
-              </Link>
-              <Link
-                href="/events"
-                className="block px-5 py-3 text-sm transition-colors hover:bg-nc-surface-container"
-              >
-                Profile Settings
-              </Link>
-              <button
-                onClick={handleSignOut}
-                className="block w-full px-5 py-3 text-left text-sm transition-colors hover:bg-nc-surface-container"
-              >
-                Sign Out
-              </button>
-            </div>
-          )}
-        </div>
+        <NavMenu user={user} />
       </div>
 
       {/* Hero Content */}
@@ -166,7 +104,6 @@ export default function HomeHero({ stats, user }) {
               height="20"
               viewBox="0 0 20 20"
               fill="none"
-              className="transition-transform group-hover:translate-x-2"
             >
               <path
                 d="M4 10h12m0 0-4-4m4 4-4 4"
