@@ -15,7 +15,9 @@ export default function HomeHero({ stats, user }) {
     try {
       await fetch("/api/auth/signout", { method: "POST" });
       router.push("/signin");
-    } catch {}
+    } catch (_err) {
+      // sign-out failed
+    }
   }, [router]);
 
   const totalHours = stats?.totalHours ?? 0;
