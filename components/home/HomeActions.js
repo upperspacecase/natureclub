@@ -24,12 +24,12 @@ export default function HomeActions() {
   }, []);
 
   return (
-    <section className="px-8 space-y-4 pb-20">
+    <section className="space-y-4 px-6 pb-16 sm:px-8 sm:pb-20">
       <Link
         href="/events/new"
-        className="w-full bg-nc-primary border border-nc-primary text-nc-on-primary py-5 px-8 flex justify-between items-center transition-all active:scale-[0.98] group"
+        className="flex w-full items-center justify-between border border-nc-primary bg-nc-primary px-8 py-5 text-nc-on-primary transition-all active:scale-[0.98]"
       >
-        <span className="text-all-caps-spacing text-xs uppercase tracking-[0.2em]">
+        <span className="text-xs text-all-caps-spacing uppercase tracking-[0.2em]">
           Become a Host
         </span>
         <svg
@@ -47,9 +47,9 @@ export default function HomeActions() {
 
       <button
         onClick={handleInvite}
-        className="w-full bg-transparent border border-nc-primary text-nc-primary py-5 px-8 flex justify-between items-center transition-all active:scale-[0.98] group"
+        className="flex w-full items-center justify-between border border-nc-primary bg-transparent px-8 py-5 text-nc-primary transition-all active:scale-[0.98]"
       >
-        <span className="text-all-caps-spacing text-xs uppercase tracking-[0.2em]">
+        <span className="text-xs text-all-caps-spacing uppercase tracking-[0.2em]">
           Invite a Friend
         </span>
         <svg

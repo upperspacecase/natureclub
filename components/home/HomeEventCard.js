@@ -23,14 +23,14 @@ function formatCompletedDate(dateStr) {
 export default function HomeEventCard({ event, variant = "upcoming" }) {
   const slug = event.slug;
   const title = event.title || "Untitled Event";
-  const coverUrl = event.coverPhotoUrl || "";
+  const coverUrl = event.coverPhotoUrl || event.image || "";
   const dateTime = event.dateTime;
 
   const isUpcoming = variant === "upcoming";
   const isSaved = variant === "saved";
   const isPast = variant === "past";
 
-  const cardWidth = isSaved ? "w-60" : "w-72";
+  const cardWidth = isSaved ? "w-52 sm:w-60" : "w-64 sm:w-72";
   const aspect = isSaved ? "aspect-square" : "aspect-[4/5]";
   const grayscaleClass = isPast
     ? "grayscale"
@@ -39,9 +39,12 @@ export default function HomeEventCard({ event, variant = "upcoming" }) {
     : "";
 
   return (
-    <Link href={slug ? `/e/${slug}` : "#"} className={`flex-none ${cardWidth}`}>
+    <Link
+      href={slug ? `/e/${slug}` : "#"}
+      className={`flex-none ${cardWidth}`}
+    >
       <div
-        className={`${aspect} bg-nc-surface-container overflow-hidden mb-4 relative`}
+        className={`${aspect} relative overflow-hidden bg-nc-surface-container`}
       >
         {coverUrl ? (
           <Image
@@ -52,13 +55,13 @@ export default function HomeEventCard({ event, variant = "upcoming" }) {
             sizes={isSaved ? "240px" : "288px"}
           />
         ) : (
-          <div className="w-full h-full bg-nc-surface-container-high flex items-center justify-center">
-            <span className="text-nc-outline text-sm">No image</span>
+          <div className="flex h-full w-full items-center justify-center bg-nc-surface-container-high">
+            <span className="text-sm text-nc-outline">No image</span>
           </div>
         )}
 
         {isSaved && (
-          <div className="absolute top-4 right-4">
+          <div className="absolute right-4 top-4">
             <svg
               width="24"
               height="24"
@@ -72,27 +75,30 @@ export default function HomeEventCard({ event, variant = "upcoming" }) {
         )}
       </div>
 
-      {isSaved ? (
-        <h4 className="text-sm font-medium uppercase tracking-wider text-nc-on-surface">
-          {title}
-        </h4>
-      ) : (
-        <div className="flex justify-between items-start">
+      <div className="mt-3 sm:mt-4">
+        {isSaved ? (
+          <h4 className="text-sm font-medium uppercase tracking-wider text-nc-on-surface">
+            {title}
+          </h4>
+        ) : (
           <div>
-            <h4 className="text-lg font-light text-nc-on-surface">{title}</h4>
+            <h4 className="text-base font-light text-nc-on-surface sm:text-lg">
+              {title}
+            </h4>
             {isUpcoming && dateTime && (
-              <p className="text-nc-secondary text-[10px] text-all-caps-spacing uppercase mt-1">
-                In {daysUntil(dateTime)} day{daysUntil(dateTime) !== 1 ? "s" : ""}
+              <p className="mt-1 text-[10px] text-all-caps-spacing uppercase text-nc-secondary">
+                In {daysUntil(dateTime)} day
+                {daysUntil(dateTime) !== 1 ? "s" : ""}
               </p>
             )}
             {isPast && dateTime && (
-              <p className="text-nc-on-surface-variant text-[10px] text-all-caps-spacing uppercase mt-1">
+              <p className="mt-1 text-[10px] text-all-caps-spacing uppercase text-nc-on-surface-variant">
                 Completed {formatCompletedDate(dateTime)}
               </p>
             )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </Link>
   );
 }

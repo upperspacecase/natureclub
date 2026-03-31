@@ -2,33 +2,28 @@
 
 import Link from "next/link";
 
-export default function HomeCarousel({
-  label,
-  title,
-  viewAllHref,
-  children,
-}) {
+export default function HomeCarousel({ label, title, viewAllHref, children }) {
   return (
     <section>
-      <div className="px-8 mb-8 flex justify-between items-end">
+      <div className="mb-6 flex items-end justify-between px-6 sm:mb-8 sm:px-8">
         <div className="space-y-2">
           <span className="text-nc-secondary text-[10px] text-all-caps-spacing uppercase">
             {label}
           </span>
-          <h3 className="font-headline italic text-3xl text-nc-on-surface">
+          <h3 className="font-headline text-2xl italic text-nc-on-surface sm:text-3xl">
             {title}
           </h3>
         </div>
         {viewAllHref && (
           <Link
             href={viewAllHref}
-            className="text-[10px] text-all-caps-spacing uppercase border-b border-nc-outline-variant pb-1 text-nc-on-surface-variant"
+            className="border-b border-nc-outline-variant pb-1 text-[10px] text-all-caps-spacing uppercase text-nc-on-surface-variant"
           >
             View All
           </Link>
         )}
       </div>
-      <div className="flex overflow-x-auto gap-6 px-8 hide-scrollbar scroll-smooth">
+      <div className="hide-scrollbar flex gap-4 overflow-x-auto scroll-smooth px-6 sm:gap-6 sm:px-8">
         {children}
       </div>
     </section>
