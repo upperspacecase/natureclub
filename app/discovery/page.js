@@ -71,6 +71,9 @@ export default async function DiscoveryPage() {
         dateTime: e.dateTime,
         image: e.coverPhotoUrl || "",
         href: e.slug ? `/e/${e.slug}` : null,
+        slug: e.slug || "",
+        lat: e.meetingPoint?.lat ?? null,
+        lng: e.meetingPoint?.lng ?? null,
       });
       ei++;
     }
@@ -86,6 +89,9 @@ export default async function DiscoveryPage() {
         dateTime: null,
         image: s.image || "",
         href: null,
+        slug: "",
+        lat: s.lat,
+        lng: s.lng,
       });
       si++;
     }

@@ -70,37 +70,30 @@ export default function NavMenu({ user }) {
               <>
                 <Link
                   href="/home"
-                  onClick={() => setMenuOpen(false)}
                   className="font-serif text-3xl italic text-white transition hover:text-white/70"
                 >
                   Home
                 </Link>
                 <Link
                   href="/discovery"
-                  onClick={() => setMenuOpen(false)}
                   className="font-serif text-3xl italic text-white transition hover:text-white/70"
                 >
                   Discovery
                 </Link>
                 <Link
                   href="/events/new"
-                  onClick={() => setMenuOpen(false)}
                   className="font-serif text-3xl italic text-white transition hover:text-white/70"
                 >
                   New Event
                 </Link>
                 <Link
                   href={user.username ? `/profile/${user.username}` : "#"}
-                  onClick={() => setMenuOpen(false)}
                   className="font-serif text-3xl italic text-white transition hover:text-white/70"
                 >
                   Profile
                 </Link>
                 <button
-                  onClick={() => {
-                    setMenuOpen(false);
-                    handleSignOut();
-                  }}
+                  onClick={handleSignOut}
                   className="font-serif text-3xl italic text-white/50 transition hover:text-white/70"
                 >
                   Sign Out
@@ -110,14 +103,12 @@ export default function NavMenu({ user }) {
               <>
                 <Link
                   href="/discovery"
-                  onClick={() => setMenuOpen(false)}
                   className="font-serif text-3xl italic text-white transition hover:text-white/70"
                 >
                   Discovery
                 </Link>
                 <Link
                   href="/signin"
-                  onClick={() => setMenuOpen(false)}
                   className="font-serif text-3xl italic text-white transition hover:text-white/70"
                 >
                   Sign In

@@ -1,8 +1,18 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import NavMenu from "@/components/home/NavMenu";
+
+const ExploreMap = dynamic(() => import("@/components/ExploreMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center bg-black">
+      <span className="text-white/30">Loading map…</span>
+    </div>
+  ),
+});
 
 const TIME_FILTERS = [
   { id: "all", label: "All Time" },
@@ -59,13 +69,13 @@ function isNextWeek(dateStr) {
 }
 
 export default function DiscoveryClient({ feedCards, user }) {
+  const [view, setView] = useState("feed");
   const [filterOpen, setFilterOpen] = useState(false);
   const [timeFilter, setTimeFilter] = useState("all");
   const [activityFilter, setActivityFilter] = useState("all");
 
   const filtered = useMemo(() => {
     return feedCards.filter((card) => {
-      // Time filter
       if (timeFilter !== "all") {
         if (!card.dateTime) return false;
         if (timeFilter === "today" && !isToday(card.dateTime)) return false;
@@ -73,7 +83,6 @@ export default function DiscoveryClient({ feedCards, user }) {
           return false;
         if (timeFilter === "week" && !isNextWeek(card.dateTime)) return false;
       }
-      // Activity filter
       if (activityFilter !== "all") {
         if (card.activityType !== activityFilter) return false;
       }
@@ -81,102 +90,178 @@ export default function DiscoveryClient({ feedCards, user }) {
     });
   }, [feedCards, timeFilter, activityFilter]);
 
+  // Build map markers from filtered cards that have coordinates
+  const mapEvents = useMemo(() => {
+    return filtered
+      .filter((c) => c.lat != null && c.lng != null)
+      .map((c) => ({
+        id: c.id,
+        title: c.title,
+        slug: c.slug,
+        dateTime: c.dateTime || new Date().toISOString(),
+        activityType: c.activityType,
+        coverPhotoUrl: c.image,
+        meetingPoint: { lat: c.lat, lng: c.lng },
+        groupSize: 10,
+        spotsLeft: 10,
+      }));
+  }, [filtered]);
+
   return (
     <div className="relative mx-auto h-[100dvh] w-full max-w-[430px] overflow-hidden bg-black">
-      {/* Scrollable feed */}
-      <div className="h-full snap-y snap-mandatory overflow-y-auto scrollbar-hide">
-        {filtered.length > 0 ? (
-          filtered.map((card) => (
-            <section
-              key={card.id}
-              className="relative h-[100svh] min-h-[600px] snap-start overflow-hidden bg-black"
-            >
-              {card.image && (
-                <>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={card.image}
-                    alt={card.title}
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
-                  <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
-                </>
-              )}
+      {/* ── Feed View ── */}
+      {view === "feed" && (
+        <div className="h-full snap-y snap-mandatory overflow-y-auto scrollbar-hide">
+          {filtered.length > 0 ? (
+            filtered.map((card) => (
+              <section
+                key={card.id}
+                className="relative h-[100svh] min-h-[600px] snap-start overflow-hidden bg-black"
+              >
+                {card.image && (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={card.image}
+                      alt={card.title}
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+                  </>
+                )}
 
-              <div className="absolute inset-0 z-10 flex flex-col justify-end px-6 pb-12">
-                <span className="mb-2 text-xs font-medium uppercase tracking-[0.15em] text-white/60">
-                  {card.category}
-                </span>
-                {card.href ? (
-                  <Link href={card.href}>
+                <div className="absolute inset-0 z-10 flex flex-col justify-end px-6 pb-12">
+                  <span className="mb-2 text-xs font-medium uppercase tracking-[0.15em] text-white/60">
+                    {card.category}
+                  </span>
+                  {card.href ? (
+                    <Link href={card.href}>
+                      <h2 className="mb-3 font-serif text-4xl italic leading-tight text-white">
+                        {card.title}
+                      </h2>
+                    </Link>
+                  ) : (
                     <h2 className="mb-3 font-serif text-4xl italic leading-tight text-white">
                       {card.title}
                     </h2>
-                  </Link>
-                ) : (
-                  <h2 className="mb-3 font-serif text-4xl italic leading-tight text-white">
-                    {card.title}
-                  </h2>
-                )}
-                {card.subtitle && (
-                  <p className="text-sm uppercase tracking-wider text-white/80">
-                    {card.subtitle}
-                  </p>
-                )}
+                  )}
+                  {card.subtitle && (
+                    <p className="text-sm uppercase tracking-wider text-white/80">
+                      {card.subtitle}
+                    </p>
+                  )}
+                </div>
+              </section>
+            ))
+          ) : (
+            <section className="relative flex h-[100svh] min-h-[600px] snap-start items-center justify-center bg-black">
+              <div className="px-6 text-center">
+                <h2 className="font-serif text-3xl italic text-white/60">
+                  No matches
+                </h2>
+                <p className="mt-4 text-sm text-white/40">
+                  Try adjusting your filters.
+                </p>
+                <button
+                  onClick={() => {
+                    setTimeFilter("all");
+                    setActivityFilter("all");
+                  }}
+                  className="mt-6 text-sm font-medium uppercase tracking-wider text-white/60 underline transition hover:text-white"
+                >
+                  Clear Filters
+                </button>
               </div>
             </section>
-          ))
-        ) : (
-          <section className="relative flex h-[100svh] min-h-[600px] snap-start items-center justify-center bg-black">
-            <div className="px-6 text-center">
-              <h2 className="font-serif text-3xl italic text-white/60">
-                No matches
-              </h2>
-              <p className="mt-4 text-sm text-white/40">
-                Try adjusting your filters.
-              </p>
-              <button
-                onClick={() => {
-                  setTimeFilter("all");
-                  setActivityFilter("all");
-                }}
-                className="mt-6 text-sm font-medium uppercase tracking-wider text-white/60 underline transition hover:text-white"
-              >
-                Clear Filters
-              </button>
-            </div>
-          </section>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
-      {/* ── Hamburger Menu (positioned within container) ── */}
+      {/* ── Map View ── */}
+      {view === "map" && (
+        <div className="h-full w-full">
+          <ExploreMap events={mapEvents} userLocation={null} />
+        </div>
+      )}
+
+      {/* ── Hamburger Menu ── */}
       <div className="absolute right-5 top-6 z-40">
         <NavMenu user={user} />
       </div>
 
       {/* ── Floating Action Buttons ── */}
       <div className="absolute bottom-8 right-5 z-40 flex flex-col gap-4">
-        {/* Map */}
-        <Link
-          href="/explore"
+        {/* Map / Feed toggle */}
+        <button
+          onClick={() => {
+            setView(view === "feed" ? "map" : "feed");
+            setFilterOpen(false);
+          }}
           className="flex h-14 w-14 items-center justify-center rounded-full bg-white/50 text-nc-primary-container shadow-2xl shadow-black/20 backdrop-blur-xl transition active:scale-90"
         >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            className="text-current"
-          >
-            <path
-              d="M15 3l6 3v15l-6-3M15 3l-6 3M15 3v15m0 0l-6-3M9 6L3 3v15l6 3M9 6v15"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </Link>
+          {view === "feed" ? (
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              className="text-current"
+            >
+              <path
+                d="M15 3l6 3v15l-6-3M15 3l-6 3M15 3v15m0 0l-6-3M9 6L3 3v15l6 3M9 6v15"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          ) : (
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              className="text-current"
+            >
+              <rect
+                x="3"
+                y="3"
+                width="7"
+                height="7"
+                rx="1"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              />
+              <rect
+                x="14"
+                y="3"
+                width="7"
+                height="7"
+                rx="1"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              />
+              <rect
+                x="3"
+                y="14"
+                width="7"
+                height="7"
+                rx="1"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              />
+              <rect
+                x="14"
+                y="14"
+                width="7"
+                height="7"
+                rx="1"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              />
+            </svg>
+          )}
+        </button>
         {/* Filter */}
         <button
           onClick={() => setFilterOpen(!filterOpen)}
