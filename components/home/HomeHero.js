@@ -123,7 +123,7 @@ export default function HomeHero({ stats, user }) {
 
           {/* CTA */}
           <Link
-            href="/explore"
+            href="/discovery"
             className="py-5 px-8 flex justify-between items-center transition-all active:scale-95 group bg-white/50 text-nc-primary backdrop-blur-sm"
           >
             <span className="text-all-caps-spacing text-xs uppercase tracking-[0.2em]">

@@ -70,7 +70,7 @@ export default function UserHome({
             </div>
             <p className="text-nc-on-surface-variant text-sm">
               No upcoming events.{" "}
-              <a href="/explore" className="text-nc-secondary underline">
+              <a href="/discovery" className="text-nc-secondary underline">
                 Explore experiences
               </a>{" "}
               to find your next adventure.
