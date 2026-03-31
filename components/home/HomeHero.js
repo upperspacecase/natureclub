@@ -1,13 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ProgressRing from "./ProgressRing";
 
 const YEARLY_GOAL = 200;
 
 export default function HomeHero({ stats, user }) {
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleSignOut = useCallback(async () => {
+    try {
+      await fetch("/api/auth/signout", { method: "POST" });
+      router.push("/signin");
+    } catch {}
+  }, [router]);
 
   const totalHours = stats?.totalHours ?? 0;
   const eventCount = stats?.eventCount ?? 0;
@@ -55,10 +64,10 @@ export default function HomeHero({ stats, user }) {
         {menuOpen && (
           <div className="absolute right-0 top-12 z-30 min-w-[180px] bg-white py-2 text-nc-on-surface shadow-lg">
             <Link
-              href="/events"
+              href="/events/new"
               className="block px-5 py-3 text-sm transition-colors hover:bg-nc-surface-container"
             >
-              My Events
+              New Event
             </Link>
             <Link
               href={user?.username ? `/profile/${user.username}` : "#"}
@@ -66,6 +75,18 @@ export default function HomeHero({ stats, user }) {
             >
               Public Profile
             </Link>
+            <Link
+              href="/events"
+              className="block px-5 py-3 text-sm transition-colors hover:bg-nc-surface-container"
+            >
+              Profile Settings
+            </Link>
+            <button
+              onClick={handleSignOut}
+              className="block w-full px-5 py-3 text-left text-sm transition-colors hover:bg-nc-surface-container"
+            >
+              Sign Out
+            </button>
           </div>
         )}
       </div>

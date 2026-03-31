@@ -84,7 +84,16 @@ export async function getUserJourneyData(userId) {
     streakWeeks,
   };
 
-  return { stats, upcomingEvents, pastEvents };
+  // Events the user is hosting
+  const hostedEvents = await BookingEvent.find({
+    createdBy: userId,
+    status: { $in: ["published", "draft"] },
+  })
+    .select("title slug coverPhotoUrl dateTime durationMinutes status")
+    .sort({ dateTime: 1 })
+    .lean();
+
+  return { stats, upcomingEvents, pastEvents, hostedEvents };
 }
 
 /** Serialize Mongoose lean docs for client components */

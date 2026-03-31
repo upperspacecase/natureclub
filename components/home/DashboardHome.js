@@ -25,6 +25,7 @@ export default function UserHome({
   stats,
   upcomingEvents,
   pastEvents,
+  hostedEvents = [],
 }) {
   const [savedEvents, setSavedEvents] = useState([]);
 
@@ -43,6 +44,19 @@ export default function UserHome({
       <HomeHero stats={stats} user={user} />
 
       <main className="bg-nc-surface py-12 px-0 space-y-14">
+        {/* Hosting */}
+        {hostedEvents.length > 0 && (
+          <HomeCarousel label="Hosting" title="Your Events">
+            {hostedEvents.map((event) => (
+              <HomeEventCard
+                key={event._id}
+                event={event}
+                variant="hosting"
+              />
+            ))}
+          </HomeCarousel>
+        )}
+
         {/* Upcoming Bookings */}
         {upcomingEvents.length > 0 ? (
           <HomeCarousel

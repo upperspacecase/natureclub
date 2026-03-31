@@ -9,9 +9,8 @@ export default async function Home() {
   const user = await getAuthUser();
   if (!user) redirect("/signin");
 
-  const { stats, upcomingEvents, pastEvents } = await getUserJourneyData(
-    user._id
-  );
+  const { stats, upcomingEvents, pastEvents, hostedEvents } =
+    await getUserJourneyData(user._id);
 
   return (
     <UserHome
@@ -23,6 +22,7 @@ export default async function Home() {
       stats={stats}
       upcomingEvents={serializeEvents(upcomingEvents)}
       pastEvents={serializeEvents(pastEvents)}
+      hostedEvents={serializeEvents(hostedEvents)}
     />
   );
 }

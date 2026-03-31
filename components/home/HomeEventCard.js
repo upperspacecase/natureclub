@@ -29,6 +29,7 @@ export default function HomeEventCard({ event, variant = "upcoming" }) {
   const isUpcoming = variant === "upcoming";
   const isSaved = variant === "saved";
   const isPast = variant === "past";
+  const isHosting = variant === "hosting";
 
   const cardWidth = isSaved ? "w-52" : "w-64";
   const aspect = isSaved ? "aspect-square" : "aspect-[4/5]";
@@ -38,9 +39,15 @@ export default function HomeEventCard({ event, variant = "upcoming" }) {
     ? "grayscale hover:grayscale-0 transition-all duration-500"
     : "";
 
+  const href = isHosting
+    ? `/events/new?id=${event._id}`
+    : slug
+    ? `/e/${slug}`
+    : "#";
+
   return (
     <Link
-      href={slug ? `/e/${slug}` : "#"}
+      href={href}
       className={`flex-none ${cardWidth}`}
     >
       <div
@@ -94,6 +101,11 @@ export default function HomeEventCard({ event, variant = "upcoming" }) {
             {isPast && dateTime && (
               <p className="mt-1 text-[10px] text-all-caps-spacing uppercase text-nc-on-surface-variant">
                 Completed {formatCompletedDate(dateTime)}
+              </p>
+            )}
+            {isHosting && (
+              <p className="mt-1 text-[10px] text-all-caps-spacing uppercase text-nc-secondary">
+                {event.status === "draft" ? "Draft" : dateTime ? `In ${daysUntil(dateTime)} day${daysUntil(dateTime) !== 1 ? "s" : ""}` : "Published"}
               </p>
             )}
           </div>
