@@ -1,6 +1,4 @@
 import EventsSection from "@/components/EventsSection";
-import LandingUpcomingSection from "@/components/LandingUpcomingSection";
-import EventCalendarSection from "@/components/EventCalendarSection";
 import Footer from "@/components/Footer";
 import HeroVideo from "@/components/HeroVideo";
 import RecordVisit from "@/components/RecordVisit";
@@ -53,8 +51,6 @@ export default function Page() {
       <div>
         <EventsSection />
       </div>
-      <LandingUpcomingSection />
-      <EventCalendarSection />
       <Footer />
     </div>
   );

@@ -2,15 +2,7 @@
 
 const ScrollToCarouselButton = ({ variant = "default" }) => {
   const handleScroll = () => {
-    const headingTarget = document.getElementById("events-heading");
-    const joinTarget = document.getElementById("join-now-button");
-    const fallbackTarget = document.getElementById("events-carousel");
-    const target = headingTarget || joinTarget || fallbackTarget;
-    if (!target) return;
-    const rect = target.getBoundingClientRect();
-    const offset = 24;
-    const nextTop = window.scrollY + rect.top - offset;
-    window.scrollTo({ top: Math.max(nextTop, 0), behavior: "smooth" });
+    window.dispatchEvent(new CustomEvent("nc:open-join"));
   };
 
   const wrapperClass =

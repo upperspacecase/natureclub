@@ -2,8 +2,11 @@ import { unstable_noStore as noStore } from "next/cache";
 import eventsSeed from "@/data/events";
 import connectMongo from "@/libs/mongoose";
 import Event from "@/models/Event";
+import getUpcomingEvents from "@/libs/get-upcoming-events";
 import EventsList from "./EventsList";
 import WaitlistSection from "./WaitlistSection";
+import HomeCarousel from "@/components/home/HomeCarousel";
+import HomeEventCard from "@/components/home/HomeEventCard";
 
 const normalizeEvents = (items) =>
   items.map((event) => ({
@@ -67,6 +70,13 @@ const EventsSection = async () => {
 
   const normalizedEvents = normalizeEvents(events);
 
+  let upcomingEvents = [];
+  try {
+    upcomingEvents = await getUpcomingEvents();
+  } catch (err) {
+    console.error("EventsSection: failed to load upcoming events", err);
+  }
+
   return (
     <section className="bg-base-100 px-6 py-12 text-base-content md:px-10 md:py-16">
       <div className="mx-auto max-w-6xl space-y-6 md:space-y-8">
@@ -86,6 +96,15 @@ const EventsSection = async () => {
         <div className="mt-4 md:mt-6">
           <WaitlistSection />
         </div>
+        {upcomingEvents.length > 0 && (
+          <div className="mt-8 md:mt-12">
+            <HomeCarousel title="Upcoming Events" dark>
+              {upcomingEvents.map((event) => (
+                <HomeEventCard key={event._id} event={event} variant="upcoming" dark />
+              ))}
+            </HomeCarousel>
+          </div>
+        )}
       </div>
     </section>
   );

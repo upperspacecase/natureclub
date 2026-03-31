@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 
-export default function HomeCarousel({ title, viewAllHref, children }) {
+export default function HomeCarousel({ title, viewAllHref, dark, children }) {
   return (
     <section>
       <div className="mb-6 flex items-end justify-between px-6">
-        <h3 className="font-serif text-2xl italic text-nc-on-surface">
+        <h3 className={`font-serif text-2xl italic ${dark ? "text-white" : "text-nc-on-surface"}`}>
           {title}
         </h3>
         {viewAllHref && (
