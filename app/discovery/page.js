@@ -1,3 +1,4 @@
+import { getAuthUser } from "@/libs/auth";
 import connectMongo from "@/libs/mongoose";
 import BookingEvent from "@/models/BookingEvent";
 import Event from "@/models/Event";
@@ -8,6 +9,11 @@ export const dynamic = "force-dynamic";
 
 export default async function DiscoveryPage() {
   await connectMongo();
+
+  const authUser = await getAuthUser();
+  const user = authUser
+    ? { name: authUser.name, username: authUser.username }
+    : null;
 
   // Upcoming published events for the discovery feed
   const now = new Date();
@@ -79,5 +85,5 @@ export default async function DiscoveryPage() {
     }
   }
 
-  return <DiscoveryClient feedCards={feedCards} />;
+  return <DiscoveryClient feedCards={feedCards} user={user} />;
 }
