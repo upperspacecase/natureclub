@@ -3,15 +3,19 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAuth } from "@/libs/useAuth";
 
-export default function NavMenu({ user }) {
+export default function NavMenu({ user: userProp }) {
   const router = useRouter();
+  const { user: authUser } = useAuth();
+  const user = userProp || authUser;
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleSignOut = useCallback(async () => {
     try {
       await fetch("/api/auth/signout", { method: "POST" });
       router.push("/signin");
+      router.refresh();
     } catch (_err) {
       // sign-out failed
     }
@@ -87,7 +91,7 @@ export default function NavMenu({ user }) {
                   New Event
                 </Link>
                 <Link
-                  href={user.username ? `/profile/${user.username}` : "#"}
+                  href="/profile"
                   className="font-serif text-3xl italic text-white transition hover:text-white/70"
                 >
                   Profile
