@@ -24,7 +24,7 @@ export default function HomeActions() {
   }, []);
 
   return (
-    <section className="space-y-4 px-6 pb-16 sm:px-8 sm:pb-20">
+    <section className="space-y-4 px-6 pb-16">
       <Link
         href="/events/new"
         className="flex w-full items-center justify-between border border-nc-primary bg-nc-primary px-8 py-5 text-nc-on-primary transition-all active:scale-[0.98]"

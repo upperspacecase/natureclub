@@ -31,7 +31,7 @@ export default function HomeHero({ stats, user }) {
       </div>
 
       {/* Menu */}
-      <div className="absolute right-5 top-14 z-20 sm:right-8 sm:top-8">
+      <div className="absolute right-5 top-14 z-20">
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm transition hover:bg-white/20"
@@ -71,19 +71,19 @@ export default function HomeHero({ stats, user }) {
       </div>
 
       {/* Hero Content */}
-      <div className="relative z-10 flex flex-col gap-8 px-6 pb-10 sm:px-8 sm:pb-16">
-        <h1 className="font-headline text-5xl italic leading-[1.05] text-white sm:text-7xl">
+      <div className="relative z-10 flex flex-col gap-8 px-6 pb-10">
+        <h1 className="font-headline text-5xl italic leading-[1.05] text-white">
           Your Nature Journey
         </h1>
 
-        <div className="flex flex-col gap-8 sm:gap-10">
+        <div className="flex flex-col gap-8">
           {/* Stats Row */}
-          <div className="flex justify-between border-b border-white/15 pb-6 sm:pb-8">
+          <div className="flex justify-between border-b border-white/15 pb-6">
             <div className="space-y-1">
               <span className="block text-[10px] text-all-caps-spacing uppercase text-white/50">
                 Activity
               </span>
-              <p className="text-lg font-light text-white sm:text-xl">
+              <p className="text-lg font-light text-white">
                 {eventCount} event{eventCount !== 1 ? "s" : ""}
               </p>
             </div>
@@ -91,7 +91,7 @@ export default function HomeHero({ stats, user }) {
               <span className="block text-[10px] text-all-caps-spacing uppercase text-white/50">
                 Immersion
               </span>
-              <p className="text-lg font-light text-white sm:text-xl">
+              <p className="text-lg font-light text-white">
                 {totalHours} hour{totalHours !== 1 ? "s" : ""}
               </p>
             </div>
@@ -99,7 +99,7 @@ export default function HomeHero({ stats, user }) {
               <span className="block text-[10px] text-all-caps-spacing uppercase text-white/50">
                 Consistency
               </span>
-              <p className="text-lg font-light text-white sm:text-xl">
+              <p className="text-lg font-light text-white">
                 {streakWeeks > 0
                   ? `${streakWeeks}-week streak`
                   : "No streak yet"}

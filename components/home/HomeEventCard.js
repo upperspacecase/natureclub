@@ -30,7 +30,7 @@ export default function HomeEventCard({ event, variant = "upcoming" }) {
   const isSaved = variant === "saved";
   const isPast = variant === "past";
 
-  const cardWidth = isSaved ? "w-52 sm:w-60" : "w-64 sm:w-72";
+  const cardWidth = isSaved ? "w-52" : "w-64";
   const aspect = isSaved ? "aspect-square" : "aspect-[4/5]";
   const grayscaleClass = isPast
     ? "grayscale"
@@ -75,14 +75,14 @@ export default function HomeEventCard({ event, variant = "upcoming" }) {
         )}
       </div>
 
-      <div className="mt-3 sm:mt-4">
+      <div className="mt-3">
         {isSaved ? (
           <h4 className="text-sm font-medium uppercase tracking-wider text-nc-on-surface">
             {title}
           </h4>
         ) : (
           <div>
-            <h4 className="text-base font-light text-nc-on-surface sm:text-lg">
+            <h4 className="text-base font-light text-nc-on-surface">
               {title}
             </h4>
             {isUpcoming && dateTime && (

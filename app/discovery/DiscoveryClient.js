@@ -33,7 +33,7 @@ export default function DiscoveryClient({ stats, feedCards }) {
   }, []);
 
   return (
-    <div className="h-[100dvh] snap-y snap-mandatory overflow-y-auto scrollbar-hide">
+    <div className="relative mx-auto h-[100dvh] w-full max-w-[430px] snap-y snap-mandatory overflow-y-auto scrollbar-hide">
       {/* ── Section 1: Journey Dashboard Hero ── */}
       <section
         ref={heroRef}
@@ -83,7 +83,7 @@ export default function DiscoveryClient({ stats, feedCards }) {
 
         {/* Hero content */}
         <div className="relative z-10 flex flex-col gap-8 px-6 pb-10">
-          <h1 className="font-serif text-5xl italic leading-[1.05] text-white sm:text-6xl">
+          <h1 className="font-serif text-5xl italic leading-[1.05] text-white">
             Your Nature Journey
           </h1>
 
@@ -241,12 +241,12 @@ export default function DiscoveryClient({ stats, feedCards }) {
               </span>
               {card.href ? (
                 <Link href={card.href}>
-                  <h2 className="mb-3 font-serif text-4xl italic leading-tight text-white sm:text-5xl">
+                  <h2 className="mb-3 font-serif text-4xl italic leading-tight text-white">
                     {card.title}
                   </h2>
                 </Link>
               ) : (
-                <h2 className="mb-3 font-serif text-4xl italic leading-tight text-white sm:text-5xl">
+                <h2 className="mb-3 font-serif text-4xl italic leading-tight text-white">
                   {card.title}
                 </h2>
               )}

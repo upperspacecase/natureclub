@@ -39,10 +39,10 @@ export default function UserHome({
   }, []);
 
   return (
-    <div className="bg-nc-surface text-nc-on-surface overflow-x-hidden">
+    <div className="relative mx-auto h-[100dvh] w-full max-w-[430px] overflow-y-auto overflow-x-hidden bg-nc-surface text-nc-on-surface">
       <HomeHero stats={stats} user={user} />
 
-      <main className="bg-nc-surface py-12 px-0 space-y-14 sm:py-20 sm:space-y-24">
+      <main className="bg-nc-surface py-12 px-0 space-y-14">
         {/* Upcoming Bookings */}
         {upcomingEvents.length > 0 ? (
           <HomeCarousel
@@ -59,12 +59,12 @@ export default function UserHome({
             ))}
           </HomeCarousel>
         ) : (
-          <section className="px-6 sm:px-8">
+          <section className="px-6">
             <div className="space-y-2 mb-6">
               <span className="text-nc-secondary text-[10px] text-all-caps-spacing uppercase">
                 Schedule
               </span>
-              <h3 className="font-headline italic text-2xl sm:text-3xl">
+              <h3 className="font-headline italic text-2xl">
                 Upcoming Bookings
               </h3>
             </div>
@@ -90,12 +90,12 @@ export default function UserHome({
             ))}
           </HomeCarousel>
         ) : (
-          <section className="px-6 sm:px-8">
+          <section className="px-6">
             <div className="space-y-2 mb-6">
               <span className="text-nc-secondary text-[10px] text-all-caps-spacing uppercase">
                 Archive
               </span>
-              <h3 className="font-headline italic text-2xl sm:text-3xl">
+              <h3 className="font-headline italic text-2xl">
                 Saved
               </h3>
             </div>

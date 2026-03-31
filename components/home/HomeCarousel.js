@@ -5,12 +5,12 @@ import Link from "next/link";
 export default function HomeCarousel({ label, title, viewAllHref, children }) {
   return (
     <section>
-      <div className="mb-6 flex items-end justify-between px-6 sm:mb-8 sm:px-8">
+      <div className="mb-6 flex items-end justify-between px-6">
         <div className="space-y-2">
           <span className="text-nc-secondary text-[10px] text-all-caps-spacing uppercase">
             {label}
           </span>
-          <h3 className="font-headline text-2xl italic text-nc-on-surface sm:text-3xl">
+          <h3 className="font-headline text-2xl italic text-nc-on-surface">
             {title}
           </h3>
         </div>
@@ -23,7 +23,7 @@ export default function HomeCarousel({ label, title, viewAllHref, children }) {
           </Link>
         )}
       </div>
-      <div className="hide-scrollbar flex gap-4 overflow-x-auto scroll-smooth px-6 sm:gap-6 sm:px-8">
+      <div className="hide-scrollbar flex gap-4 overflow-x-auto scroll-smooth px-6">
         {children}
       </div>
     </section>
