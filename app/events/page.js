@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import apiClient from "@/libs/api";
+import NavMenu from "@/components/home/NavMenu";
 
 export default function FacilitatorEventsPage() {
     const router = useRouter();
@@ -11,25 +12,12 @@ export default function FacilitatorEventsPage() {
     const [loading, setLoading] = useState(true);
     const [profile, setProfile] = useState(null);
     const [menuOpen, setMenuOpen] = useState(null); // event id for overflow menu
-    const [profileMenuOpen, setProfileMenuOpen] = useState(false);
     const [duplicating, setDuplicating] = useState(null);
-    const profileRef = useRef(null);
 
     useEffect(() => {
         loadEvents();
         loadAttending();
         loadProfile();
-    }, []);
-
-    // Close profile menu on outside click
-    useEffect(() => {
-        function handleClick(e) {
-            if (profileRef.current && !profileRef.current.contains(e.target)) {
-                setProfileMenuOpen(false);
-            }
-        }
-        document.addEventListener("mousedown", handleClick);
-        return () => document.removeEventListener("mousedown", handleClick);
     }, []);
 
     async function loadEvents() {
@@ -72,15 +60,6 @@ export default function FacilitatorEventsPage() {
             console.error("Duplicate failed:", _err);
         } finally {
             setDuplicating(null);
-        }
-    }
-
-    async function signOut() {
-        try {
-            await fetch("/api/auth/signout", { method: "POST" });
-            router.push("/signin");
-        } catch (_err) {
-            console.error("Sign out failed:", _err);
         }
     }
 
@@ -157,8 +136,8 @@ export default function FacilitatorEventsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-black text-white">
-            <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
+        <div className="relative mx-auto h-[100dvh] w-full max-w-[430px] overflow-y-auto overflow-x-hidden bg-black text-white">
+            <div className="px-4 py-8">
                 {/* Header */}
                 <div className="mb-6 flex items-center justify-between">
                     <h1 className="font-serif text-2xl italic text-white">
@@ -171,48 +150,6 @@ export default function FacilitatorEventsPage() {
                         >
                             + New Event
                         </button>
-                        {/* Profile menu */}
-                        <div ref={profileRef} className="relative">
-                            <button
-                                onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-                                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-sm text-white/70 transition hover:bg-white/20"
-                            >
-                                {profile?.name?.[0]?.toUpperCase() || "?"}
-                            </button>
-                            {profileMenuOpen && (
-                                <div className="absolute right-0 z-50 mt-2 w-44 overflow-hidden rounded-xl border border-white/15 bg-[#1c1917] shadow-xl">
-                                    {profile?.username && (
-                                        <a
-                                            href={`/@${profile.username}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="block px-4 py-2.5 text-sm text-white/70 hover:bg-white/10"
-                                        >
-                                            Public profile
-                                        </a>
-                                    )}
-                                    <button
-                                        onClick={() => {
-                                            setProfileMenuOpen(false);
-                                            if (profile?.username) {
-                                                router.push(`/profile/${profile.username}`);
-                                            }
-                                        }}
-                                        disabled={!profile?.username}
-                                        className="block w-full px-4 py-2.5 text-left text-sm text-white/70 hover:bg-white/10 disabled:opacity-40"
-                                    >
-                                        Edit profile
-                                    </button>
-                                    <div className="border-t border-white/10" />
-                                    <button
-                                        onClick={signOut}
-                                        className="block w-full px-4 py-2.5 text-left text-sm text-red-400/80 hover:bg-white/10"
-                                    >
-                                        Sign out
-                                    </button>
-                                </div>
-                            )}
-                        </div>
                     </div>
                 </div>
 
@@ -412,6 +349,11 @@ export default function FacilitatorEventsPage() {
                         </div>
                     </div>
                 )}
+            </div>
+
+            {/* Hamburger Menu */}
+            <div className="absolute right-5 top-6 z-40">
+                <NavMenu user={profile} />
             </div>
         </div>
     );
