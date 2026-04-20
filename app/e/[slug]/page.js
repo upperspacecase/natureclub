@@ -2,97 +2,102 @@ import { notFound } from "next/navigation";
 import connectMongo from "@/libs/mongoose";
 import BookingEvent from "@/models/BookingEvent";
 import User from "@/models/User";
+import Rsvp from "@/models/Rsvp";
+import { getAuthUser } from "@/libs/auth";
 import { getSEOTags } from "@/libs/seo";
 import { getWeatherForDate } from "@/libs/weather";
-import EventPageClient from "./EventPageClient";
+import EventLike from "@/models/EventLike";
+import { toDesignEvent, fetchAttendanceMap } from "@/libs/nc-design-event";
+import EventDetailClient from "./EventDetailClient";
+
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }) {
-    const { slug } = await params;
-    await connectMongo();
-    const event = await BookingEvent.findOne({ slug, status: "published" });
-
-    if (!event) {
-        return getSEOTags({ title: "Event not found" });
-    }
-
-    const host = await User.findById(event.createdBy);
-
-    return getSEOTags({
-        title: event.title,
-        description: event.description
-            ? event.description.slice(0, 160)
-            : `Join ${host?.name || "us"} for ${event.title}`,
-        openGraph: {
-            title: event.title,
-            description: event.description?.slice(0, 160) || "",
-            images: event.coverPhotoUrl ? [{ url: event.coverPhotoUrl }] : [],
-        },
-    });
+  const { slug } = await params;
+  await connectMongo();
+  const event = await BookingEvent.findOne({ slug, status: "published" });
+  if (!event) return getSEOTags({ title: "Event not found" });
+  return getSEOTags({
+    title: event.title,
+    description: event.description?.slice(0, 160) || "Join us.",
+    openGraph: {
+      title: event.title,
+      description: event.description?.slice(0, 160) || "",
+      images: event.coverPhotoUrl ? [{ url: event.coverPhotoUrl }] : [],
+    },
+  });
 }
 
 export default async function EventPage({ params }) {
-    const { slug } = await params;
-    await connectMongo();
+  const { slug } = await params;
+  await connectMongo();
 
-    const event = await BookingEvent.findOne({
-        slug,
-        status: { $ne: "draft" },
-    });
+  const event = await BookingEvent.findOne({
+    slug,
+    status: { $ne: "draft" },
+  }).lean();
+  if (!event) notFound();
 
-    if (!event) {
-        notFound();
+  const host = event.createdBy
+    ? await User.findById(event.createdBy).select("name username photoUrl").lean()
+    : null;
+
+  const attendanceMap = await fetchAttendanceMap([event._id]);
+  const viewer = await getAuthUser();
+
+  let initialRsvp = false;
+  let initialSaved = false;
+  if (viewer) {
+    const [existing, like] = await Promise.all([
+      Rsvp.findOne({
+        eventId: event._id,
+        participantUserId: viewer._id,
+        status: "confirmed",
+      }).lean(),
+      EventLike.findOne({ eventId: event._id, userId: viewer._id }).lean(),
+    ]);
+    initialRsvp = !!existing;
+    initialSaved = !!like;
+  }
+
+  const designEvent = toDesignEvent(event, {
+    host,
+    attendance: attendanceMap.get(String(event._id)),
+  });
+
+  let weather = null;
+  if (event.dateTime && event.meetingPoint?.lat) {
+    const raw = await getWeatherForDate(
+      event.meetingPoint.lat,
+      event.meetingPoint.lng,
+      event.dateTime.toISOString()
+    );
+    if (raw) {
+      weather = {
+        summary: raw.description,
+        tempF: raw.tempHigh,
+        note: raw.precipChance > 30 ? `${raw.precipChance}% chance of rain.` : null,
+      };
     }
+  }
 
-    const host = await User.findById(event.createdBy);
-
-    // Pass serializable data to client component
-    const eventData = {
-        id: event._id.toString(),
-        title: event.title,
-        slug: event.slug,
-        status: event.status,
-        dateTime: event.dateTime?.toISOString() || null,
-        durationMinutes: event.durationMinutes,
-        activityType: event.activityType,
-        activityTypeOther: event.activityTypeOther,
-        groupSize: event.groupSize,
-        description: event.description,
-        difficulty: event.difficulty,
-        whatToBring: event.whatToBring,
-        weatherPolicy: event.weatherPolicy,
-        price: event.price,
-        currency: event.currency || "USD",
-        priceLink: event.priceLink,
-        coverPhotoUrl: event.coverPhotoUrl,
-        accessibilityNotes: event.accessibilityNotes,
-        cancelledReason: event.cancelledReason,
-        hasLocation: !!(event.meetingPoint?.lat && event.meetingPoint?.lng),
-        approximateLocation: event.meetingPoint?.lat
-            ? {
-                lat: Math.round(event.meetingPoint.lat * 100) / 100,
-                lng: Math.round(event.meetingPoint.lng * 100) / 100,
-            }
-            : null,
-        host: host
-            ? {
-                name: host.name || host.username || "your host",
-                photoUrl: host.photoUrl,
-                bio: host.bio,
-                username: host.username,
-            }
-            : null,
-        createdBy: event.createdBy?.toString(),
-    };
-
-    // Fetch weather if event has a date and location
-    let weather = null;
-    if (event.dateTime && event.meetingPoint?.lat) {
-        weather = await getWeatherForDate(
-            event.meetingPoint.lat,
-            event.meetingPoint.lng,
-            event.dateTime.toISOString()
-        );
-    }
-
-    return <EventPageClient event={eventData} weather={weather} />;
+  return (
+    <EventDetailClient
+      event={designEvent}
+      weather={weather}
+      eventId={String(event._id)}
+      startIso={event.dateTime?.toISOString() || null}
+      endIso={
+        event.dateTime
+          ? new Date(
+              event.dateTime.getTime() + (event.durationMinutes || 90) * 60000
+            ).toISOString()
+          : null
+      }
+      hostUsername={host?.username || null}
+      initialRsvp={initialRsvp}
+      initialSaved={initialSaved}
+      canRsvp={!!viewer && event.status === "published"}
+    />
+  );
 }

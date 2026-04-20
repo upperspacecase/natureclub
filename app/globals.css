@@ -592,3 +592,7 @@ select option {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+.nc-no-scrollbar::-webkit-scrollbar { display: none; }
+.nc-no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
