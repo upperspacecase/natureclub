@@ -12,7 +12,9 @@ export default function ProfileClient({ user, stats, memberCounts }) {
   async function signOut() {
     try {
       await fetch("/api/auth/signout", { method: "POST" });
-    } catch {}
+    } catch {
+      // ignore
+    }
     router.push("/signin");
   }
 

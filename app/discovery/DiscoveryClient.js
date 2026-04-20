@@ -46,7 +46,9 @@ export default function DiscoveryClient({ initialEvents = [], isAuthed }) {
         const data = await res.json();
         const place = data?.features?.[0]?.text;
         if (!cancelled && place) setLocationLabel(place);
-      } catch {}
+      } catch {
+        // ignore
+      }
     })();
     return () => {
       cancelled = true;
@@ -65,12 +67,16 @@ export default function DiscoveryClient({ initialEvents = [], isAuthed }) {
       try {
         await navigator.share(data);
         return;
-      } catch {}
+      } catch {
+        // ignore
+      }
     }
     if (navigator.clipboard) {
       try {
         await navigator.clipboard.writeText(url);
-      } catch {}
+      } catch {
+        // ignore
+      }
     }
   }
 

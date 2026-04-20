@@ -89,7 +89,9 @@ export default function EventDetailClient({
     if (typeof navigator !== "undefined" && navigator.clipboard) {
       try {
         await navigator.clipboard.writeText(url);
-      } catch {}
+      } catch {
+        // ignore
+      }
     }
   }
 
