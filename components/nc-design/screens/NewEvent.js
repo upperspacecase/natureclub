@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Caps, I, Italic, StatusBar } from "../primitives";
+import { Caps, I, Italic } from "../primitives";
 import LocationPicker from "@/components/LocationPicker";
 
 export default function NewEvent({ initial, onBack, onSave }) {
@@ -81,14 +81,14 @@ export default function NewEvent({ initial, onBack, onSave }) {
       className="nc-no-scrollbar"
       style={{ position: "absolute", inset: 0, overflow: "auto", background: "#0a0a0a", paddingBottom: 40 }}
     >
-      <StatusBar dark />
+      
 
       <div
         style={{
           position: "sticky",
           top: 0,
           zIndex: 20,
-          padding: "58px 16px 12px",
+          padding: "max(16px, env(safe-area-inset-top)) 16px 12px",
           background: "rgba(10,10,10,0.92)",
           backdropFilter: "blur(14px)",
           borderBottom: "0.5px solid rgba(255,255,255,0.06)",

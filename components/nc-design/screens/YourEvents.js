@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Caps, I, Italic, StatusBar } from "../primitives";
+import { Caps, I, Italic } from "../primitives";
 
 export default function YourEvents({
   drafts = [],
@@ -21,11 +21,11 @@ export default function YourEvents({
       className="nc-no-scrollbar"
       style={{ position: "absolute", inset: 0, overflow: "auto", background: "#0a0a0a", paddingBottom: 110 }}
     >
-      <StatusBar dark />
+      
 
       <div
         style={{
-          padding: "58px 16px 10px",
+          padding: "max(16px, env(safe-area-inset-top)) 16px 10px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",

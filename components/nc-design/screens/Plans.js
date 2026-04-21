@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { AvatarStack, Caps, I, Italic, StatusBar, TabBar } from "../primitives";
+import { AvatarStack, Caps, I, Italic, TabBar } from "../primitives";
 
 export default function Plans({ upcoming = [], past = [], onOpenEvent, onNav }) {
   const [tab, setTab] = React.useState("upcoming");
@@ -12,8 +12,8 @@ export default function Plans({ upcoming = [], past = [], onOpenEvent, onNav }) 
       className="nc-no-scrollbar"
       style={{ position: "absolute", inset: 0, overflow: "auto", background: "#0a0a0a", paddingBottom: 90 }}
     >
-      <StatusBar dark />
-      <div style={{ padding: "68px 20px 14px" }}>
+      
+      <div style={{ padding: "max(28px, env(safe-area-inset-top)) 20px 14px" }}>
         <Caps style={{ color: "rgba(255,255,255,0.45)" }}>Your plans</Caps>
         <div style={{ height: 4 }} />
         <Italic size={34} style={{ display: "block" }}>

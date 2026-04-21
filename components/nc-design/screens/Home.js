@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { AvatarStack, Caps, I, Italic, ProgressRing, StatusBar, TabBar } from "../primitives";
+import { AvatarStack, Caps, I, Italic, ProgressRing, TabBar } from "../primitives";
 
 export default function Home({
   user,
@@ -50,12 +50,12 @@ export default function Home({
           }}
         />
 
-        <StatusBar dark />
+        
 
         <div
           style={{
             position: "absolute",
-            top: 58,
+            top: "max(16px, env(safe-area-inset-top))",
             left: 20,
             right: 20,
             zIndex: 10,

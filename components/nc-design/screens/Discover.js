@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { AvatarStack, Caps, I, Italic, StatusBar, TabBar } from "../primitives";
+import { AvatarStack, Caps, I, Italic, TabBar } from "../primitives";
 
 const TYPE_LABELS = {
   "nature-walk": "Nature Walk",
@@ -77,11 +77,11 @@ export default function Discover({ events = [], userLocation, onOpenEvent, onNav
         )}
       </div>
 
-      <StatusBar dark />
+      
       <div
         style={{
           position: "absolute",
-          top: 56,
+          top: 'max(16px, env(safe-area-inset-top))',
           left: 16,
           right: 16,
           zIndex: 20,
@@ -715,12 +715,12 @@ function MapSheet({ events, onClose, onOpen }) {
         />
       </div>
 
-      <StatusBar dark />
+      
       <button
         onClick={onClose}
         style={{
           position: "absolute",
-          top: 56,
+          top: 'max(16px, env(safe-area-inset-top))',
           left: 16,
           zIndex: 10,
           width: 38,
@@ -741,7 +741,7 @@ function MapSheet({ events, onClose, onOpen }) {
       <div
         style={{
           position: "absolute",
-          top: 56,
+          top: 'max(16px, env(safe-area-inset-top))',
           left: 64,
           right: 16,
           padding: "9px 14px",

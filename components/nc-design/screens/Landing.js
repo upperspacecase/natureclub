@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Caps, Italic, StatusBar } from "../primitives";
+import { Caps, Italic } from "../primitives";
 
 export default function Landing({ onEnter, onSignIn }) {
   return (
@@ -30,9 +30,9 @@ export default function Landing({ onEnter, onSignIn }) {
         }}
       />
 
-      <StatusBar dark />
+      
 
-      <div style={{ position: "absolute", top: 62, left: 24, zIndex: 10 }}>
+      <div style={{ position: "absolute", top: 'max(20px, env(safe-area-inset-top))', left: 24, zIndex: 10 }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/nc/logo-light.svg" alt="Nature Club" style={{ height: 44 }} />
       </div>

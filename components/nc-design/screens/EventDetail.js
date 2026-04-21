@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { AvatarStack, Caps, I, Italic, StatusBar } from "../primitives";
+import { AvatarStack, Caps, I, Italic } from "../primitives";
 
 export default function EventDetail({
   event,
@@ -60,13 +60,13 @@ export default function EventDetail({
       className="nc-no-scrollbar"
       style={{ position: "absolute", inset: 0, overflow: "auto", background: "#0a0a0a", paddingBottom: 110 }}
     >
-      <StatusBar dark />
+      
       <div
         style={{
           position: "sticky",
           top: 0,
           zIndex: 20,
-          padding: "58px 16px 10px",
+          padding: "max(16px, env(safe-area-inset-top)) 16px 10px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
@@ -100,7 +100,7 @@ export default function EventDetail({
         </div>
       </div>
 
-      <div style={{ padding: "0 20px", marginTop: -58 }}>
+      <div style={{ padding: "0 20px" }}>
         <StoryCard e={e} rsvp={rsvp} onTap={() => !rsvp && canRsvp && setConfirming(true)} />
         <Caps
           style={{
