@@ -14,9 +14,7 @@ export default function EventDetail({
   onCancelRsvp,
   onToggleSave,
   onShare,
-  onDownloadStoryCard,
   onAddToGoogleCal,
-  onDownloadIcs,
   onOpenHost,
 }) {
   const e = event;
@@ -119,7 +117,6 @@ export default function EventDetail({
           e={e}
           weather={weather}
           onAddToGoogleCal={onAddToGoogleCal}
-          onDownloadIcs={onDownloadIcs}
         />
       )}
 
@@ -301,29 +298,6 @@ export default function EventDetail({
           </div>
         </div>
       )}
-
-      <div style={{ margin: "32px 20px 0" }}>
-        <button
-          onClick={onDownloadStoryCard}
-          style={{
-            width: "100%",
-            padding: "14px",
-            background: "transparent",
-            border: "0.5px solid rgba(255,255,255,0.22)",
-            borderRadius: 10,
-            color: "#fafaf9",
-            fontFamily: "var(--font-inter), Inter, sans-serif",
-            fontSize: 13,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 8,
-          }}
-        >
-          {I.share("#fafaf9")} Download story card
-        </button>
-      </div>
 
       {err && (
         <div
@@ -617,7 +591,7 @@ function SheetRow({ label, value }) {
   );
 }
 
-function YoureInPanel({ e, weather, onAddToGoogleCal, onDownloadIcs }) {
+function YoureInPanel({ e, weather, onAddToGoogleCal }) {
   return (
     <div
       style={{
@@ -748,9 +722,7 @@ function YoureInPanel({ e, weather, onAddToGoogleCal, onDownloadIcs }) {
       </div>
 
       <div style={{ display: "flex", gap: 0 }}>
-        <CalBtn label="Add to Google" onClick={onAddToGoogleCal} />
-        <div style={{ width: "0.5px", background: "rgba(255,255,255,0.06)" }} />
-        <CalBtn label="Add to iCal" onClick={onDownloadIcs} />
+        <CalBtn label="Add to Google Calendar" onClick={onAddToGoogleCal} />
       </div>
     </div>
   );

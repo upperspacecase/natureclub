@@ -4,11 +4,7 @@ import { useRouter } from "next/navigation";
 import PhoneFrame from "@/components/nc-design/PhoneFrame";
 import EventDetail from "@/components/nc-design/screens/EventDetail";
 import { useNCNav } from "@/components/nc-design/useNav";
-import {
-  buildGoogleCalendarUrl,
-  buildIcs,
-  downloadIcsFile,
-} from "@/libs/nc-calendar";
+import { buildGoogleCalendarUrl } from "@/libs/nc-calendar";
 
 export default function EventDetailClient({
   event,
@@ -95,39 +91,16 @@ export default function EventDetailClient({
     }
   }
 
-  async function handleDownloadStoryCard() {
-    const url = `/api/events/${eventId}/story-card`;
-    window.open(url, "_blank");
-  }
-
-  function googleCalUrl() {
-    if (!startIso || !endIso) return null;
-    return buildGoogleCalendarUrl({
-      title: event.title,
-      startIso,
-      endIso,
-      description: event.about,
-      location: event.location,
-    });
-  }
-
   function handleAddToGoogleCal() {
-    const url = googleCalUrl();
-    if (url) window.open(url, "_blank");
-  }
-
-  function handleDownloadIcs() {
     if (!startIso || !endIso) return;
-    const ics = buildIcs({
+    const url = buildGoogleCalendarUrl({
       title: event.title,
       startIso,
       endIso,
       description: event.about,
       location: event.location,
-      url: shareUrl(),
-      uid: `nc-${eventId}@natureclub`,
     });
-    downloadIcsFile(`${(event.slug || "event")}.ics`, ics);
+    if (url) window.open(url, "_blank");
   }
 
   function handleOpenHost() {
@@ -147,9 +120,7 @@ export default function EventDetailClient({
         onCancelRsvp={handleCancel}
         onToggleSave={handleToggleSave}
         onShare={handleShare}
-        onDownloadStoryCard={handleDownloadStoryCard}
         onAddToGoogleCal={handleAddToGoogleCal}
-        onDownloadIcs={handleDownloadIcs}
         onOpenHost={hostUsername ? handleOpenHost : null}
       />
     </PhoneFrame>
