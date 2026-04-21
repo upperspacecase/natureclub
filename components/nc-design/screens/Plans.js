@@ -10,7 +10,7 @@ export default function Plans({ upcoming = [], past = [], onOpenEvent, onNav }) 
   return (
     <div
       className="nc-no-scrollbar"
-      style={{ position: "absolute", inset: 0, overflow: "auto", background: "#0a0a0a" }}
+      style={{ position: "absolute", inset: 0, overflow: "auto", background: "#0a0a0a", display: "flex", flexDirection: "column" }}
     >
       
       <div style={{ padding: "max(28px, env(safe-area-inset-top)) 20px 14px" }}>

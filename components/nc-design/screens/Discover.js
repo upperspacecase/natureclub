@@ -178,7 +178,7 @@ export default function Discover({ events = [], userLocation, onOpenEvent, onNav
         </div>
       )}
 
-      <TabBar active="discover" onNav={onNav} />
+      <TabBar active="discover" onNav={onNav} overlay />
 
       {filterOpen && (
         <FilterSheet

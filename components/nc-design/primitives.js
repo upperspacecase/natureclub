@@ -192,7 +192,7 @@ export function AvatarStack({ imgs, size = 28, border = "#0a0a0a" }) {
   );
 }
 
-export function TabBar({ active, onNav, dark = true }) {
+export function TabBar({ active, onNav, dark = true, overlay = false }) {
   const tabs = [
     { key: "home", label: "Home", icon: I.home },
     { key: "discover", label: "Discover", icon: I.compass },
@@ -205,15 +205,15 @@ export function TabBar({ active, onNav, dark = true }) {
   const active_c = dark ? "#fafaf9" : "#0a0a0a";
   const activeNorm = active === "calendar" ? "plans" : active === "profile" ? "you" : active;
 
+  const positionStyle = overlay
+    ? { position: "absolute", bottom: 0, left: 0, right: 0 }
+    : { position: "sticky", bottom: 0, marginTop: "auto" };
+
   return (
     <div
       style={{
-        position: "sticky",
-        bottom: 0,
-        left: 0,
-        right: 0,
+        ...positionStyle,
         zIndex: 30,
-        marginTop: "auto",
         backdropFilter: "blur(24px) saturate(180%)",
         WebkitBackdropFilter: "blur(24px) saturate(180%)",
         background: bg,
