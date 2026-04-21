@@ -26,7 +26,7 @@ export default function Home({
   const progress = Math.min(1, eventCount / goal);
 
   return (
-    <div style={{ position: "absolute", inset: 0, overflow: "auto", background: "#0a0a0a", paddingBottom: 90 }}>
+    <div style={{ position: "absolute", inset: 0, overflow: "auto", background: "#0a0a0a" }}>
       <div style={{ position: "relative", height: 440, overflow: "hidden" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

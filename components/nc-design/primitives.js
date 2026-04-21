@@ -208,16 +208,17 @@ export function TabBar({ active, onNav, dark = true }) {
   return (
     <div
       style={{
-        position: "absolute",
+        position: "sticky",
         bottom: 0,
         left: 0,
         right: 0,
         zIndex: 30,
+        marginTop: "auto",
         backdropFilter: "blur(24px) saturate(180%)",
         WebkitBackdropFilter: "blur(24px) saturate(180%)",
         background: bg,
         borderTop: `0.5px solid ${line}`,
-        paddingBottom: 28,
+        paddingBottom: "max(12px, env(safe-area-inset-bottom))",
         paddingTop: 8,
       }}
     >

@@ -25,7 +25,7 @@ export default function You({
   return (
     <div
       className="nc-no-scrollbar"
-      style={{ position: "absolute", inset: 0, overflow: "auto", background: "#0a0a0a", paddingBottom: 90 }}
+      style={{ position: "absolute", inset: 0, overflow: "auto", background: "#0a0a0a" }}
     >
       
 
