@@ -106,7 +106,37 @@ export const I = {
       <path d="M2 16S7 11 12 7" stroke={c} strokeWidth="1.4" strokeLinecap="round" />
     </svg>
   ),
+  walk: (c = "currentColor") => (
+    <svg width="14" height="16" viewBox="0 0 14 16" fill="none">
+      <circle cx="8" cy="2" r="1.4" stroke={c} strokeWidth="1.3" />
+      <path d="M4.5 7l2.3-2.4a1.4 1.4 0 012 0l1.7 1.7 2 1M6.8 5.3L5.3 9l-1.8 2.6M8.3 9l2 2 .9 3.5M7.5 7.5L6.6 15" stroke={c} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  bike: (c = "currentColor") => (
+    <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
+      <circle cx="4" cy="10" r="3" stroke={c} strokeWidth="1.3" />
+      <circle cx="14" cy="10" r="3" stroke={c} strokeWidth="1.3" />
+      <path d="M4 10l4-5h3l3 5M8 5l-1.5-3H5M11 5l1-2h1.5" stroke={c} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
 };
+
+export function NatureClubWordmark({ height = 22, style = {} }) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/nc/logo-light.svg"
+      alt="Nature Club"
+      style={{
+        height,
+        width: "auto",
+        display: "block",
+        filter: "drop-shadow(0 1px 4px rgba(0,0,0,0.35))",
+        ...style,
+      }}
+    />
+  );
+}
 
 export function Caps({ children, style = {}, className }) {
   return (

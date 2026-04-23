@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Caps, I, Italic } from "../primitives";
+import { Caps, I, Italic, NatureClubWordmark } from "../primitives";
 import LocationPicker from "@/components/LocationPicker";
 
 export default function NewEvent({ initial, onBack, onSave }) {
@@ -16,10 +16,11 @@ export default function NewEvent({ initial, onBack, onSave }) {
     lng: initial?.lng ?? null,
     capacity: initial?.capacity || 12,
     price: initial?.price ?? 0,
+    currency: initial?.currency || "USD",
     isPublic: initial?.isPublic ?? true,
     about: initial?.about || "",
     img: initial?.img || "/nc/img/6.png",
-    coverPhotoUrl: initial?.coverPhotoUrl || "",
+    coverPhotoUrl: initial?.coverPhotoUrl || initial?.img || "/nc/img/6.png",
     bring: initial?.bring || [],
   });
   const fileInputRef = React.useRef(null);
@@ -195,7 +196,7 @@ export default function NewEvent({ initial, onBack, onSave }) {
                 <button
                   key={c}
                   onClick={() =>
-                    setDraft((d) => ({ ...d, img: path, coverPhotoUrl: "" }))
+                    setDraft((d) => ({ ...d, img: path, coverPhotoUrl: path }))
                   }
                   style={{
                     width: 56,
@@ -268,13 +269,13 @@ export default function NewEvent({ initial, onBack, onSave }) {
           </div>
         </Field>
 
-        <div style={{ display: "flex", gap: 12 }}>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           <Field label="Date" flex>
             <input
               type="date"
               value={draft.date}
               onChange={(ev) => set("date", ev.target.value)}
-              style={inputStyle}
+              style={{ ...inputStyle, minWidth: 0 }}
             />
           </Field>
           <Field label="Time" flex>
@@ -282,7 +283,7 @@ export default function NewEvent({ initial, onBack, onSave }) {
               type="time"
               value={draft.time}
               onChange={(ev) => set("time", ev.target.value)}
-              style={inputStyle}
+              style={{ ...inputStyle, minWidth: 0 }}
             />
           </Field>
         </div>
@@ -387,7 +388,7 @@ export default function NewEvent({ initial, onBack, onSave }) {
                   style={{ ...inputStyle, minHeight: 80, resize: "none", paddingTop: 10 }}
                 />
               </Field>
-              <div style={{ display: "flex", gap: 12 }}>
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
                 <Field label="Duration (min)" flex>
                   <input
                     type="number"
@@ -409,37 +410,12 @@ export default function NewEvent({ initial, onBack, onSave }) {
                   />
                 </Field>
               </div>
-              <Field label="Price">
-                <div style={{ display: "flex", gap: 6 }}>
-                  {[
-                    { label: "Free", v: 0 },
-                    { label: "$5", v: 5 },
-                    { label: "$15", v: 15 },
-                    { label: "$25", v: 25 },
-                  ].map((p) => {
-                    const on = draft.price === p.v;
-                    return (
-                      <button
-                        key={p.label}
-                        onClick={() => set("price", p.v)}
-                        style={{
-                          flex: 1,
-                          padding: "10px 0",
-                          borderRadius: 8,
-                          background: on ? "#fafaf9" : "transparent",
-                          color: on ? "#0a0a0a" : "rgba(255,255,255,0.75)",
-                          border: on ? "none" : "0.5px solid rgba(255,255,255,0.18)",
-                          fontFamily: "var(--font-inter), Inter, sans-serif",
-                          fontSize: 12,
-                          cursor: "pointer",
-                        }}
-                      >
-                        {p.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </Field>
+              <PriceField
+                price={draft.price}
+                currency={draft.currency}
+                onPriceChange={(v) => set("price", v)}
+                onCurrencyChange={(c) => set("currency", c)}
+              />
             </div>
           )}
         </div>
@@ -489,9 +465,154 @@ const menuItem = {
   cursor: "pointer",
 };
 
+const CURRENCIES = [
+  { code: "USD", symbol: "$" },
+  { code: "EUR", symbol: "€" },
+  { code: "GBP", symbol: "£" },
+  { code: "CAD", symbol: "CA$" },
+  { code: "AUD", symbol: "A$" },
+  { code: "NZD", symbol: "NZ$" },
+  { code: "JPY", symbol: "¥" },
+  { code: "MXN", symbol: "MX$" },
+  { code: "BRL", symbol: "R$" },
+  { code: "SEK", symbol: "kr" },
+  { code: "NOK", symbol: "kr" },
+  { code: "DKK", symbol: "kr" },
+  { code: "CHF", symbol: "CHF" },
+  { code: "INR", symbol: "₹" },
+  { code: "ZAR", symbol: "R" },
+];
+
+function PriceField({ price, currency, onPriceChange, onCurrencyChange }) {
+  const presets = [0, 5, 15, 25];
+  const isPreset = presets.includes(price);
+  const [otherOn, setOtherOn] = React.useState(!isPreset && price > 0);
+  const sym = CURRENCIES.find((c) => c.code === currency)?.symbol || "$";
+
+  return (
+    <Field label="Price">
+      <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+        <select
+          value={currency}
+          onChange={(ev) => onCurrencyChange?.(ev.target.value)}
+          style={{
+            padding: "10px 8px",
+            borderRadius: 8,
+            background: "rgba(255,255,255,0.04)",
+            border: "0.5px solid rgba(255,255,255,0.18)",
+            color: "#fafaf9",
+            fontFamily: "var(--font-inter), Inter, sans-serif",
+            fontSize: 12,
+            cursor: "pointer",
+            outline: "none",
+          }}
+          aria-label="Currency"
+        >
+          {CURRENCIES.map((c) => (
+            <option key={c.code} value={c.code} style={{ background: "#1a1714" }}>
+              {c.code}
+            </option>
+          ))}
+        </select>
+        <div style={{ flex: 1, display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {presets.map((v) => {
+            const on = !otherOn && price === v;
+            return (
+              <button
+                key={v}
+                onClick={() => {
+                  setOtherOn(false);
+                  onPriceChange?.(v);
+                }}
+                style={{
+                  flex: 1,
+                  minWidth: 52,
+                  padding: "10px 0",
+                  borderRadius: 8,
+                  background: on ? "#fafaf9" : "transparent",
+                  color: on ? "#0a0a0a" : "rgba(255,255,255,0.75)",
+                  border: on ? "none" : "0.5px solid rgba(255,255,255,0.18)",
+                  fontFamily: "var(--font-inter), Inter, sans-serif",
+                  fontSize: 12,
+                  cursor: "pointer",
+                }}
+              >
+                {v === 0 ? "Free" : `${sym}${v}`}
+              </button>
+            );
+          })}
+          <button
+            onClick={() => {
+              setOtherOn(true);
+              if (isPreset) onPriceChange?.(10);
+            }}
+            style={{
+              flex: 1,
+              minWidth: 62,
+              padding: "10px 0",
+              borderRadius: 8,
+              background: otherOn ? "#fafaf9" : "transparent",
+              color: otherOn ? "#0a0a0a" : "rgba(255,255,255,0.75)",
+              border: otherOn ? "none" : "0.5px solid rgba(255,255,255,0.18)",
+              fontFamily: "var(--font-inter), Inter, sans-serif",
+              fontSize: 12,
+              cursor: "pointer",
+            }}
+          >
+            Other
+          </button>
+        </div>
+      </div>
+      {otherOn && (
+        <div
+          style={{
+            marginTop: 10,
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+          }}
+        >
+          <div
+            style={{
+              padding: "12px 12px",
+              borderRadius: 10,
+              background: "rgba(255,255,255,0.04)",
+              border: "0.5px solid rgba(255,255,255,0.1)",
+              color: "rgba(255,255,255,0.6)",
+              fontFamily: "var(--font-inter), Inter, sans-serif",
+              fontSize: 14,
+            }}
+          >
+            {sym}
+          </div>
+          <input
+            type="number"
+            min={0}
+            step={1}
+            value={price}
+            onChange={(ev) => onPriceChange?.(Number(ev.target.value) || 0)}
+            placeholder="Custom amount"
+            style={{
+              flex: 1,
+              padding: "12px 14px",
+              background: "rgba(255,255,255,0.04)",
+              border: "0.5px solid rgba(255,255,255,0.1)",
+              borderRadius: 10,
+              color: "#fafaf9",
+              fontFamily: "var(--font-inter), Inter, sans-serif",
+              fontSize: 14,
+              outline: "none",
+            }}
+          />
+        </div>
+      )}
+    </Field>
+  );
+}
+
 function Field({ label, flex, children }) {
   return (
-    <div style={{ flex: flex ? 1 : undefined }}>
+    <div style={{ flex: flex ? 1 : undefined, minWidth: flex ? 140 : undefined }}>
       <Caps style={{ color: "rgba(255,255,255,0.4)", display: "block", marginBottom: 8 }}>{label}</Caps>
       {children}
     </div>
@@ -544,7 +665,6 @@ function PreviewCard({ draft }) {
   const title = draft.title || "Your event title";
   const placeholder = !draft.title;
   const typeLabel = ACTIVITY_LABELS[draft.activityType] || "Event";
-  const priceLabel = !draft.price ? "Free" : `$${draft.price}`;
   const dateDisplay = draft.date
     ? new Date(`${draft.date}T${draft.time || "00:00"}`).toLocaleDateString("en-US", {
         weekday: "short",
@@ -595,22 +715,9 @@ function PreviewCard({ draft }) {
           position: "absolute",
           top: 18,
           left: 18,
-          display: "flex",
-          alignItems: "center",
-          gap: 7,
-          color: "rgba(255,255,255,0.92)",
         }}
       >
-        <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
-          <path
-            d="M16 2s-9 0-12 4-2 8-2 8 4 0 8-2 6-4 6-10z"
-            stroke="currentColor"
-            strokeWidth="1.4"
-            strokeLinejoin="round"
-          />
-          <path d="M2 16S7 11 12 7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-        </svg>
-        <Caps>Nature Club</Caps>
+        <NatureClubWordmark height={22} color="rgba(255,255,255,0.92)" />
       </div>
 
       <div
@@ -697,10 +804,9 @@ function PreviewCard({ draft }) {
           boxShadow: "0 6px 20px rgba(0,0,0,0.4)",
         }}
       >
-        <Italic size={14} color="#0a0a0a" style={{ lineHeight: 1 }}>
+        <Italic size={16} color="#0a0a0a" style={{ lineHeight: 1 }}>
           RSVP
         </Italic>
-        <Caps style={{ color: "#57534e", marginTop: 3, fontSize: 9 }}>{priceLabel}</Caps>
       </div>
     </div>
   );

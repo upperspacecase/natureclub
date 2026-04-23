@@ -66,12 +66,14 @@ function NewEventInner() {
       groupSize: Number(draft.capacity) || 10,
       description: draft.about,
       price: Number(draft.price) || 0,
+      currency: draft.currency || "USD",
       isPublic: !!draft.isPublic,
       dateTime,
       status: publish ? "published" : "draft",
     };
     if (meetingPoint) body.meetingPoint = meetingPoint;
-    if (draft.coverPhotoUrl) body.coverPhotoUrl = draft.coverPhotoUrl;
+    const cover = draft.coverPhotoUrl || draft.img;
+    if (cover) body.coverPhotoUrl = cover;
 
     const res = await fetch(`/api/events/${draftId}`, {
       method: "PATCH",
@@ -142,6 +144,7 @@ function eventToDraft(ev) {
     durationMinutes: ev.durationMinutes || 90,
     capacity: ev.groupSize || 10,
     price: ev.price ?? 0,
+    currency: ev.currency || "USD",
     isPublic: ev.isPublic !== false,
     about: ev.description || "",
     coverPhotoUrl: ev.coverPhotoUrl || "",

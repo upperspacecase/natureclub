@@ -100,17 +100,29 @@ export default function DiscoveryClient({ initialEvents = [], isAuthed }) {
     }
   }
 
-  React.useEffect(() => {
+  const requestGeolocation = React.useCallback(() => {
     if (typeof window === "undefined" || !navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
-      (pos) =>
+      (pos) => {
         setViewer({
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
-        }),
+        });
+        setLocationLabel(null);
+      },
       () => {},
       { maximumAge: 10 * 60 * 1000, timeout: 8000 }
     );
+  }, []);
+
+  React.useEffect(() => {
+    requestGeolocation();
+  }, [requestGeolocation]);
+
+  const handleSetLocation = React.useCallback((loc) => {
+    if (loc?.lat == null || loc?.lng == null) return;
+    setViewer({ lat: loc.lat, lng: loc.lng });
+    if (loc.label) setLocationLabel(loc.label);
   }, []);
 
   const events = React.useMemo(() => {
@@ -135,6 +147,8 @@ export default function DiscoveryClient({ initialEvents = [], isAuthed }) {
         onNav={go}
         onToggleSave={toggleSave}
         onShare={handleShare}
+        onSetLocation={handleSetLocation}
+        onUseMyLocation={requestGeolocation}
       />
     </PhoneFrame>
   );
