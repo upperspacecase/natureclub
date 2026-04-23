@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { AvatarStack, Caps, I, Italic } from "../primitives";
+import { AvatarStack, Caps, I, Italic, NatureClubWordmark } from "../primitives";
 
 export default function EventDetail({
   event,
@@ -327,38 +327,13 @@ export default function EventDetail({
             padding: "14px 20px 28px",
             background:
               "linear-gradient(to top, #0a0a0a 40%, rgba(10,10,10,0.85) 80%, rgba(10,10,10,0) 100%)",
-            display: "flex",
-            gap: 10,
-            alignItems: "center",
           }}
         >
-          <div style={{ flex: 1 }}>
-            <div
-              style={{
-                fontFamily: "var(--font-inter), Inter, sans-serif",
-                fontSize: 11,
-                color: "rgba(255,255,255,0.5)",
-              }}
-            >
-              {e.price === "Free" ? "Included with membership" : `${e.price} · members`}
-            </div>
-            <div
-              style={{
-                fontFamily: 'var(--font-playfair), "Playfair Display", serif',
-                fontStyle: "italic",
-                fontSize: 18,
-                color: "#fafaf9",
-                marginTop: 2,
-              }}
-            >
-              {e.price}
-            </div>
-          </div>
           <button
             disabled={pending}
             onClick={() => (rsvp ? cancelRsvp() : setConfirming(true))}
             style={{
-              flex: 1.5,
+              width: "100%",
               padding: "14px 22px",
               borderRadius: 10,
               background: rsvp ? "#c8d9a8" : "#fafaf9",
@@ -849,22 +824,9 @@ function StoryCard({ e, rsvp, onTap }) {
           position: "absolute",
           top: 18,
           left: 18,
-          display: "flex",
-          alignItems: "center",
-          gap: 7,
-          color: "rgba(255,255,255,0.92)",
         }}
       >
-        <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
-          <path
-            d="M16 2s-9 0-12 4-2 8-2 8 4 0 8-2 6-4 6-10z"
-            stroke="currentColor"
-            strokeWidth="1.4"
-            strokeLinejoin="round"
-          />
-          <path d="M2 16S7 11 12 7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-        </svg>
-        <Caps>Nature Club</Caps>
+        <NatureClubWordmark height={22} color="rgba(255,255,255,0.92)" />
       </div>
 
       <div
@@ -959,12 +921,9 @@ function StoryCard({ e, rsvp, onTap }) {
             <Caps style={{ color: "#03241a", marginTop: 2, fontSize: 9 }}>Going</Caps>
           </>
         ) : (
-          <>
-            <Italic size={14} color="#0a0a0a" style={{ lineHeight: 1 }}>
-              RSVP
-            </Italic>
-            <Caps style={{ color: "#57534e", marginTop: 3, fontSize: 9 }}>{e.price}</Caps>
-          </>
+          <Italic size={16} color="#0a0a0a" style={{ lineHeight: 1 }}>
+            RSVP
+          </Italic>
         )}
       </button>
     </div>

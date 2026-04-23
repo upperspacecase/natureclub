@@ -48,7 +48,23 @@ export default function YourEvents({
           {I.chevL("#fafaf9")}
         </button>
         <Caps style={{ color: "rgba(255,255,255,0.55)" }}>Your events</Caps>
-        <div style={{ width: 38 }} />
+        <button
+          onClick={onNewEvent}
+          aria-label="New event"
+          style={{
+            width: 38,
+            height: 38,
+            borderRadius: "50%",
+            background: "#fafaf9",
+            border: "none",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+          }}
+        >
+          {I.plus("#0a0a0a")}
+        </button>
       </div>
 
       <div style={{ padding: "10px 20px 0" }}>
@@ -58,26 +74,6 @@ export default function YourEvents({
           bringing together.
         </Italic>
       </div>
-
-      {drafts.length > 0 && (
-        <Section title={`Drafts · ${drafts.length}`}>
-          {drafts.map((e) => (
-            <HostCard
-              key={e.id}
-              e={e}
-              status="draft"
-              menuOpen={menuFor === e.id}
-              onMenu={() => setMenuFor(menuFor === e.id ? null : e.id)}
-              onClose={() => setMenuFor(null)}
-              onAction={(action) => {
-                setMenuFor(null);
-                onMenuAction?.(action, e);
-              }}
-              onClick={() => onEditEvent?.(e)}
-            />
-          ))}
-        </Section>
-      )}
 
       {hosted.length > 0 && (
         <Section title={`Hosting · ${hosted.length}`}>
@@ -94,6 +90,26 @@ export default function YourEvents({
                 onMenuAction?.(action, e);
               }}
               onClick={() => onOpenEvent?.(e.id)}
+            />
+          ))}
+        </Section>
+      )}
+
+      {drafts.length > 0 && (
+        <Section title={`Drafts · ${drafts.length}`}>
+          {drafts.map((e) => (
+            <HostCard
+              key={e.id}
+              e={e}
+              status="draft"
+              menuOpen={menuFor === e.id}
+              onMenu={() => setMenuFor(menuFor === e.id ? null : e.id)}
+              onClose={() => setMenuFor(null)}
+              onAction={(action) => {
+                setMenuFor(null);
+                onMenuAction?.(action, e);
+              }}
+              onClick={() => onEditEvent?.(e)}
             />
           ))}
         </Section>
@@ -185,30 +201,6 @@ export default function YourEvents({
         </div>
       )}
 
-      <button
-        onClick={onNewEvent}
-        style={{
-          position: "absolute",
-          right: 20,
-          bottom: 30,
-          zIndex: 40,
-          padding: "14px 18px",
-          borderRadius: 999,
-          background: "#fafaf9",
-          color: "#0a0a0a",
-          border: "none",
-          fontFamily: "var(--font-inter), Inter, sans-serif",
-          fontSize: 13,
-          fontWeight: 500,
-          boxShadow: "0 12px 30px rgba(0,0,0,0.45)",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-        }}
-      >
-        {I.plus("#0a0a0a")} New event
-      </button>
     </div>
   );
 }

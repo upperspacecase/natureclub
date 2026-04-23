@@ -65,6 +65,7 @@ export async function PATCH(req, { params }) {
             "whatToBring",
             "weatherPolicy",
             "price",
+            "currency",
             "priceLink",
             "coverPhotoUrl",
             "accessibilityNotes",

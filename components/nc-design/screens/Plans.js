@@ -8,65 +8,71 @@ export default function Plans({ upcoming = [], past = [], onOpenEvent, onNav }) 
   const list = tab === "upcoming" ? upcoming : past;
 
   return (
-    <div
-      className="nc-no-scrollbar"
-      style={{ position: "absolute", inset: 0, overflow: "auto", background: "#0a0a0a" }}
-    >
-      
-      <div style={{ padding: "max(28px, env(safe-area-inset-top)) 20px 14px" }}>
-        <Caps style={{ color: "rgba(255,255,255,0.45)" }}>Your plans</Caps>
-        <div style={{ height: 4 }} />
-        <Italic size={34} style={{ display: "block" }}>
-          What&apos;s ahead.
-        </Italic>
-      </div>
-
-      <div style={{ padding: "0 20px", display: "flex", gap: 0, marginTop: 10, marginBottom: 22 }}>
-        <Seg
-          on={tab === "upcoming"}
-          onClick={() => setTab("upcoming")}
-          label={`Upcoming · ${upcoming.length}`}
-        />
-        <Seg
-          on={tab === "past"}
-          onClick={() => setTab("past")}
-          label={`Past · ${past.length}`}
-        />
-      </div>
-
-      {list.length === 0 ? (
-        <div style={{ padding: "40px 20px", textAlign: "center" }}>
-          <Italic size={20} style={{ display: "block", color: "rgba(255,255,255,0.7)" }}>
-            {tab === "upcoming" ? "Nothing on the calendar yet." : "No past events."}
+    <div style={{ position: "absolute", inset: 0, overflow: "hidden", background: "#0a0a0a" }}>
+      <div
+        className="nc-no-scrollbar"
+        style={{
+          position: "absolute",
+          inset: 0,
+          overflowY: "auto",
+          paddingBottom: 90,
+        }}
+      >
+        <div style={{ padding: "max(28px, env(safe-area-inset-top)) 20px 14px" }}>
+          <Caps style={{ color: "rgba(255,255,255,0.45)" }}>Your plans</Caps>
+          <div style={{ height: 4 }} />
+          <Italic size={34} style={{ display: "block" }}>
+            What&apos;s ahead.
           </Italic>
-          <p
-            style={{
-              marginTop: 10,
-              fontFamily: "var(--font-inter), Inter, sans-serif",
-              fontSize: 13,
-              color: "rgba(255,255,255,0.5)",
-            }}
-          >
-            {tab === "upcoming"
-              ? "RSVP to something in Discover."
-              : "Events you've attended will show up here."}
-          </p>
         </div>
-      ) : tab === "upcoming" ? (
-        <div style={{ padding: "0 20px", display: "flex", flexDirection: "column", gap: 14 }}>
-          {upcoming.map((e, i) => (
-            <UpcomingCard key={e.id} e={e} index={i} onClick={() => onOpenEvent?.(e.id)} />
-          ))}
-        </div>
-      ) : (
-        <div style={{ padding: "0 20px", display: "flex", flexDirection: "column", gap: 12 }}>
-          {past.map((e) => (
-            <PastRow key={e.id} e={e} onClick={() => onOpenEvent?.(e.id)} />
-          ))}
-        </div>
-      )}
 
-      <TabBar active="plans" onNav={onNav} />
+        <div style={{ padding: "0 20px", display: "flex", gap: 0, marginTop: 10, marginBottom: 22 }}>
+          <Seg
+            on={tab === "upcoming"}
+            onClick={() => setTab("upcoming")}
+            label={`Upcoming · ${upcoming.length}`}
+          />
+          <Seg
+            on={tab === "past"}
+            onClick={() => setTab("past")}
+            label={`Past · ${past.length}`}
+          />
+        </div>
+
+        {list.length === 0 ? (
+          <div style={{ padding: "40px 20px", textAlign: "center" }}>
+            <Italic size={20} style={{ display: "block", color: "rgba(255,255,255,0.7)" }}>
+              {tab === "upcoming" ? "Nothing on the calendar yet." : "No past events."}
+            </Italic>
+            <p
+              style={{
+                marginTop: 10,
+                fontFamily: "var(--font-inter), Inter, sans-serif",
+                fontSize: 13,
+                color: "rgba(255,255,255,0.5)",
+              }}
+            >
+              {tab === "upcoming"
+                ? "RSVP to something in Discover."
+                : "Events you've attended will show up here."}
+            </p>
+          </div>
+        ) : tab === "upcoming" ? (
+          <div style={{ padding: "0 20px", display: "flex", flexDirection: "column", gap: 14 }}>
+            {upcoming.map((e, i) => (
+              <UpcomingCard key={e.id} e={e} index={i} onClick={() => onOpenEvent?.(e.id)} />
+            ))}
+          </div>
+        ) : (
+          <div style={{ padding: "0 20px", display: "flex", flexDirection: "column", gap: 12 }}>
+            {past.map((e) => (
+              <PastRow key={e.id} e={e} onClick={() => onOpenEvent?.(e.id)} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <TabBar active="plans" onNav={onNav} overlay />
     </div>
   );
 }

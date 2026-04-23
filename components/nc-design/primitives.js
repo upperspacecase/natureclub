@@ -106,7 +106,62 @@ export const I = {
       <path d="M2 16S7 11 12 7" stroke={c} strokeWidth="1.4" strokeLinecap="round" />
     </svg>
   ),
+  walk: (c = "currentColor") => (
+    <svg width="14" height="16" viewBox="0 0 14 16" fill="none">
+      <circle cx="8" cy="2" r="1.4" stroke={c} strokeWidth="1.3" />
+      <path d="M4.5 7l2.3-2.4a1.4 1.4 0 012 0l1.7 1.7 2 1M6.8 5.3L5.3 9l-1.8 2.6M8.3 9l2 2 .9 3.5M7.5 7.5L6.6 15" stroke={c} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  bike: (c = "currentColor") => (
+    <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
+      <circle cx="4" cy="10" r="3" stroke={c} strokeWidth="1.3" />
+      <circle cx="14" cy="10" r="3" stroke={c} strokeWidth="1.3" />
+      <path d="M4 10l4-5h3l3 5M8 5l-1.5-3H5M11 5l1-2h1.5" stroke={c} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
 };
+
+export function NatureClubWordmark({ height = 22, color = "#fafaf9", style = {} }) {
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        color,
+        ...style,
+      }}
+      aria-label="Nature Club"
+    >
+      <svg width={height * 0.88} height={height} viewBox="0 0 107 121" fill="none" aria-hidden>
+        <path
+          d="M4.1 29.4L49.6 3.1a7.6 7.6 0 017.8 0l45.5 26.3a7.6 7.6 0 013.9 6.7v52.6a7.6 7.6 0 01-3.9 6.7l-45.5 26.3a7.6 7.6 0 01-7.8 0L4.1 95.5a7.6 7.6 0 01-3.9-6.7V36.2a7.6 7.6 0 013.9-6.7z"
+          stroke={color}
+          strokeWidth="3"
+          fill="none"
+        />
+        <path
+          d="M53.5 36v49M36 60.5h35"
+          stroke={color}
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
+      </svg>
+      <span
+        style={{
+          fontFamily: 'var(--font-playfair), "Playfair Display", Georgia, serif',
+          fontStyle: "italic",
+          fontWeight: 500,
+          fontSize: height * 0.7,
+          letterSpacing: "-0.01em",
+          lineHeight: 1,
+        }}
+      >
+        Nature Club
+      </span>
+    </span>
+  );
+}
 
 export function Caps({ children, style = {}, className }) {
   return (

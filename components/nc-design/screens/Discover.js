@@ -21,10 +21,20 @@ const WHEN_OPTIONS = [
   { id: "month", label: "This month" },
 ];
 
-export default function Discover({ events = [], userLocation, onOpenEvent, onNav, onToggleSave, onShare }) {
+export default function Discover({
+  events = [],
+  userLocation,
+  onOpenEvent,
+  onNav,
+  onToggleSave,
+  onShare,
+  onSetLocation,
+  onUseMyLocation,
+}) {
   const [mapOpen, setMapOpen] = React.useState(false);
   const [filterOpen, setFilterOpen] = React.useState(false);
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const [locationOpen, setLocationOpen] = React.useState(false);
   const [filters, setFilters] = React.useState({
     type: "All",
     maxDistance: 50,
@@ -59,7 +69,6 @@ export default function Discover({ events = [], userLocation, onOpenEvent, onNav
           inset: 0,
           overflowY: "auto",
           scrollSnapType: "y mandatory",
-          paddingBottom: 80,
         }}
       >
         {visible.length === 0 ? (
@@ -77,7 +86,7 @@ export default function Discover({ events = [], userLocation, onOpenEvent, onNav
         )}
       </div>
 
-      
+
       <div
         style={{
           position: "absolute",
@@ -90,7 +99,8 @@ export default function Discover({ events = [], userLocation, onOpenEvent, onNav
           alignItems: "center",
         }}
       >
-        <div
+        <button
+          onClick={() => setLocationOpen(true)}
           style={{
             padding: "9px 14px",
             borderRadius: 999,
@@ -103,12 +113,13 @@ export default function Discover({ events = [], userLocation, onOpenEvent, onNav
             color: "#fafaf9",
             fontFamily: "var(--font-inter), Inter, sans-serif",
             fontSize: 12,
+            cursor: "pointer",
           }}
         >
           {I.pin("#fafaf9")}
           {userLocation?.label || "Nearby"}
           {I.chevR("rgba(255,255,255,0.5)")}
-        </div>
+        </button>
         <div style={{ position: "relative" }}>
           <button
             onClick={() => setMenuOpen((o) => !o)}
@@ -176,6 +187,21 @@ export default function Discover({ events = [], userLocation, onOpenEvent, onNav
             </button>
           ))}
         </div>
+      )}
+
+      {locationOpen && (
+        <LocationSheet
+          current={userLocation?.label}
+          onClose={() => setLocationOpen(false)}
+          onPick={(loc) => {
+            setLocationOpen(false);
+            onSetLocation?.(loc);
+          }}
+          onUseCurrent={() => {
+            setLocationOpen(false);
+            onUseMyLocation?.();
+          }}
+        />
       )}
 
       <TabBar active="discover" onNav={onNav} overlay />
@@ -282,8 +308,24 @@ function EmptyState({ filtered }) {
   );
 }
 
+function parseMiles(dist) {
+  if (!dist) return null;
+  const m = String(dist).match(/([\d.]+)/);
+  return m ? parseFloat(m[1]) : null;
+}
+
+function formatTravelMinutes(mi, mph) {
+  if (mi == null) return null;
+  const min = Math.max(1, Math.round((mi / mph) * 60));
+  return min;
+}
+
 function DiscoverCard({ e, onOpen, onToggleSave, onShare }) {
   const saved = !!e.saved;
+  const miles = parseMiles(e.distance);
+  const walkMin = formatTravelMinutes(miles, 3);
+  const bikeMin = formatTravelMinutes(miles, 12);
+
   return (
     <div
       style={{
@@ -323,24 +365,63 @@ function DiscoverCard({ e, onOpen, onToggleSave, onShare }) {
         }}
       />
 
-      <div style={{ position: "absolute", left: 20, right: 84, bottom: 110, color: "#fafaf9" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-          <span
-            style={{
-              padding: "3px 9px",
-              borderRadius: 999,
-              background: "rgba(255,255,255,0.14)",
-              backdropFilter: "blur(10px)",
-              fontFamily: "var(--font-inter), Inter, sans-serif",
-              fontSize: 10,
-              textTransform: "uppercase",
-              letterSpacing: "0.1em",
-            }}
-          >
-            {e.type}
-          </span>
-          {e.distance && <Caps style={{ color: "rgba(255,255,255,0.8)" }}>{e.distance}</Caps>}
-        </div>
+      <div
+        style={{
+          position: "absolute",
+          top: 'calc(max(16px, env(safe-area-inset-top)) + 52px)',
+          right: 14,
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+          alignItems: "center",
+          zIndex: 15,
+        }}
+      >
+        <button
+          onClick={(ev) => {
+            ev.stopPropagation();
+            onToggleSave?.();
+          }}
+          style={{
+            width: 42,
+            height: 42,
+            borderRadius: "50%",
+            background: saved ? "#fafaf9" : "rgba(10,10,10,0.55)",
+            backdropFilter: "blur(14px)",
+            border: "0.5px solid rgba(255,255,255,0.2)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+          }}
+          aria-label={saved ? "Unsave" : "Save"}
+        >
+          {saved ? I.heart("#994621", "#994621") : I.heart("#fafaf9")}
+        </button>
+        <button
+          onClick={(ev) => {
+            ev.stopPropagation();
+            onShare?.();
+          }}
+          style={{
+            width: 42,
+            height: 42,
+            borderRadius: "50%",
+            background: "rgba(10,10,10,0.55)",
+            backdropFilter: "blur(14px)",
+            border: "0.5px solid rgba(255,255,255,0.2)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+          }}
+          aria-label="Share"
+        >
+          {I.share("#fafaf9")}
+        </button>
+      </div>
+
+      <div style={{ position: "absolute", left: 20, right: 20, bottom: 110, color: "#fafaf9" }}>
         <Italic
           size={32}
           style={{
@@ -351,23 +432,45 @@ function DiscoverCard({ e, onOpen, onToggleSave, onShare }) {
         >
           {e.title}
         </Italic>
-        <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 12 }}>
-          <div
+        <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 6 }}>
+          {I.calendar("rgba(255,255,255,0.85)")}
+          <span
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 5,
+              marginLeft: 2,
               fontFamily: "var(--font-inter), Inter, sans-serif",
               fontSize: 12,
               color: "rgba(255,255,255,0.85)",
             }}
           >
-            {I.calendar("rgba(255,255,255,0.85)")}
-            <span style={{ marginLeft: 2 }}>
-              {e.date} · {e.time}
-            </span>
-          </div>
+            {e.date} · {e.time}
+          </span>
         </div>
+        {(walkMin != null || bikeMin != null) && (
+          <div
+            style={{
+              marginTop: 8,
+              display: "flex",
+              alignItems: "center",
+              gap: 14,
+              color: "rgba(255,255,255,0.8)",
+              fontFamily: "var(--font-inter), Inter, sans-serif",
+              fontSize: 12,
+            }}
+          >
+            {walkMin != null && (
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                {I.walk("rgba(255,255,255,0.85)")}
+                {walkMin} min walk
+              </span>
+            )}
+            {bikeMin != null && (
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                {I.bike("rgba(255,255,255,0.85)")}
+                {bikeMin} min bike
+              </span>
+            )}
+          </div>
+        )}
         {(e.attendees?.length > 0 || e.capacity > 0) && (
           <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 10 }}>
             {e.attendees?.length > 0 && (
@@ -386,88 +489,171 @@ function DiscoverCard({ e, onOpen, onToggleSave, onShare }) {
           </div>
         )}
       </div>
+    </div>
+  );
+}
 
+function LocationSheet({ current, onClose, onPick, onUseCurrent }) {
+  const [query, setQuery] = React.useState("");
+  const [suggestions, setSuggestions] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+  const debounceRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+    if (!token) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (!query.trim() || query.trim().length < 2) {
+      setSuggestions([]);
+      return;
+    }
+    debounceRef.current = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+          query
+        )}.json?types=place,neighborhood,locality,region&limit=5&access_token=${token}`;
+        const res = await fetch(url);
+        if (!res.ok) return;
+        const data = await res.json();
+        setSuggestions(data?.features || []);
+      } catch {
+        // ignore
+      } finally {
+        setLoading(false);
+      }
+    }, 300);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [query]);
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "absolute",
+        inset: 0,
+        zIndex: 55,
+        background: "rgba(0,0,0,0.55)",
+        backdropFilter: "blur(2px)",
+        display: "flex",
+        alignItems: "flex-end",
+      }}
+    >
       <div
+        onClick={(e) => e.stopPropagation()}
         style={{
-          position: "absolute",
-          right: 14,
-          bottom: 110,
-          display: "flex",
-          flexDirection: "column",
-          gap: 12,
-          alignItems: "center",
+          width: "100%",
+          background: "#141210",
+          borderTopLeftRadius: 22,
+          borderTopRightRadius: 22,
+          padding: "14px 20px 34px",
+          color: "#fafaf9",
         }}
       >
-        <button
-          onClick={(ev) => {
-            ev.stopPropagation();
-            onToggleSave?.();
-          }}
+        <div
           style={{
-            width: 50,
-            height: 50,
-            borderRadius: "50%",
-            background: saved ? "#fafaf9" : "rgba(255,255,255,0.14)",
-            backdropFilter: "blur(14px)",
-            border: "0.5px solid rgba(255,255,255,0.2)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
+            width: 36,
+            height: 4,
+            borderRadius: 2,
+            background: "rgba(255,255,255,0.2)",
+            margin: "0 auto 16px",
           }}
-        >
-          {saved ? I.heart("#994621", "#994621") : I.heart("#fafaf9")}
-        </button>
-        <Caps style={{ color: "rgba(255,255,255,0.7)" }}>Save</Caps>
-        <button
-          onClick={(ev) => {
-            ev.stopPropagation();
-            onShare?.();
-          }}
-          style={{
-            marginTop: 10,
-            width: 50,
-            height: 50,
-            borderRadius: "50%",
-            background: "rgba(255,255,255,0.14)",
-            backdropFilter: "blur(14px)",
-            border: "0.5px solid rgba(255,255,255,0.2)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-          }}
-        >
-          {I.share("#fafaf9")}
-        </button>
-        <Caps style={{ color: "rgba(255,255,255,0.7)" }}>Share</Caps>
-      </div>
+        />
+        <Italic size={22} style={{ display: "block" }}>
+          Change location
+        </Italic>
+        {current && (
+          <Caps style={{ color: "rgba(255,255,255,0.45)", display: "block", marginTop: 6 }}>
+            Currently · {current}
+          </Caps>
+        )}
 
-      <button
-        onClick={onOpen}
-        style={{
-          position: "absolute",
-          left: 20,
-          right: 20,
-          bottom: 86,
-          padding: "14px 16px",
-          borderRadius: 12,
-          background: "rgba(250,249,246,0.95)",
-          backdropFilter: "blur(18px)",
-          border: "none",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          fontFamily: "var(--font-inter), Inter, sans-serif",
-          fontSize: 14,
-          fontWeight: 500,
-          color: "#0a0a0a",
-        }}
-      >
-        <span>RSVP · {e.price}</span>
-        {I.arrowRight("#0a0a0a")}
-      </button>
+        <input
+          autoFocus
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search city, neighborhood…"
+          style={{
+            width: "100%",
+            marginTop: 16,
+            padding: "12px 14px",
+            borderRadius: 10,
+            background: "rgba(255,255,255,0.05)",
+            border: "0.5px solid rgba(255,255,255,0.15)",
+            color: "#fafaf9",
+            fontFamily: "var(--font-inter), Inter, sans-serif",
+            fontSize: 14,
+            outline: "none",
+          }}
+        />
+
+        {suggestions.length > 0 && (
+          <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 2 }}>
+            {suggestions.map((s) => (
+              <button
+                key={s.id}
+                onClick={() =>
+                  onPick?.({
+                    lat: s.center[1],
+                    lng: s.center[0],
+                    label: s.text,
+                    description: s.place_name,
+                  })
+                }
+                style={{
+                  padding: "12px 10px",
+                  borderRadius: 8,
+                  background: "transparent",
+                  border: "none",
+                  borderBottom: "0.5px solid rgba(255,255,255,0.06)",
+                  color: "#fafaf9",
+                  fontFamily: "var(--font-inter), Inter, sans-serif",
+                  fontSize: 13,
+                  textAlign: "left",
+                  cursor: "pointer",
+                }}
+              >
+                <div>{s.text}</div>
+                <div
+                  style={{
+                    fontSize: 11,
+                    color: "rgba(255,255,255,0.45)",
+                    marginTop: 2,
+                  }}
+                >
+                  {s.place_name}
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {!suggestions.length && !loading && (
+          <button
+            onClick={onUseCurrent}
+            style={{
+              width: "100%",
+              marginTop: 16,
+              padding: "13px",
+              borderRadius: 10,
+              background: "rgba(255,255,255,0.05)",
+              border: "0.5px solid rgba(255,255,255,0.15)",
+              color: "#fafaf9",
+              fontFamily: "var(--font-inter), Inter, sans-serif",
+              fontSize: 13,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+            }}
+          >
+            {I.pin("#fafaf9")} Use my current location
+          </button>
+        )}
+      </div>
     </div>
   );
 }
