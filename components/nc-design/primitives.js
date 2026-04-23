@@ -121,45 +121,20 @@ export const I = {
   ),
 };
 
-export function NatureClubWordmark({ height = 22, color = "#fafaf9", style = {} }) {
+export function NatureClubWordmark({ height = 22, style = {} }) {
   return (
-    <span
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/nc/logo-light.svg"
+      alt="Nature Club"
       style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 6,
-        color,
+        height,
+        width: "auto",
+        display: "block",
+        filter: "drop-shadow(0 1px 4px rgba(0,0,0,0.35))",
         ...style,
       }}
-      aria-label="Nature Club"
-    >
-      <svg width={height * 0.88} height={height} viewBox="0 0 107 121" fill="none" aria-hidden>
-        <path
-          d="M4.1 29.4L49.6 3.1a7.6 7.6 0 017.8 0l45.5 26.3a7.6 7.6 0 013.9 6.7v52.6a7.6 7.6 0 01-3.9 6.7l-45.5 26.3a7.6 7.6 0 01-7.8 0L4.1 95.5a7.6 7.6 0 01-3.9-6.7V36.2a7.6 7.6 0 013.9-6.7z"
-          stroke={color}
-          strokeWidth="3"
-          fill="none"
-        />
-        <path
-          d="M53.5 36v49M36 60.5h35"
-          stroke={color}
-          strokeWidth="3"
-          strokeLinecap="round"
-        />
-      </svg>
-      <span
-        style={{
-          fontFamily: 'var(--font-playfair), "Playfair Display", Georgia, serif',
-          fontStyle: "italic",
-          fontWeight: 500,
-          fontSize: height * 0.7,
-          letterSpacing: "-0.01em",
-          lineHeight: 1,
-        }}
-      >
-        Nature Club
-      </span>
-    </span>
+    />
   );
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { AvatarStack, Caps, I, Italic, TabBar } from "../primitives";
+import { AvatarStack, Caps, I, Italic, NatureClubWordmark, TabBar } from "../primitives";
 
 const TYPE_LABELS = {
   "nature-walk": "Nature Walk",
@@ -364,6 +364,18 @@ function DiscoverCard({ e, onOpen, onToggleSave, onShare }) {
             "linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 45%, rgba(0,0,0,0.85) 100%)",
         }}
       />
+
+      <div
+        style={{
+          position: "absolute",
+          top: 'calc(max(16px, env(safe-area-inset-top)) + 56px)',
+          left: 16,
+          zIndex: 15,
+          pointerEvents: "none",
+        }}
+      >
+        <NatureClubWordmark height={20} />
+      </div>
 
       <div
         style={{
