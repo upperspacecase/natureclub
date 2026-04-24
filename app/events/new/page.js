@@ -84,7 +84,7 @@ function NewEventInner() {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error || "Save failed");
     }
-    router.push("/dashboard");
+    router.push("/plans");
   }
 
   if (error) {

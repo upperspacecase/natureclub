@@ -8,7 +8,7 @@ const ROUTE_MAP = {
   discover: "/discovery",
   plans: "/plans",
   you: "/profile",
-  yourEvents: "/dashboard",
+  yourEvents: "/plans",
   newEvent: "/events/new",
 };
 

@@ -27,46 +27,90 @@ export default async function PlansPage() {
   await connectMongo();
   const now = new Date();
 
+  const myEvents = await BookingEvent.find({ createdBy: user._id })
+    .sort({ dateTime: -1 })
+    .lean();
+
+  const drafts = myEvents.filter((e) => e.status === "draft");
+  const hostingRaw = myEvents.filter(
+    (e) =>
+      e.status === "published" && e.dateTime && new Date(e.dateTime) >= now
+  );
+  const hostedPastRaw = myEvents.filter(
+    (e) =>
+      e.status !== "draft" && e.dateTime && new Date(e.dateTime) < now
+  );
+
   const rsvps = await Rsvp.find({
     participantUserId: user._id,
     status: "confirmed",
   })
     .select("eventId")
     .lean();
-  const eventIds = rsvps.map((r) => r.eventId);
+  const rsvpEventIds = rsvps.map((r) => r.eventId);
 
-  if (!eventIds.length) {
-    return <PlansClient upcoming={[]} past={[]} />;
-  }
-
-  const events = await BookingEvent.find({ _id: { $in: eventIds } }).lean();
-  const hostIds = [...new Set(events.map((e) => String(e.createdBy)))];
-  const hosts = hostIds.length
-    ? await User.find({ _id: { $in: hostIds } }).select("name photoUrl").lean()
+  const attendingEvents = rsvpEventIds.length
+    ? await BookingEvent.find({
+        _id: { $in: rsvpEventIds },
+        createdBy: { $ne: user._id },
+      }).lean()
     : [];
-  const hostMap = new Map(hosts.map((h) => [String(h._id), h]));
-  const attMap = await fetchAttendanceMap(events.map((e) => e._id));
 
-  const upcomingRaw = events
+  const attendingUpcomingRaw = attendingEvents
     .filter((e) => e.dateTime && new Date(e.dateTime) >= now)
     .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
-  const pastRaw = events
+  const attendingPastRaw = attendingEvents
     .filter((e) => e.dateTime && new Date(e.dateTime) < now)
     .sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
 
-  const adapt = (raw) => {
+  const hostIds = [
+    ...new Set(attendingEvents.map((e) => String(e.createdBy))),
+  ];
+  const hosts = hostIds.length
+    ? await User.find({ _id: { $in: hostIds } })
+        .select("name photoUrl username")
+        .lean()
+    : [];
+  const hostMap = new Map(hosts.map((h) => [String(h._id), h]));
+
+  const allIds = [
+    ...myEvents.map((e) => e._id),
+    ...attendingEvents.map((e) => e._id),
+  ];
+  const attMap = await fetchAttendanceMap(allIds);
+
+  const adapt = (raw, host, ownFlag = false) => {
     const d = toDesignEvent(raw, {
-      host: hostMap.get(String(raw.createdBy)) || null,
+      host: host || null,
       attendance: attMap.get(String(raw._id)),
     });
     d.relative = relative(raw.dateTime);
+    d.isOwner = ownFlag;
     return d;
   };
 
+  const upcoming = [
+    ...hostingRaw.map((e) => adapt(e, user, true)),
+    ...attendingUpcomingRaw.map((e) =>
+      adapt(e, hostMap.get(String(e.createdBy)))
+    ),
+  ].sort((a, b) => (a.dateTimeMs || 0) - (b.dateTimeMs || 0));
+
+  const hosting = hostingRaw.map((e) => adapt(e, user, true));
+  const draftsOut = drafts.map((e) => adapt(e, user, true));
+  const past = [
+    ...hostedPastRaw.map((e) => adapt(e, user, true)),
+    ...attendingPastRaw.map((e) =>
+      adapt(e, hostMap.get(String(e.createdBy)))
+    ),
+  ].sort((a, b) => (b.dateTimeMs || 0) - (a.dateTimeMs || 0));
+
   return (
     <PlansClient
-      upcoming={upcomingRaw.map(adapt)}
-      past={pastRaw.map(adapt)}
+      upcoming={upcoming}
+      hosting={hosting}
+      drafts={draftsOut}
+      past={past}
     />
   );
 }
