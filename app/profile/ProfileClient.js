@@ -26,7 +26,7 @@ export default function ProfileClient({ user, stats, memberCounts }) {
         memberCounts={memberCounts}
         onNav={go}
         onGoYourEvents={() => go("yourEvents")}
-        onEditProfile={() => user?.username && router.push(`/profile/${user.username}`)}
+        onEditProfile={() => router.push("/profile/setup")}
         onSignOut={signOut}
       />
     </PhoneFrame>
