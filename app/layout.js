@@ -1,5 +1,6 @@
 import { Inter, Libre_Baskerville, Playfair_Display } from "next/font/google";
 import { headers } from "next/headers";
+import { Analytics } from "@vercel/analytics/next";
 import { getSEOTags } from "@/libs/seo";
 import { getSiteUrl } from "@/libs/site-url";
 import ClientLayout from "@/components/LayoutClient";
@@ -72,6 +73,7 @@ export default function RootLayout({ children }) {
     >
       <body>
         <ClientLayout>{children}</ClientLayout>
+        <Analytics />
       </body>
     </html>
   );
