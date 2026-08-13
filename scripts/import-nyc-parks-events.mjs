@@ -96,6 +96,7 @@ const EXCLUDE_PATTERNS = [
 ];
 
 function classify(categoriesRaw, title, description) {
+    if (/^cancell?ed/i.test(title || "")) return null;
     const cats = (categoriesRaw || "").toLowerCase();
     if (EXCLUDE_CATEGORIES.some((x) => cats.includes(x))) return null;
     const text = `${title} ${description}`.toLowerCase();
