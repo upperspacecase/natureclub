@@ -1,9 +1,13 @@
 "use client";
 
-import { useState, useCallback, useRef, Suspense } from "react";
+import { useState, useCallback, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
-import { auth } from "@/libs/firebase";
+import {
+    GoogleAuthProvider,
+    signInWithCredential,
+    signInWithPopup,
+} from "firebase/auth";
+import { auth, googleProvider } from "@/libs/firebase";
 import Script from "next/script";
 import Image from "next/image";
 
@@ -24,8 +28,39 @@ function SignInContent() {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [showFallback, setShowFallback] = useState(false);
     const initialized = useRef(false);
+    const gsiRendered = useRef(false);
     const buttonRef = useRef(null);
+
+    // Exchange a signed-in Firebase user for the nc_session cookie, then redirect
+    const finishSignIn = useCallback(
+        async (firebaseUser) => {
+            const firebaseIdToken = await firebaseUser.getIdToken();
+            console.log("[auth] Got Firebase ID token, length:", firebaseIdToken.length);
+
+            const res = await fetch("/api/auth/google", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ idToken: firebaseIdToken }),
+            });
+            console.log("[auth] Server response status:", res.status);
+
+            if (!res.ok) {
+                const text = await res.text();
+                console.error("[auth] Server error response:", text.slice(0, 200));
+                try {
+                    const data = JSON.parse(text);
+                    throw new Error(data.error || "Sign in failed");
+                } catch (parseErr) {
+                    throw new Error("Server returned invalid response");
+                }
+            }
+
+            router.push(returnUrl);
+        },
+        [router, returnUrl]
+    );
 
     const handleCredentialResponse = useCallback(
         async (response) => {
@@ -33,46 +68,52 @@ function SignInContent() {
             setLoading(true);
 
             try {
-                // Step 1: Convert Google JWT to Firebase credential
+                // Convert Google JWT to Firebase credential, sign in to Firebase client
                 const credential = GoogleAuthProvider.credential(response.credential);
-                console.log("[auth] Step 1: Google credential created");
+                console.log("[auth] Google credential created");
 
-                // Step 2: Sign in to Firebase client
                 const result = await signInWithCredential(auth, credential);
-                console.log("[auth] Step 2: Firebase signIn success, uid:", result.user.uid);
+                console.log("[auth] Firebase signIn success, uid:", result.user.uid);
 
-                // Step 3: Get Firebase-issued ID token
-                const firebaseIdToken = await result.user.getIdToken();
-                console.log("[auth] Step 3: Got Firebase ID token, length:", firebaseIdToken.length);
-
-                // Step 4: Send to server to create session cookie
-                const res = await fetch("/api/auth/google", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ idToken: firebaseIdToken }),
-                });
-                console.log("[auth] Step 4: Server response status:", res.status);
-
-                if (!res.ok) {
-                    const text = await res.text();
-                    console.error("[auth] Server error response:", text.slice(0, 200));
-                    try {
-                        const data = JSON.parse(text);
-                        throw new Error(data.error || "Sign in failed");
-                    } catch (parseErr) {
-                        throw new Error("Server returned invalid response");
-                    }
-                }
-
-                router.push(returnUrl);
+                await finishSignIn(result.user);
             } catch (err) {
                 console.error("[auth] Error at:", err);
                 setError(err.message || "Sign in failed. Please try again.");
                 setLoading(false);
             }
         },
-        [router, returnUrl]
+        [finishSignIn]
     );
+
+    // Fallback path: Firebase popup sign-in, used when the GSI script is
+    // blocked or fails to render its button
+    const handlePopupSignIn = useCallback(async () => {
+        setError("");
+        setLoading(true);
+
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            console.log("[auth] Popup signIn success, uid:", result.user.uid);
+            await finishSignIn(result.user);
+        } catch (err) {
+            console.error("[auth] Popup error:", err);
+            if (err.code === "auth/popup-closed-by-user") {
+                setLoading(false);
+                return;
+            }
+            setError(err.message || "Sign in failed. Please try again.");
+            setLoading(false);
+        }
+    }, [finishSignIn]);
+
+    // If the GSI button hasn't rendered shortly after mount (script blocked,
+    // offline, extension interference), show our own sign-in button instead
+    useEffect(() => {
+        const t = setTimeout(() => {
+            if (!gsiRendered.current) setShowFallback(true);
+        }, 2500);
+        return () => clearTimeout(t);
+    }, []);
 
     const initializeGSI = useCallback(() => {
         if (initialized.current || !window.google?.accounts?.id) return;
@@ -100,6 +141,7 @@ function SignInContent() {
                 text: "continue_with",
                 width: 320,
             });
+            gsiRendered.current = buttonRef.current.childElementCount > 0;
         }
     }, [handleCredentialResponse]);
 
@@ -130,7 +172,18 @@ function SignInContent() {
                             Signing in...
                         </div>
                     ) : (
-                        <div ref={buttonRef} className="min-h-[44px]" />
+                        <div className="flex flex-col items-center gap-4">
+                            <div ref={buttonRef} className="min-h-[44px]" />
+                            {showFallback && (
+                                <button
+                                    type="button"
+                                    onClick={handlePopupSignIn}
+                                    className="w-80 max-w-full h-11 rounded bg-white text-gray-800 text-sm font-medium hover:bg-gray-100"
+                                >
+                                    Continue with Google
+                                </button>
+                            )}
+                        </div>
                     )}
 
                     {error && (

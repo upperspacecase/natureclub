@@ -18,7 +18,11 @@ export async function getAuthUser() {
 
         await connectMongo();
         return User.findOne({ firebaseUid: decoded.uid });
-    } catch {
+    } catch (err) {
+        console.error(
+            "getAuthUser: session verify failed:",
+            err.code || err.message
+        );
         return null;
     }
 }

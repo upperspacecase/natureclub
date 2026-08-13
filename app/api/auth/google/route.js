@@ -42,6 +42,8 @@ export async function POST(req) {
             await user.save();
         }
 
+        console.log("Google auth OK:", uid);
+
         // Set the session cookie
         const response = NextResponse.json({ user: user.toJSON() });
         response.cookies.set("nc_session", sessionCookie, {
