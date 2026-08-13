@@ -54,12 +54,52 @@ const CATEGORY_MAP = [
     { match: "yoga", activityType: "outdoor-yoga", rank: 4 },
     { match: "astronomy", activityType: "other", rank: 5 },
 ];
-// Skip indoor/irrelevant programming even when a category matches
-const EXCLUDE = ["recreation center", "summer sports", "swimming"];
+// Skip indoor/irrelevant programming even when a category matches.
+// NYC Parks tags events by VENUE as well as content — a jazz concert in a
+// garden carries the "Nature" category. Nature Club is nature experiences
+// (walks, hikes, birding, forest bathing, foraging, outdoor yoga,
+// meditation), not anything-outdoors, so exclude by substance too.
+const EXCLUDE_CATEGORIES = [
+    "recreation center",
+    "summer sports",
+    "swimming",
+    "arts & crafts",
+    "arts, culture & fun",
+    "performance",
+    "music",
+    "film",
+    "dance",
+    "theater",
+    "festival",
+];
+// Word-boundary regexes — plain substring matching excluded events at the
+// "Bandshell" (band) and descriptions saying "book your spot" (book)
+const EXCLUDE_PATTERNS = [
+    /\bmusic\b/,
+    /\bjazz\b/,
+    /\bconcert\b/,
+    /\bfilm\b/,
+    /\bmovies?\b/,
+    /\bweaving\b/,
+    /\bcrafts?\b/,
+    /\bdance\b/,
+    /\bvirtual\b/,
+    /\bpilates\b/,
+    /\bzumba\b/,
+    /\bcorrespondence\b/,
+    /\bexhibit/,
+    /\bmeeting\b/,
+    /\bfood demos?\b/,
+    /\breading series\b/,
+    /\bbook club\b/,
+    /\brest & read\b/,
+];
 
-function classify(categoriesRaw) {
+function classify(categoriesRaw, title, description) {
     const cats = (categoriesRaw || "").toLowerCase();
-    if (EXCLUDE.some((x) => cats.includes(x))) return null;
+    if (EXCLUDE_CATEGORIES.some((x) => cats.includes(x))) return null;
+    const text = `${title} ${description}`.toLowerCase();
+    if (EXCLUDE_PATTERNS.some((re) => re.test(text))) return null;
     for (const c of CATEGORY_MAP) {
         if (cats.includes(c.match)) return c;
     }
@@ -119,13 +159,21 @@ for (const r of rows) {
     r.description = decodeEntities(r.description);
     r.location = decodeEntities(r.location);
     r.parknames = decodeEntities(r.parknames);
-    const cls = classify(r.categories);
+    const cls = classify(r.categories, r.title, r.description || "");
     if (!cls) continue;
-    const start = toUtc(r.starttime);
+    // The feed's starttime/endtime carry the correct TIME OF DAY but their
+    // date portion is stamped with the feed refresh date — the real event
+    // date lives in startdate/enddate.
+    const startDay = (r.startdate || "").slice(0, 10);
+    const startClock = (r.starttime || "").slice(11, 19);
+    if (!startDay || !startClock) continue;
+    const start = toUtc(`${startDay} ${startClock}`);
     if (!start || start <= now) continue;
     const [lat, lng] = (r.coordinates || "").split(",").map((x) => parseFloat(x));
     if (!isFinite(lat) || !isFinite(lng)) continue;
-    const end = toUtc(r.endtime);
+    const endDay = (r.enddate || "").slice(0, 10) || startDay;
+    const endClock = (r.endtime || "").slice(11, 19);
+    const end = endClock ? toUtc(`${endDay} ${endClock}`) : null;
     const durationMinutes =
         end && end > start
             ? Math.min(480, Math.round((end - start) / 60000))
@@ -161,20 +209,37 @@ for (const r of rows) {
 }
 console.log("Nature Club-aligned future events:", candidates.length);
 
-// Prefer category diversity and earlier dates; avoid many copies of the same
-// recurring program: keep at most 3 dates per title.
-candidates.sort((a, b) => a.rank - b.rank || a.start - b.start);
-const perTitle = new Map();
-const picked = [];
+// Recurring programs get up to 3 dates SPREAD across the window (first,
+// middle, last occurrence) rather than clustering on the earliest days.
+const byTitle = new Map();
 for (const c of candidates) {
-    const k = c.doc.title;
-    const n = perTitle.get(k) || 0;
-    if (n >= 3) continue;
-    perTitle.set(k, n + 1);
-    picked.push(c.doc);
-    if (picked.length >= MAX_EVENTS) break;
+    if (!byTitle.has(c.doc.title)) byTitle.set(c.doc.title, []);
+    byTitle.get(c.doc.title).push(c);
 }
-console.log("Selected for import:", picked.length);
+const picked = [];
+for (const occurrences of byTitle.values()) {
+    occurrences.sort((a, b) => a.start - b.start);
+    const n = occurrences.length;
+    const idxs =
+        n <= 3
+            ? occurrences.map((_, i) => i)
+            : [0, Math.floor(n / 2), n - 1];
+    for (const i of idxs) picked.push(occurrences[i]);
+}
+// Balance the feed: keep all birding/hiking, cap the big buckets so
+// nature-walks don't crowd out yoga entirely
+const RANK_CAPS = { 0: 99, 1: 99, 2: 18, 3: 18, 4: 10, 5: 4 };
+picked.sort((a, b) => a.rank - b.rank || a.start - b.start);
+const rankCounts = {};
+const finalDocs = [];
+for (const c of picked) {
+    const n = rankCounts[c.rank] || 0;
+    if (n >= (RANK_CAPS[c.rank] ?? 10)) continue;
+    rankCounts[c.rank] = n + 1;
+    finalDocs.push(c.doc);
+    if (finalDocs.length >= MAX_EVENTS) break;
+}
+console.log("Selected for import:", finalDocs.length);
 
 await mongoose.connect(process.env.MONGODB_URI);
 const db = mongoose.connection.db;
@@ -200,7 +265,7 @@ if (!curator) {
 const events = db.collection("bookingevents");
 let created = 0;
 let updated = 0;
-for (const doc of picked) {
+for (const doc of finalDocs) {
     const r = await events.updateOne(
         { slug: doc.slug },
         {

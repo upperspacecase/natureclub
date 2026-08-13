@@ -5,7 +5,7 @@ import PhoneFrame from "@/components/nc-design/PhoneFrame";
 import You from "@/components/nc-design/screens/You";
 import { useNCNav } from "@/components/nc-design/useNav";
 
-export default function ProfileClient({ user, stats, memberCounts }) {
+export default function ProfileClient({ user, stats, memberCounts, activity }) {
   const router = useRouter();
   const { go } = useNCNav();
 
@@ -24,6 +24,7 @@ export default function ProfileClient({ user, stats, memberCounts }) {
         user={user}
         stats={stats}
         memberCounts={memberCounts}
+        activity={activity}
         onNav={go}
         onGoYourEvents={() => go("yourEvents")}
         onEditProfile={() => router.push("/profile/setup")}

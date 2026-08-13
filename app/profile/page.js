@@ -26,8 +26,42 @@ export default async function ProfilePage() {
 
   const savedCount = await countSavedForUser(user._id);
 
+  // Daily activity for the past year (attended + hosted), keyed by the
+  // event's calendar day in the event timezone
+  const now = new Date();
+  const since = new Date(now.getTime() - 365 * 86400000);
+  const confirmed = await Rsvp.find({
+    participantUserId: user._id,
+    status: "confirmed",
+  })
+    .select("eventId")
+    .lean();
+  const attendedDates = confirmed.length
+    ? await BookingEvent.find({
+        _id: { $in: confirmed.map((r) => r.eventId) },
+        dateTime: { $gte: since, $lte: now },
+      })
+        .select("dateTime")
+        .lean()
+    : [];
+  const hostedDates = hostedEvents.filter(
+    (e) =>
+      e.status !== "draft" &&
+      e.dateTime &&
+      new Date(e.dateTime) >= since &&
+      new Date(e.dateTime) <= now
+  );
+  const dayKey = (d) =>
+    new Date(d).toLocaleDateString("en-CA", { timeZone: "America/New_York" });
+  const activity = {};
+  for (const e of [...attendedDates, ...hostedDates]) {
+    const k = dayKey(e.dateTime);
+    activity[k] = (activity[k] || 0) + 1;
+  }
+
   return (
     <ProfileClient
+      activity={activity}
       user={{
         name: user.name,
         username: user.username,

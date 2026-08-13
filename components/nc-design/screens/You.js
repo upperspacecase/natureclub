@@ -7,6 +7,7 @@ export default function You({
   user,
   stats,
   memberCounts,
+  activity,
   onNav,
   onGoYourEvents,
   onSignOut,
@@ -127,6 +128,13 @@ export default function You({
 
       <div style={{ padding: "26px 20px 0" }}>
         <Caps style={{ color: "rgba(255,255,255,0.4)", display: "block", marginBottom: 10 }}>
+          Activity
+        </Caps>
+        <ActivityLeafMap activity={activity || {}} />
+      </div>
+
+      <div style={{ padding: "26px 20px 0" }}>
+        <Caps style={{ color: "rgba(255,255,255,0.4)", display: "block", marginBottom: 10 }}>
           Host
         </Caps>
         <Row
@@ -159,6 +167,188 @@ export default function You({
       </div>
 
       <TabBar active="you" onNav={onNav} />
+    </div>
+  );
+}
+
+const LEAF_LEVELS = [
+  "rgba(255,255,255,0.08)",
+  "rgba(200,217,168,0.3)",
+  "rgba(200,217,168,0.55)",
+  "rgba(200,217,168,0.8)",
+  "#c8d9a8",
+];
+
+function Leaf({ fill, size = 11 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 12 12" style={{ display: "block" }}>
+      <path
+        d="M6 0.8 C9.6 2.6 10.6 7.2 6 11.2 C1.4 7.2 2.4 2.6 6 0.8 Z"
+        fill={fill}
+      />
+    </svg>
+  );
+}
+
+function level(count) {
+  if (!count) return 0;
+  if (count === 1) return 1;
+  if (count === 2) return 2;
+  if (count === 3) return 3;
+  return 4;
+}
+
+// GitHub-style contribution grid over the past year, drawn with leaves.
+// Columns are weeks (Sunday-first); the grid scrolls horizontally and
+// starts scrolled to the most recent weeks.
+function ActivityLeafMap({ activity }) {
+  const scrollRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
+    }
+  }, []);
+
+  const { weeks, monthLabels } = React.useMemo(() => {
+    const today = new Date();
+    today.setHours(12, 0, 0, 0);
+    const start = new Date(today);
+    start.setDate(start.getDate() - 364);
+    start.setDate(start.getDate() - start.getDay()); // back to Sunday
+
+    const weeks = [];
+    const monthLabels = [];
+    let cursor = new Date(start);
+    let prevMonth = -1;
+    while (cursor <= today) {
+      const col = [];
+      const weekStartMonth = cursor.getMonth();
+      if (weekStartMonth !== prevMonth && cursor.getDate() <= 7) {
+        monthLabels.push({
+          index: weeks.length,
+          label: cursor.toLocaleDateString("en-US", { month: "short" }),
+        });
+        prevMonth = weekStartMonth;
+      } else if (weekStartMonth !== prevMonth) {
+        prevMonth = weekStartMonth;
+      }
+      for (let d = 0; d < 7; d += 1) {
+        if (cursor > today) {
+          col.push(null);
+        } else {
+          const y = cursor.getFullYear();
+          const m = String(cursor.getMonth() + 1).padStart(2, "0");
+          const day = String(cursor.getDate()).padStart(2, "0");
+          col.push(`${y}-${m}-${day}`);
+        }
+        cursor.setDate(cursor.getDate() + 1);
+      }
+      weeks.push(col);
+    }
+    return { weeks, monthLabels };
+  }, []);
+
+  const CELL = 13; // 11px leaf + 2px gap
+  const DAY_ROWS = [
+    { row: 1, label: "Mon" },
+    { row: 3, label: "Wed" },
+    { row: 5, label: "Fri" },
+  ];
+
+  return (
+    <div
+      style={{
+        padding: 14,
+        borderRadius: 14,
+        background: "rgba(255,255,255,0.03)",
+        border: "0.5px solid rgba(255,255,255,0.08)",
+      }}
+    >
+      <div style={{ display: "flex", gap: 8 }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-end",
+            flexShrink: 0,
+            paddingTop: 16,
+          }}
+        >
+          {Array.from({ length: 7 }, (_, r) => (
+            <div
+              key={r}
+              style={{
+                height: CELL,
+                display: "flex",
+                alignItems: "center",
+                fontFamily: "var(--font-inter), Inter, sans-serif",
+                fontSize: 9,
+                color: "rgba(255,255,255,0.4)",
+              }}
+            >
+              {DAY_ROWS.find((d) => d.row === r)?.label || ""}
+            </div>
+          ))}
+        </div>
+        <div ref={scrollRef} className="nc-no-scrollbar" style={{ overflowX: "auto" }}>
+          <div style={{ position: "relative", height: 16, width: weeks.length * CELL }}>
+            {monthLabels.map((m) => (
+              <span
+                key={`${m.label}-${m.index}`}
+                style={{
+                  position: "absolute",
+                  left: m.index * CELL,
+                  top: 0,
+                  fontFamily: "var(--font-inter), Inter, sans-serif",
+                  fontSize: 9,
+                  color: "rgba(255,255,255,0.4)",
+                }}
+              >
+                {m.label}
+              </span>
+            ))}
+          </div>
+          <div style={{ display: "flex" }}>
+            {weeks.map((col, ci) => (
+              <div key={ci} style={{ display: "flex", flexDirection: "column" }}>
+                {col.map((key, ri) => (
+                  <div
+                    key={ri}
+                    style={{
+                      width: CELL,
+                      height: CELL,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {key && <Leaf fill={LEAF_LEVELS[level(activity[key])]} />}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div
+        style={{
+          marginTop: 10,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-end",
+          gap: 4,
+          fontFamily: "var(--font-inter), Inter, sans-serif",
+          fontSize: 9,
+          color: "rgba(255,255,255,0.4)",
+        }}
+      >
+        Less
+        {LEAF_LEVELS.map((c) => (
+          <Leaf key={c} fill={c} size={10} />
+        ))}
+        More
+      </div>
     </div>
   );
 }
