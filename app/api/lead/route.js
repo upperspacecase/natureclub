@@ -31,6 +31,30 @@ export async function POST(req) {
   const source = typeof body?.source === "string" && body.source.trim()
     ? body.source.trim()
     : "button";
+
+  // Lightweight capture from empty states: email only, no questionnaire,
+  // no welcome email. Role defaults to member.
+  if (source === "notify") {
+    const role = allowedRoles.includes(body?.role) ? body.role : "member";
+    const existing = await Lead.findOne({ email: body.email, role }).lean();
+    if (existing) {
+      return NextResponse.json({ id: existing._id, status: existing.status });
+    }
+    const lead = await Lead.create({
+      email: body.email,
+      role,
+      source,
+      responses: normalizeLeadResponses(role, {}),
+      status: LEAD_STATUS.SUBMITTED,
+      submittedAt: new Date(),
+      questionVersion: SIGNUP_QUESTION_VERSION,
+      sessionId: getSessionId(body?.sessionId),
+      welcomeEmailSentAt: null,
+      country: "",
+    });
+    return NextResponse.json({ id: lead._id, status: lead.status });
+  }
+
   const responses = normalizeLeadResponses(body.role, body?.responses);
   const validationError = validateSubmittedLead(body.role, responses);
   if (validationError) {

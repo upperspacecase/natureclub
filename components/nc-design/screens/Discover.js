@@ -33,7 +33,6 @@ export default function Discover({
 }) {
   const [mapOpen, setMapOpen] = React.useState(false);
   const [filterOpen, setFilterOpen] = React.useState(false);
-  const [menuOpen, setMenuOpen] = React.useState(false);
   const [locationOpen, setLocationOpen] = React.useState(false);
   const [filters, setFilters] = React.useState({
     type: "All",
@@ -72,7 +71,7 @@ export default function Discover({
         }}
       >
         {visible.length === 0 ? (
-          <EmptyState filtered={events.length > 0} />
+          <EmptyState filtered={events.length > 0} onNav={onNav} />
         ) : (
           visible.map((e) => (
             <DiscoverCard
@@ -120,34 +119,6 @@ export default function Discover({
           {userLocation?.label || "Nearby"}
           {I.chevR("rgba(255,255,255,0.5)")}
         </button>
-        <div style={{ position: "relative" }}>
-          <button
-            onClick={() => setMenuOpen((o) => !o)}
-            style={{
-              width: 38,
-              height: 38,
-              borderRadius: "50%",
-              background: "rgba(10,10,10,0.55)",
-              backdropFilter: "blur(18px)",
-              border: "0.5px solid rgba(255,255,255,0.15)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-            }}
-          >
-            {I.menu("#fafaf9")}
-          </button>
-          {menuOpen && (
-            <NavMenuPopover
-              onNav={(k) => {
-                setMenuOpen(false);
-                onNav?.(k);
-              }}
-              onClose={() => setMenuOpen(false)}
-            />
-          )}
-        </div>
       </div>
 
       {events.length > 0 && (
@@ -222,57 +193,30 @@ export default function Discover({
   );
 }
 
-function NavMenuPopover({ onNav, onClose }) {
-  return (
-    <>
-      <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 20 }} />
-      <div
-        style={{
-          position: "absolute",
-          top: 44,
-          right: 0,
-          zIndex: 21,
-          minWidth: 180,
-          padding: 6,
-          borderRadius: 12,
-          background: "rgba(20,18,16,0.98)",
-          backdropFilter: "blur(14px)",
-          border: "0.5px solid rgba(255,255,255,0.1)",
-          boxShadow: "0 18px 40px rgba(0,0,0,0.6)",
-        }}
-      >
-        {[
-          { k: "home", label: "Home" },
-          { k: "discover", label: "Discover" },
-          { k: "plans", label: "Your plans" },
-          { k: "you", label: "Your profile" },
-          { k: "yourEvents", label: "Host events" },
-        ].map((item) => (
-          <button
-            key={item.k}
-            onClick={() => onNav(item.k)}
-            style={{
-              width: "100%",
-              padding: "10px 12px",
-              borderRadius: 8,
-              background: "transparent",
-              border: "none",
-              color: "#fafaf9",
-              fontFamily: "var(--font-inter), Inter, sans-serif",
-              fontSize: 13,
-              textAlign: "left",
-              cursor: "pointer",
-            }}
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
-    </>
-  );
-}
+function EmptyState({ filtered, onNav }) {
+  const [email, setEmail] = React.useState("");
+  const [notifyState, setNotifyState] = React.useState("idle"); // idle | sending | done | error
 
-function EmptyState({ filtered }) {
+  async function handleNotify() {
+    const trimmed = email.trim();
+    if (!trimmed || !trimmed.includes("@")) {
+      setNotifyState("error");
+      return;
+    }
+    setNotifyState("sending");
+    try {
+      const res = await fetch("/api/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: trimmed, role: "member", source: "notify" }),
+      });
+      if (!res.ok) throw new Error();
+      setNotifyState("done");
+    } catch {
+      setNotifyState("error");
+    }
+  }
+
   return (
     <div
       style={{
@@ -285,7 +229,7 @@ function EmptyState({ filtered }) {
         textAlign: "center",
       }}
     >
-      <div>
+      <div style={{ width: "100%", maxWidth: 300 }}>
         <Italic size={28} style={{ display: "block" }}>
           {filtered ? "Nothing matches." : "Nothing nearby yet."}
         </Italic>
@@ -296,13 +240,90 @@ function EmptyState({ filtered }) {
             fontSize: 13,
             color: "rgba(255,255,255,0.55)",
             lineHeight: 1.5,
-            maxWidth: 260,
           }}
         >
           {filtered
             ? "Try widening your filters."
-            : "No published events right now. Check back soon, or host the first one yourself."}
+            : "No published events right now. Be the first to lead one, or leave your email and we'll tell you when something's near you."}
         </p>
+        {!filtered && (
+          <>
+            <button
+              onClick={() => onNav?.("newEvent")}
+              style={{
+                marginTop: 22,
+                width: "100%",
+                padding: "14px 22px",
+                borderRadius: 10,
+                background: "#fafaf9",
+                color: "#0a0a0a",
+                border: "none",
+                fontFamily: "var(--font-inter), Inter, sans-serif",
+                fontSize: 14,
+                fontWeight: 500,
+                cursor: "pointer",
+              }}
+            >
+              Host the first one
+            </button>
+            {notifyState === "done" ? (
+              <p
+                style={{
+                  marginTop: 16,
+                  fontFamily: "var(--font-inter), Inter, sans-serif",
+                  fontSize: 13,
+                  color: "#c8d9a8",
+                }}
+              >
+                You&apos;re on the list. We&apos;ll email you when something&apos;s nearby.
+              </p>
+            ) : (
+              <div style={{ marginTop: 14, display: "flex", gap: 8 }}>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(ev) => {
+                    setEmail(ev.target.value);
+                    if (notifyState === "error") setNotifyState("idle");
+                  }}
+                  placeholder="you@email.com"
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    padding: "11px 14px",
+                    background: "rgba(255,255,255,0.04)",
+                    border:
+                      notifyState === "error"
+                        ? "0.5px solid rgba(233,120,100,0.5)"
+                        : "0.5px solid rgba(255,255,255,0.12)",
+                    borderRadius: 10,
+                    color: "#fafaf9",
+                    fontFamily: "var(--font-inter), Inter, sans-serif",
+                    fontSize: 13,
+                    outline: "none",
+                  }}
+                />
+                <button
+                  onClick={handleNotify}
+                  disabled={notifyState === "sending"}
+                  style={{
+                    padding: "11px 16px",
+                    borderRadius: 10,
+                    background: "transparent",
+                    border: "0.5px solid rgba(255,255,255,0.22)",
+                    color: "#fafaf9",
+                    fontFamily: "var(--font-inter), Inter, sans-serif",
+                    fontSize: 13,
+                    cursor: notifyState === "sending" ? "wait" : "pointer",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {notifyState === "sending" ? "…" : "Notify me"}
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );

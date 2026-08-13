@@ -86,6 +86,26 @@ export async function PATCH(req, { params }) {
                     { status: 400 }
                 );
             }
+            // A published event must be findable: discovery surfaces filter on
+            // a future dateTime and explore requires meeting point coordinates.
+            if (!event.dateTime) {
+                return Response.json(
+                    { error: "Add a date and time before publishing." },
+                    { status: 400 }
+                );
+            }
+            if (
+                event.meetingPoint?.lat == null ||
+                event.meetingPoint?.lng == null
+            ) {
+                return Response.json(
+                    {
+                        error:
+                            "Add a meeting point (search or drop a pin) before publishing.",
+                    },
+                    { status: 400 }
+                );
+            }
             event.status = "published";
             if (!event.slug) {
                 event.slug = slugify(event.title);

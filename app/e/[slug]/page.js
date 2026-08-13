@@ -81,10 +81,19 @@ export default async function EventPage({ params }) {
     }
   }
 
+  const isPast = event.dateTime ? new Date(event.dateTime) < new Date() : false;
+  const notice =
+    event.status === "cancelled"
+      ? { kind: "cancelled", reason: event.cancelledReason || "" }
+      : isPast
+        ? { kind: "past" }
+        : null;
+
   return (
     <EventDetailClient
       event={designEvent}
       weather={weather}
+      notice={notice}
       eventId={String(event._id)}
       startIso={event.dateTime?.toISOString() || null}
       endIso={
@@ -97,7 +106,7 @@ export default async function EventPage({ params }) {
       hostUsername={host?.username || null}
       initialRsvp={initialRsvp}
       initialSaved={initialSaved}
-      canRsvp={!!viewer && event.status === "published"}
+      canRsvp={!!viewer && event.status === "published" && !isPast}
     />
   );
 }

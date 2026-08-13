@@ -12,7 +12,6 @@ export default function Home({
   onOpenEvent,
   onNav,
 }) {
-  const [menuOpen, setMenuOpen] = React.useState(false);
   const firstName = (user?.name || "").split(" ")[0] || "there";
   const greeting = getGreeting();
   const todayLabel = new Date().toLocaleDateString("en-US", {
@@ -66,35 +65,6 @@ export default function Home({
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/nc/logo-light.svg" alt="Nature Club" style={{ height: 34 }} />
-          <div style={{ position: "relative" }}>
-            <button
-              onClick={() => setMenuOpen((o) => !o)}
-              style={{
-                width: 38,
-                height: 38,
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.12)",
-                backdropFilter: "blur(12px)",
-                border: "0.5px solid rgba(255,255,255,0.2)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#fafaf9",
-                cursor: "pointer",
-              }}
-            >
-              {I.menu("#fafaf9")}
-            </button>
-            {menuOpen && (
-              <NavMenu
-                onNav={(k) => {
-                  setMenuOpen(false);
-                  onNav?.(k);
-                }}
-                onClose={() => setMenuOpen(false)}
-              />
-            )}
-          </div>
         </div>
 
         <div style={{ position: "absolute", left: 20, right: 20, bottom: 200, zIndex: 10 }}>
@@ -158,6 +128,69 @@ export default function Home({
           <div style={{ color: "rgba(255,255,255,0.5)" }}>{I.chevR("rgba(255,255,255,0.5)")}</div>
         </div>
       </div>
+
+      {!nextEvent && nearbyEvents.length === 0 && (
+        <div style={{ padding: "32px 20px 0" }}>
+          <div
+            style={{
+              padding: 20,
+              borderRadius: 14,
+              background: "rgba(255,255,255,0.04)",
+              border: "0.5px solid rgba(255,255,255,0.08)",
+            }}
+          >
+            <Italic size={20} style={{ display: "block" }}>
+              Nothing on your calendar yet.
+            </Italic>
+            <p
+              style={{
+                marginTop: 8,
+                fontFamily: "var(--font-inter), Inter, sans-serif",
+                fontSize: 13,
+                color: "rgba(255,255,255,0.55)",
+                lineHeight: 1.5,
+              }}
+            >
+              Find a walk near you, or lead one yourself.
+            </p>
+            <div style={{ marginTop: 16, display: "flex", gap: 10 }}>
+              <button
+                onClick={() => onNav?.("discover")}
+                style={{
+                  flex: 1,
+                  padding: "12px 0",
+                  borderRadius: 10,
+                  background: "#fafaf9",
+                  color: "#0a0a0a",
+                  border: "none",
+                  fontFamily: "var(--font-inter), Inter, sans-serif",
+                  fontSize: 13,
+                  fontWeight: 500,
+                  cursor: "pointer",
+                }}
+              >
+                Discover walks
+              </button>
+              <button
+                onClick={() => onNav?.("newEvent")}
+                style={{
+                  flex: 1,
+                  padding: "12px 0",
+                  borderRadius: 10,
+                  background: "transparent",
+                  border: "0.5px solid rgba(255,255,255,0.22)",
+                  color: "#fafaf9",
+                  fontFamily: "var(--font-inter), Inter, sans-serif",
+                  fontSize: 13,
+                  cursor: "pointer",
+                }}
+              >
+                Host your own
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {nextEvent && (
         <div style={{ padding: "32px 20px 0" }}>
@@ -365,59 +398,6 @@ export default function Home({
 
       <TabBar active="home" onNav={onNav} />
     </div>
-  );
-}
-
-function NavMenu({ onNav, onClose }) {
-  return (
-    <>
-      <div
-        onClick={onClose}
-        style={{ position: "fixed", inset: 0, zIndex: 20 }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          top: 44,
-          right: 0,
-          zIndex: 21,
-          minWidth: 180,
-          padding: 6,
-          borderRadius: 12,
-          background: "rgba(20,18,16,0.98)",
-          backdropFilter: "blur(14px)",
-          border: "0.5px solid rgba(255,255,255,0.1)",
-          boxShadow: "0 18px 40px rgba(0,0,0,0.6)",
-        }}
-      >
-        {[
-          { k: "home", label: "Home" },
-          { k: "discover", label: "Discover" },
-          { k: "plans", label: "Your plans" },
-          { k: "you", label: "Your profile" },
-          { k: "yourEvents", label: "Host events" },
-        ].map((item) => (
-          <button
-            key={item.k}
-            onClick={() => onNav(item.k)}
-            style={{
-              width: "100%",
-              padding: "10px 12px",
-              borderRadius: 8,
-              background: "transparent",
-              border: "none",
-              color: "#fafaf9",
-              fontFamily: "var(--font-inter), Inter, sans-serif",
-              fontSize: 13,
-              textAlign: "left",
-              cursor: "pointer",
-            }}
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
-    </>
   );
 }
 

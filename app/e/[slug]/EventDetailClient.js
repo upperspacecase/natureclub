@@ -9,6 +9,7 @@ import { buildGoogleCalendarUrl } from "@/libs/nc-calendar";
 export default function EventDetailClient({
   event,
   weather,
+  notice,
   eventId,
   startIso,
   endIso,
@@ -112,6 +113,7 @@ export default function EventDetailClient({
       <EventDetail
         event={event}
         weather={weather}
+        notice={notice}
         initialRsvp={initialRsvp}
         initialSaved={initialSaved}
         canRsvp={canRsvp}

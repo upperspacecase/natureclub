@@ -6,6 +6,7 @@ import { AvatarStack, Caps, I, Italic, NatureClubWordmark } from "../primitives"
 export default function EventDetail({
   event,
   weather,
+  notice = null,
   initialRsvp = false,
   initialSaved = false,
   canRsvp = true,
@@ -100,17 +101,61 @@ export default function EventDetail({
 
       <div style={{ padding: "0 20px" }}>
         <StoryCard e={e} rsvp={rsvp} onTap={() => !rsvp && canRsvp && setConfirming(true)} />
-        <Caps
+        {!notice && (
+          <Caps
+            style={{
+              display: "block",
+              textAlign: "center",
+              marginTop: 12,
+              color: "rgba(255,255,255,0.4)",
+            }}
+          >
+            {rsvp ? "↓ Save card · members only" : "↓ Tap to share · Members only"}
+          </Caps>
+        )}
+      </div>
+
+      {notice && (
+        <div
           style={{
-            display: "block",
-            textAlign: "center",
-            marginTop: 12,
-            color: "rgba(255,255,255,0.4)",
+            margin: "18px 20px 0",
+            padding: 14,
+            borderRadius: 12,
+            background:
+              notice.kind === "cancelled"
+                ? "rgba(233,120,100,0.08)"
+                : "rgba(255,255,255,0.04)",
+            border:
+              notice.kind === "cancelled"
+                ? "0.5px solid rgba(233,120,100,0.3)"
+                : "0.5px solid rgba(255,255,255,0.1)",
           }}
         >
-          {rsvp ? "↓ Save card · members only" : "↓ Tap to share · Members only"}
-        </Caps>
-      </div>
+          <div
+            style={{
+              fontFamily: "var(--font-inter), Inter, sans-serif",
+              fontSize: 13,
+              color: notice.kind === "cancelled" ? "#e97864" : "rgba(255,255,255,0.75)",
+            }}
+          >
+            {notice.kind === "cancelled"
+              ? "This event was cancelled."
+              : "This event has passed."}
+          </div>
+          {notice.kind === "cancelled" && notice.reason && (
+            <div
+              style={{
+                marginTop: 4,
+                fontFamily: "var(--font-inter), Inter, sans-serif",
+                fontSize: 12,
+                color: "rgba(255,255,255,0.55)",
+              }}
+            >
+              {notice.reason}
+            </div>
+          )}
+        </div>
+      )}
 
       {rsvp && (
         <YoureInPanel

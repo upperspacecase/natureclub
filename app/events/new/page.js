@@ -14,33 +14,26 @@ function NewEventInner() {
   const [error, setError] = React.useState("");
 
   React.useEffect(() => {
+    // New events don't touch the server until the first save — visiting this
+    // page repeatedly must not litter draft records.
+    if (!existingId) {
+      setInitial({});
+      return;
+    }
+
     let cancelled = false;
     (async () => {
       try {
-        if (existingId) {
-          const res = await fetch(`/api/events/${existingId}`);
-          if (res.status === 401) {
-            router.push(`/signin?returnUrl=/events/new?id=${existingId}`);
-            return;
-          }
-          if (!res.ok) throw new Error("Could not load draft");
-          const ev = await res.json();
-          if (cancelled) return;
-          setDraftId(existingId);
-          setInitial(eventToDraft(ev));
-          return;
-        }
-
-        const res = await fetch("/api/events/create", { method: "POST" });
+        const res = await fetch(`/api/events/${existingId}`);
         if (res.status === 401) {
-          router.push("/signin?returnUrl=/events/new");
+          router.push(`/signin?returnUrl=/events/new?id=${existingId}`);
           return;
         }
-        if (!res.ok) throw new Error("Could not start draft");
-        const { id } = await res.json();
+        if (!res.ok) throw new Error("Could not load draft");
+        const ev = await res.json();
         if (cancelled) return;
-        setDraftId(id);
-        setInitial({});
+        setDraftId(existingId);
+        setInitial(eventToDraft(ev));
       } catch (e) {
         if (!cancelled) setError(e.message);
       }
@@ -51,13 +44,35 @@ function NewEventInner() {
   }, [existingId, router]);
 
   async function handleSave({ draft, publish }) {
-    if (!draftId) throw new Error("No draft id");
     const dateTime =
       draft.date && draft.time
         ? new Date(`${draft.date}T${draft.time}`).toISOString()
         : null;
 
     const meetingPoint = buildMeetingPoint(draft);
+
+    if (publish) {
+      if (!dateTime) {
+        throw new Error("Add a date and time before publishing.");
+      }
+      if (!meetingPoint || meetingPoint.lat == null || meetingPoint.lng == null) {
+        throw new Error(
+          "Add a meeting point (search or drop a pin) before publishing."
+        );
+      }
+    }
+
+    let id = draftId;
+    if (!id) {
+      const res = await fetch("/api/events/create", { method: "POST" });
+      if (res.status === 401) {
+        router.push("/signin?returnUrl=/events/new");
+        return;
+      }
+      if (!res.ok) throw new Error("Could not start draft");
+      ({ id } = await res.json());
+      setDraftId(id);
+    }
 
     const body = {
       title: draft.title,
@@ -75,7 +90,7 @@ function NewEventInner() {
     const cover = draft.coverPhotoUrl || draft.img;
     if (cover) body.coverPhotoUrl = cover;
 
-    const res = await fetch(`/api/events/${draftId}`, {
+    const res = await fetch(`/api/events/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -118,7 +133,7 @@ function NewEventInner() {
           color: "rgba(255,255,255,0.5)",
         }}
       >
-        {existingId ? "Loading draft…" : "Starting draft…"}
+        Loading draft…
       </div>
     );
   }
