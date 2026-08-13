@@ -18,6 +18,10 @@ export function humanizeActivity(activityType, activityTypeOther) {
   return ACTIVITY_LABELS[activityType] || "Event";
 }
 
+// Event times are shown in the event's local timezone, not the server's
+// (Vercel runs in UTC, which shifted every displayed time by hours)
+const EVENT_TZ = "America/New_York";
+
 export function formatDate(dateTime) {
   if (!dateTime) return { date: "TBA", time: "" };
   const d = new Date(dateTime);
@@ -25,16 +29,23 @@ export function formatDate(dateTime) {
     weekday: "short",
     month: "short",
     day: "numeric",
+    timeZone: EVENT_TZ,
   });
   const [weekday, rest] = date.split(", ");
   const time = d
-    .toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
+    .toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      timeZone: EVENT_TZ,
+    })
     .replace(" ", " ");
   return {
     date: `${weekday} · ${rest}`,
     time,
-    month: d.toLocaleDateString("en-US", { month: "short" }),
-    day: d.getDate(),
+    month: d.toLocaleDateString("en-US", { month: "short", timeZone: EVENT_TZ }),
+    day: Number(
+      d.toLocaleDateString("en-US", { day: "numeric", timeZone: EVENT_TZ })
+    ),
     weekday,
   };
 }
