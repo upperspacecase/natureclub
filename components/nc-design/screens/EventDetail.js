@@ -27,14 +27,19 @@ export default function EventDetail({
 
   if (!e) return null;
 
+  // Flip the UI first and reconcile when the request lands -- the round trip
+  // shouldn't be what the member waits on.
   async function confirmRsvp() {
+    if (pending) return;
     setPending(true);
     setErr("");
+    setRsvp(true);
+    setConfirming(false);
     try {
       await onRsvp?.();
-      setRsvp(true);
-      setConfirming(false);
     } catch (ex) {
+      setRsvp(false);
+      setConfirming(true);
       setErr(ex?.message || "Could not RSVP");
     } finally {
       setPending(false);
@@ -42,12 +47,14 @@ export default function EventDetail({
   }
 
   async function cancelRsvp() {
+    if (pending) return;
     setPending(true);
     setErr("");
+    setRsvp(false);
     try {
       await onCancelRsvp?.();
-      setRsvp(false);
     } catch (ex) {
+      setRsvp(true);
       setErr(ex?.message || "Could not cancel");
     } finally {
       setPending(false);
@@ -100,7 +107,7 @@ export default function EventDetail({
       </div>
 
       <div style={{ padding: "0 20px" }}>
-        <StoryCard e={e} rsvp={rsvp} onTap={() => !rsvp && canRsvp && setConfirming(true)} />
+        <StoryCard e={e} rsvp={rsvp} />
         {!notice && (
           <Caps
             style={{
@@ -387,8 +394,7 @@ export default function EventDetail({
               fontFamily: "var(--font-inter), Inter, sans-serif",
               fontSize: 14,
               fontWeight: 500,
-              cursor: pending ? "wait" : "pointer",
-              opacity: pending ? 0.6 : 1,
+              cursor: "pointer",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -837,7 +843,7 @@ function DetailRow({ icon, label, value, sub }) {
   );
 }
 
-function StoryCard({ e, rsvp, onTap }) {
+function StoryCard({ e, rsvp }) {
   return (
     <div
       style={{
@@ -915,7 +921,14 @@ function StoryCard({ e, rsvp, onTap }) {
         </Italic>
       </div>
 
-      <div style={{ position: "absolute", left: 22, bottom: 22 }}>
+      <div
+        style={{
+          position: "absolute",
+          left: 22,
+          bottom: 22,
+          right: rsvp ? 96 : 22,
+        }}
+      >
         <div
           style={{
             fontFamily: "var(--font-inter), Inter, sans-serif",
@@ -940,37 +953,25 @@ function StoryCard({ e, rsvp, onTap }) {
         </div>
       </div>
 
-      <button
-        onClick={onTap}
-        style={{
-          position: "absolute",
-          right: 18,
-          bottom: 18,
-          width: 68,
-          height: 68,
-          borderRadius: "50%",
-          background: rsvp ? "#c8d9a8" : "#fafaf9",
-          border: "none",
-          cursor: rsvp ? "default" : "pointer",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          boxShadow: "0 6px 20px rgba(0,0,0,0.4)",
-          transition: "all 0.3s",
-        }}
-      >
-        {rsvp ? (
-          <>
-            {I.check("#03241a")}
-            <Caps style={{ color: "#03241a", marginTop: 2, fontSize: 9 }}>Going</Caps>
-          </>
-        ) : (
-          <Italic size={16} color="#0a0a0a" style={{ lineHeight: 1 }}>
-            RSVP
-          </Italic>
-        )}
-      </button>
+      {rsvp && (
+        <div
+          style={{
+            position: "absolute",
+            right: 18,
+            bottom: 22,
+            padding: "5px 11px 5px 8px",
+            borderRadius: 999,
+            background: "#c8d9a8",
+            display: "flex",
+            alignItems: "center",
+            gap: 5,
+            boxShadow: "0 4px 14px rgba(0,0,0,0.35)",
+          }}
+        >
+          {I.check("#03241a")}
+          <Caps style={{ color: "#03241a", fontSize: 9 }}>Going</Caps>
+        </div>
+      )}
     </div>
   );
 }

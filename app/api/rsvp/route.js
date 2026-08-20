@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import connectMongo from "@/libs/mongoose";
 import BookingEvent from "@/models/BookingEvent";
 import Rsvp from "@/models/Rsvp";
@@ -14,12 +15,16 @@ import {
 // POST -- Create RSVP or join waitlist (requires authentication)
 export async function POST(req) {
     try {
-        const user = await getAuthUser();
+        // Auth check and body parse are independent -- don't serialize them.
+        const [user, body] = await Promise.all([
+            getAuthUser(),
+            req.json().catch(() => ({})),
+        ]);
         if (!user) {
             return Response.json({ error: "Sign in to RSVP" }, { status: 401 });
         }
 
-        const { eventId, status: requestedStatus } = await req.json();
+        const { eventId, status: requestedStatus } = body;
 
         if (!eventId) {
             return Response.json({ error: "Event ID is required" }, { status: 400 });
@@ -128,42 +133,52 @@ export async function POST(req) {
             });
         }
 
-        // Send notifications (non-blocking)
-        try {
-            const url = event.slug ? buildEventUrl(event.slug) : "";
+        // Emails go out after the response -- nobody should watch a spinner
+        // while Resend round-trips.
+        after(async () => {
+            try {
+                const url = event.slug ? buildEventUrl(event.slug) : "";
 
-            if (rsvp.status === "confirmed" && user.email) {
-                const participantMsg = rsvpConfirmedParticipant({
-                    email: user.email,
-                    eventTitle: event.title,
-                    eventDate: event.dateTime,
-                    eventUrl: url,
-                });
-                await notify(participantMsg);
-
-                const host = await User.findById(event.createdBy);
-                if (host?.email) {
-                    const confirmedNow = confirmedCount + 1;
-                    const hostMsg = rsvpConfirmedHost({
-                        hostEmail: host.email,
-                        participantName: user.name || "Someone",
+                if (rsvp.status === "confirmed" && user.email) {
+                    const participantMsg = rsvpConfirmedParticipant({
+                        email: user.email,
                         eventTitle: event.title,
-                        rsvpCount: confirmedNow,
-                        groupSize: event.groupSize,
+                        eventDate: event.dateTime,
+                        eventUrl: url,
                     });
-                    await notify(hostMsg);
+
+                    const host = await User.findById(event.createdBy)
+                        .select("email")
+                        .lean();
+
+                    const sends = [notify(participantMsg)];
+                    if (host?.email) {
+                        sends.push(
+                            notify(
+                                rsvpConfirmedHost({
+                                    hostEmail: host.email,
+                                    participantName: user.name || "Someone",
+                                    eventTitle: event.title,
+                                    rsvpCount: confirmedCount + 1,
+                                    groupSize: event.groupSize,
+                                })
+                            )
+                        );
+                    }
+                    await Promise.all(sends);
+                } else if (rsvp.status === "waitlisted" && user.email) {
+                    await notify(
+                        waitlistJoined({
+                            email: user.email,
+                            eventTitle: event.title,
+                            position: rsvp.waitlistPosition,
+                        })
+                    );
                 }
-            } else if (rsvp.status === "waitlisted" && user.email) {
-                const waitlistMsg = waitlistJoined({
-                    email: user.email,
-                    eventTitle: event.title,
-                    position: rsvp.waitlistPosition,
-                });
-                await notify(waitlistMsg);
+            } catch (notifyErr) {
+                console.error("RSVP notification error (non-fatal):", notifyErr);
             }
-        } catch (notifyErr) {
-            console.error("RSVP notification error (non-fatal):", notifyErr);
-        }
+        });
 
         const response = {
             rsvp: rsvp.toJSON(),

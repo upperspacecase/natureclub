@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import connectMongo from "@/libs/mongoose";
 import BookingEvent from "@/models/BookingEvent";
@@ -12,11 +13,18 @@ import EventDetailClient from "./EventDetailClient";
 
 export const dynamic = "force-dynamic";
 
+// generateMetadata and the page both need the event; cache() collapses that
+// into a single query per request.
+const getEvent = cache(async (slug) => {
+  await connectMongo();
+  return BookingEvent.findOne({ slug, status: { $ne: "draft" } }).lean();
+});
+
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  await connectMongo();
-  const event = await BookingEvent.findOne({ slug, status: "published" });
-  if (!event) return getSEOTags({ title: "Event not found" });
+  const event = await getEvent(slug);
+  if (!event || event.status !== "published")
+    return getSEOTags({ title: "Event not found" });
   return getSEOTags({
     title: event.title,
     description: event.description?.slice(0, 160) || "Join us.",
@@ -30,20 +38,26 @@ export async function generateMetadata({ params }) {
 
 export default async function EventPage({ params }) {
   const { slug } = await params;
-  await connectMongo();
 
-  const event = await BookingEvent.findOne({
-    slug,
-    status: { $ne: "draft" },
-  }).lean();
+  const event = await getEvent(slug);
   if (!event) notFound();
 
-  const host = event.createdBy
-    ? await User.findById(event.createdBy).select("name username photoUrl").lean()
-    : null;
-
-  const attendanceMap = await fetchAttendanceMap([event._id]);
-  const viewer = await getAuthUser();
+  // Everything below depends only on the event, so it all goes out at once
+  // instead of six sequential round trips.
+  const [host, attendanceMap, viewer, weather] = await Promise.all([
+    event.createdBy
+      ? User.findById(event.createdBy).select("name username photoUrl").lean()
+      : null,
+    fetchAttendanceMap([event._id]),
+    getAuthUser(),
+    event.dateTime && event.meetingPoint?.lat
+      ? getWeatherForDate(
+          event.meetingPoint.lat,
+          event.meetingPoint.lng,
+          event.dateTime.toISOString()
+        )
+      : null,
+  ]);
 
   let initialRsvp = false;
   let initialSaved = false;
@@ -53,8 +67,12 @@ export default async function EventPage({ params }) {
         eventId: event._id,
         participantUserId: viewer._id,
         status: "confirmed",
-      }).lean(),
-      EventLike.findOne({ eventId: event._id, userId: viewer._id }).lean(),
+      })
+        .select("_id")
+        .lean(),
+      EventLike.findOne({ eventId: event._id, userId: viewer._id })
+        .select("_id")
+        .lean(),
     ]);
     initialRsvp = !!existing;
     initialSaved = !!like;
@@ -64,22 +82,6 @@ export default async function EventPage({ params }) {
     host,
     attendance: attendanceMap.get(String(event._id)),
   });
-
-  let weather = null;
-  if (event.dateTime && event.meetingPoint?.lat) {
-    const raw = await getWeatherForDate(
-      event.meetingPoint.lat,
-      event.meetingPoint.lng,
-      event.dateTime.toISOString()
-    );
-    if (raw) {
-      weather = {
-        summary: raw.description,
-        tempF: raw.tempHigh,
-        note: raw.precipChance > 30 ? `${raw.precipChance}% chance of rain.` : null,
-      };
-    }
-  }
 
   const isPast = event.dateTime ? new Date(event.dateTime) < new Date() : false;
   const notice =
@@ -92,7 +94,18 @@ export default async function EventPage({ params }) {
   return (
     <EventDetailClient
       event={designEvent}
-      weather={weather}
+      weather={
+        weather
+          ? {
+              summary: weather.description,
+              tempF: weather.tempHigh,
+              note:
+                weather.precipChance > 30
+                  ? `${weather.precipChance}% chance of rain.`
+                  : null,
+            }
+          : null
+      }
       notice={notice}
       eventId={String(event._id)}
       startIso={event.dateTime?.toISOString() || null}
