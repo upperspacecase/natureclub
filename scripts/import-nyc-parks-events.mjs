@@ -11,6 +11,9 @@
  * re-imports update rather than duplicate. Only future events with
  * coordinates and a Nature Club-aligned category are imported, capped at
  * MAX_EVENTS. Every description carries NYC Parks attribution + source link.
+ *
+ * Run scripts/backfill-covers.mjs afterwards to upgrade the default cover
+ * images to real photos.
  */
 
 import { readFile } from "fs/promises";
@@ -44,6 +47,17 @@ if (!process.env.MONGODB_URI) {
 
 const MAX_EVENTS = 45;
 const DATASET = "https://data.cityofnewyork.us/resource/w3wp-dpdi.json";
+// Write-time default covers (upgraded to real photos by backfill-covers.mjs)
+const DEFAULT_COVERS = {
+    "nature-walk": "/nc/img/1.png",
+    hike: "/nc/img/7.png",
+    "bird-walk": "/nc/img/12.png",
+    "forest-bathing": "/nc/img/6.png",
+    foraging: "/nc/img/13.png",
+    "outdoor-yoga": "/nc/img/11.png",
+    meditation: "/nc/img/14.png",
+    other: "/nc/img/17.png",
+};
 // Categories that fit Nature Club, in priority order (first match wins for
 // both inclusion ranking and activityType mapping)
 const CATEGORY_MAP = [
@@ -183,6 +197,7 @@ for (const r of rows) {
     const regNote = r.registration_url?.url
         ? `\n\nRegistration required: ${r.registration_url.url}`
         : "";
+    const activityType = refineType(cls.activityType, r.title, r.description || "");
     candidates.push({
         rank: cls.rank,
         start,
@@ -191,12 +206,13 @@ for (const r of rows) {
             slug: `${kebab(r.title)}-nycparks-${r.guid}`,
             status: "published",
             isPublic: true,
-            activityType: refineType(cls.activityType, r.title, r.description || ""),
+            activityType,
             dateTime: start,
             durationMinutes,
             groupSize: 30,
             price: 0,
             currency: "USD",
+            coverPhotoUrl: DEFAULT_COVERS[activityType] || DEFAULT_COVERS.other,
             description: `${(r.description || "").trim()}\n\nA free public event by NYC Parks. Source: ${sourceUrl}${regNote}`,
             meetingPoint: {
                 description: r.location

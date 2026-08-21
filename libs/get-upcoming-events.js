@@ -1,18 +1,9 @@
 import connectMongo from "@/libs/mongoose";
 import BookingEvent from "@/models/BookingEvent";
 import Rsvp from "@/models/Rsvp";
-import { searchPhoto } from "@/libs/unsplash";
 
-function buildImageQuery(event) {
-  const parts = [];
-  if (event.title) parts.push(event.title);
-  if (event.activityType && event.activityType !== "other") {
-    parts.push(event.activityType.replace(/-/g, " "));
-  }
-  if (!parts.length) parts.push("nature outdoor");
-  return parts.join(" ");
-}
-
+// Covers are assigned at write time (publish/import/backfill script) — the
+// read path must never call external APIs or write to the DB.
 export default async function getUpcomingEvents() {
   await connectMongo();
 
@@ -31,55 +22,37 @@ export default async function getUpcomingEvents() {
     )
     .lean();
 
-  const enriched = await Promise.all(
-    events.map(async (event) => {
-      const confirmedCount = await Rsvp.countDocuments({
-        eventId: event._id,
+  const counts = await Rsvp.aggregate([
+    {
+      $match: {
+        eventId: { $in: events.map((e) => e._id) },
         status: "confirmed",
-      });
+      },
+    },
+    { $group: { _id: "$eventId", n: { $sum: 1 } } },
+  ]);
+  const countMap = new Map(counts.map((c) => [String(c._id), c.n]));
 
-      let coverUrl = event.coverPhotoUrl || "";
-      if (!coverUrl && process.env.UNSPLASH_ACCESS_KEY) {
-        try {
-          const query = buildImageQuery(event);
-          const photo = await searchPhoto(query);
-          if (photo?.url) {
-            coverUrl = photo.url;
-            await BookingEvent.updateOne(
-              { _id: event._id },
-              { $set: { coverPhotoUrl: coverUrl } }
-            );
-          }
-        } catch (err) {
-          console.error(
-            "Unsplash fallback failed for",
-            event.title,
-            err.message
-          );
-        }
-      }
-
-      return {
-        _id: event._id.toString(),
-        title: event.title,
-        slug: event.slug,
-        dateTime: event.dateTime,
-        durationMinutes: event.durationMinutes,
-        activityType:
-          event.activityType === "other"
-            ? event.activityTypeOther || "Other"
-            : event.activityType || "",
-        coverPhotoUrl: coverUrl,
-        meetingPoint: {
-          lat: event.meetingPoint.lat,
-          lng: event.meetingPoint.lng,
-          description: event.meetingPoint.description || "",
-        },
-        groupSize: event.groupSize || 10,
-        spotsLeft: Math.max((event.groupSize || 10) - confirmedCount, 0),
-      };
-    })
-  );
-
-  return enriched;
+  return events.map((event) => {
+    const confirmedCount = countMap.get(String(event._id)) || 0;
+    return {
+      _id: event._id.toString(),
+      title: event.title,
+      slug: event.slug,
+      dateTime: event.dateTime,
+      durationMinutes: event.durationMinutes,
+      activityType:
+        event.activityType === "other"
+          ? event.activityTypeOther || "Other"
+          : event.activityType || "",
+      coverPhotoUrl: event.coverPhotoUrl || "",
+      meetingPoint: {
+        lat: event.meetingPoint.lat,
+        lng: event.meetingPoint.lng,
+        description: event.meetingPoint.description || "",
+      },
+      groupSize: event.groupSize || 10,
+      spotsLeft: Math.max((event.groupSize || 10) - confirmedCount, 0),
+    };
+  });
 }

@@ -147,6 +147,8 @@ const bookingEventSchema = mongoose.Schema(
 );
 
 bookingEventSchema.index({ createdBy: 1, status: 1, dateTime: -1 });
+// Covers the public discovery/home/explore query
+bookingEventSchema.index({ status: 1, isPublic: 1, dateTime: 1 });
 
 bookingEventSchema.plugin(toJSON);
 
